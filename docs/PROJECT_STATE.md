@@ -2,12 +2,13 @@
 
 | Field | Value |
 | --- | --- |
-| MODULE | MDL 0 — Codex Harness & Token Efficiency |
-| STATUS | COMPLETE |
+| MODULE | MDL 1 — Platform Foundation & Identity |
+| STATUS | NOT_STARTED |
+| SCOPE | Backend |
 | BRANCH | main |
-| LAST_STABLE_COMMIT | e8db2b346a55ff4536c2e11fafa67f6d4f6efa93 |
-| CURRENT_TASK | MDL 0 operational checkpoint shared by beter-life/Front and beter-life/Back |
-| DONE | MDL 0 technically reviewed and approved; harness, config, five skills and continuity docs versioned |
+| LAST_STABLE_COMMIT | 083a2cc59fa4d1ac29cbbe0f8c7742bbd5c3ed05 (approved MDL 0) |
+| CURRENT_TASK | Await backend MDL 1 implementation instructions |
+| DONE | MDL 0 COMPLETE and approved; independent Git repository with origin https://github.com/beter-life/Back.git |
 | BLOCKERS | None |
-| TESTS | Harness self-test and strict Codex config check passed |
-| NEXT | MDL 1 — Platform Foundation & Identity |
+| TESTS | Harness and SessionStart passed; Codex config loaded; required files, secrets and Git ignores checked |
+| NEXT | Initialize backend platform foundation |
