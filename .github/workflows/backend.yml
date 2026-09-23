@@ -1,0 +1,56 @@
+name: Backend quality gates
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: ci-only-disposable
+          POSTGRES_DB: beter_life_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U test -d beter_life_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      NODE_ENV: test
+      DATABASE_SSL: disable
+      TEST_DATABASE_URL: postgresql://test:ci-only-disposable@127.0.0.1:5432/beter_life_test
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@11.19.0
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - run: pnpm compact lint
+      - run: pnpm compact typecheck
+      - run: pnpm compact test
+      - name: Migrate empty PostgreSQL
+        run: pnpm compact db:migrate
+      - name: PostgreSQL integration and migration idempotency
+        run: pnpm compact test:integration
+      - run: pnpm compact openapi:check
+      - run: pnpm compact build
+      - run: pnpm compact security:scan
+      - name: Ensure clean contract and migration metadata
+        run: git diff --exit-code && git diff --check
+      - name: Failure diagnostics
+        if: failure()
+        run: tail -n 100 .harness/logs/*.log
