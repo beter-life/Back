@@ -3,12 +3,12 @@
 | Field | Value |
 | --- | --- |
 | MODULE | MDL 1 — Platform Foundation & Identity |
-| STATUS | IN_PROGRESS |
+| STATUS | BLOCKED_EXTERNAL |
 | SCOPE | Backend |
 | BRANCH | feat/mdl1b-backend-foundation |
-| LAST_STABLE_COMMIT | 083a2cc59fa4d1ac29cbbe0f8c7742bbd5c3ed05 (approved MDL 0) |
-| CURRENT_TASK | Implement MDL 1B backend foundation, identity and HTTP contract |
-| DONE | Backend runtime, identity/profile API, SQL migration, OpenAPI, security, tests, CI and Render blueprint implemented |
-| BLOCKERS | Real Supabase project, asymmetric signing key and database environment not configured; Render deployment not performed |
-| TESTS | Local lint/typecheck, 45 unit/HTTP tests, 3 PostgreSQL integration tests, migrations, build, OpenAPI and secret scan passed; remote CI pending |
-| NEXT | Publish and check remote CI; configure/validate real Supabase, then integrate MDL 1F against versioned OpenAPI |
+| LAST_STABLE_COMMIT | 7319b9c4db748e8d093afec06258998c01c9d618 (MDL 1B implementation; CI passed) |
+| CURRENT_TASK | Await secure external Supabase setup for real integration validation |
+| DONE | MDL 0 preserved; backend API, SQL migration, OpenAPI, security and feature branch published; Render blueprint ready, not deployed |
+| BLOCKERS | Real Supabase project, active asymmetric signing key and database environment not configured; provider integration unverified |
+| TESTS | Local and GitHub CI passed: lint/typecheck, 45 unit/HTTP tests, 3 PostgreSQL tests, migrations, build, OpenAPI and secret scan; harness passed |
+| NEXT | Configure/validate real Supabase, then integrate MDL 1F frontend against versioned backend OpenAPI |
