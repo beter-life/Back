@@ -48,4 +48,50 @@ describe('real PostgreSQL migrations and ownership', () => {
     const count = await database.pool.query<{ total: number }>('select count(*)::int as total from app.profiles where auth_user_id=$1', [owner]);
     expect(count.rows[0]?.total).toBe(1);
   });
+  it('enforces owner-only RLS and denies requests without an Auth subject', async () => {
+    const ownerA = randomUUID();
+    const ownerB = randomUUID();
+    await database.pool.query(
+      'insert into app.profiles (auth_user_id, display_name, locale, timezone) values ($1,$2,$3,$4)',
+      [ownerB, ...Object.values(profileInput)],
+    );
+    const client = await database.pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('SET LOCAL ROLE authenticated');
+      await client.query("SELECT set_config('request.jwt.claim.sub', $1, true)", [ownerA]);
+      await client.query(
+        'insert into app.profiles (auth_user_id, display_name, locale, timezone) values ($1,$2,$3,$4)',
+        [ownerA, ...Object.values(profileInput)],
+      );
+      expect((await client.query('select auth_user_id from app.profiles where auth_user_id=$1', [ownerA])).rowCount).toBe(1);
+      expect((await client.query('select auth_user_id from app.profiles where auth_user_id=$1', [ownerB])).rowCount).toBe(0);
+      expect((await client.query('update app.profiles set display_name=$1 where auth_user_id=$2', ['Cross-owner', ownerB])).rowCount).toBe(0);
+      expect((await client.query('delete from app.profiles where auth_user_id=$1', [ownerB])).rowCount).toBe(0);
+      expect((await client.query('update app.profiles set display_name=$1 where auth_user_id=$2', ['Updated', ownerA])).rowCount).toBe(1);
+      expect((await client.query('delete from app.profiles where auth_user_id=$1', [ownerA])).rowCount).toBe(1);
+      await expect(client.query(
+        'insert into app.profiles (auth_user_id, display_name, locale, timezone) values ($1,$2,$3,$4)',
+        [ownerB, ...Object.values(profileInput)],
+      )).rejects.toMatchObject({ code: '42501' });
+      await client.query('ROLLBACK');
+
+      await client.query('BEGIN');
+      await client.query('SET LOCAL ROLE anon');
+      await client.query("SELECT set_config('request.jwt.claim.sub', '', true)");
+      expect((await client.query('select auth.uid() as uid')).rows[0]?.uid).toBeNull();
+      expect((await client.query('select auth_user_id from app.profiles where auth_user_id=$1', [ownerB])).rowCount).toBe(0);
+      expect((await client.query('update app.profiles set display_name=$1 where auth_user_id=$2', ['Anonymous', ownerB])).rowCount).toBe(0);
+      expect((await client.query('delete from app.profiles where auth_user_id=$1', [ownerB])).rowCount).toBe(0);
+      await expect(client.query(
+        'insert into app.profiles (auth_user_id, display_name, locale, timezone) values ($1,$2,$3,$4)',
+        [ownerA, ...Object.values(profileInput)],
+      )).rejects.toMatchObject({ code: '42501' });
+      await client.query('ROLLBACK');
+    } finally {
+      await client.query('ROLLBACK').catch(() => undefined);
+      client.release();
+      await database.pool.query('delete from app.profiles where auth_user_id=$1', [ownerB]);
+    }
+  });
 });

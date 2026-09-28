@@ -25,12 +25,22 @@ try {
   if (!ready) throw new Error('Disposable PostgreSQL did not become ready');
   const port = run('docker', ['port', name, '5432/tcp']).split(':').at(-1);
   if (!port || !/^\d+$/.test(port)) throw new Error('Unexpected Docker port');
+  const authBootstrap = [
+    'CREATE ROLE anon;',
+    'CREATE ROLE authenticated;',
+    'CREATE SCHEMA auth;',
+    "CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $function$ SELECT NULLIF(current_setting('request.jwt.claim.sub', true), '')::uuid $function$;",
+    'GRANT USAGE ON SCHEMA auth TO anon, authenticated;',
+    'GRANT EXECUTE ON FUNCTION auth.uid() TO anon, authenticated;',
+  ].join('\n');
+  run('docker', ['exec', name, 'psql', '-U', 'test', '-d', 'beter_life_test', '-v', 'ON_ERROR_STOP=1', '-c', authBootstrap], { stdio: 'inherit' });
   // Trust auth is confined to this disposable container bound ONLY to loopback.
   const env = { ...process.env, NODE_ENV: 'test', DATABASE_URL: '', DATABASE_SSL: 'disable',
     TEST_DATABASE_URL: `postgresql://test@127.0.0.1:${port}/beter_life_test` };
-  for (const task of ['db:migrate', 'test:integration']) {
-    run(process.execPath, [process.env.npm_execpath, 'run', task], { env, stdio: 'inherit' });
-  }
+  run(process.execPath, [process.env.npm_execpath, 'run', 'db:migrate'], { env, stdio: 'inherit' });
+  const testGrants = 'GRANT USAGE ON SCHEMA app TO anon, authenticated; GRANT SELECT, INSERT, UPDATE, DELETE ON app.profiles TO anon, authenticated;';
+  run('docker', ['exec', name, 'psql', '-U', 'test', '-d', 'beter_life_test', '-v', 'ON_ERROR_STOP=1', '-c', testGrants], { stdio: 'inherit' });
+  run(process.execPath, [process.env.npm_execpath, 'run', 'test:integration'], { env, stdio: 'inherit' });
   process.stdout.write('Disposable PostgreSQL migration and integration passed.\n');
 } catch (error) {
   process.stderr.write(`${error instanceof Error ? error.message : 'PostgreSQL validation failed'}\n`);
