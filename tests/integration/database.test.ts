@@ -8,7 +8,7 @@ import { createProfileRepository } from '../../src/modules/profile/repository.js
 import { testEnv, signingFixture, profileInput } from '../helpers.js';
 
 // loadConfig enforces a loopback, explicitly named test database.
-const config = loadConfig({ ...testEnv, ...process.env, TEST_DATABASE_URL: process.env.TEST_DATABASE_URL, NODE_ENV: 'test', DATABASE_SSL: 'disable' });
+const config = loadConfig({ ...testEnv, TEST_DATABASE_URL: process.env.TEST_DATABASE_URL });
 const database = createDatabase(config);
 const fixture = await signingFixture();
 const repository = createProfileRepository(database);
