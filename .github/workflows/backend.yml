@@ -42,8 +42,25 @@ jobs:
       - run: pnpm compact lint
       - run: pnpm compact typecheck
       - run: pnpm compact test
+      - name: Prepare Supabase Auth test fixtures
+        run: |
+          psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE anon;
+          CREATE ROLE authenticated;
+          CREATE SCHEMA auth;
+          CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $function$
+            SELECT NULLIF(current_setting('request.jwt.claim.sub', true), '')::uuid
+          $function$;
+          GRANT USAGE ON SCHEMA auth TO anon, authenticated;
+          GRANT EXECUTE ON FUNCTION auth.uid() TO anon, authenticated;
+          SQL
       - name: Migrate empty PostgreSQL
         run: pnpm compact db:migrate
+      - name: Grant disposable RLS integration privileges
+        run: >-
+          psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -c
+          "GRANT USAGE ON SCHEMA app TO anon, authenticated;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON app.profiles TO anon, authenticated;"
       - name: PostgreSQL integration and migration idempotency
         run: pnpm compact test:integration
       - run: pnpm compact openapi:check
