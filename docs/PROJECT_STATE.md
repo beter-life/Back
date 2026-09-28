@@ -3,12 +3,12 @@
 | Field | Value |
 | --- | --- |
 | MODULE | MDL 1 — Platform Foundation & Identity |
-| STATUS | BLOCKED_EXTERNAL |
+| STATUS | READY_FOR_REAL_AUTH_VALIDATION |
 | SCOPE | Backend |
 | BRANCH | feat/mdl1b-backend-foundation |
-| LAST_STABLE_COMMIT | 7319b9c4db748e8d093afec06258998c01c9d618 (MDL 1B implementation; CI passed) |
-| CURRENT_TASK | Await secure external Supabase setup for real integration validation |
-| DONE | MDL 0 preserved; backend API, SQL migration, OpenAPI, security and feature branch published; Render blueprint ready, not deployed |
-| BLOCKERS | Real Supabase project, active asymmetric signing key and database environment not configured; provider integration unverified |
-| TESTS | Local and GitHub CI passed: lint/typecheck, 45 unit/HTTP tests, 3 PostgreSQL tests, migrations, build, OpenAPI and secret scan; harness passed |
-| NEXT | Configure/validate real Supabase, then integrate MDL 1F frontend against versioned backend OpenAPI |
+| LAST_STABLE_COMMIT | 1d39ac49332fde907d7b45dd49cd4602b8aa507c (versioned profiles RLS migration; local gates passed) |
+| CURRENT_TASK | Real Auth/JWT integration gate |
+| DONE | MDL 0 preserved; backend API and OpenAPI published; Supabase 0001/0002, RLS and advisors verified; local PostgreSQL migration and owner-isolation tests pass |
+| BLOCKERS | Real ES256/JWKS and Auth JWT, PostgreSQL TLS verify-full, real `/me` persistence and health checks remain unverified |
+| TESTS | PostgreSQL 17: migrations from zero and 4 integration tests passed; typecheck, lint, unit, build, OpenAPI, secret scan, harness and Drizzle check passed |
+| NEXT | Configure real ES256/JWKS and controlled Auth users, then validate JWT, verify-full, API ownership/persistence and health |
