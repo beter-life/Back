@@ -3,12 +3,12 @@
 | Field | Value |
 | --- | --- |
 | MODULE | MDL 1 — Platform Foundation & Identity |
-| STATUS | READY_FOR_REAL_AUTH_VALIDATION |
+| STATUS | BLOCKED_EXTERNAL_DB_CREDENTIAL |
 | SCOPE | Backend |
 | BRANCH | feat/mdl1b-backend-foundation |
 | LAST_STABLE_COMMIT | 4746a885e20e1da9e322124f80d63a5e8cbc99e3 (profiles RLS migration and CI gates passed) |
 | CURRENT_TASK | Real Auth/JWT integration gate |
-| DONE | MDL 0 preserved; backend API and OpenAPI published; Supabase 0001/0002, RLS and advisors verified; local PostgreSQL migration and owner-isolation tests pass |
-| BLOCKERS | Real ES256/JWKS and Auth JWT, PostgreSQL TLS verify-full, real `/me` persistence and health checks remain unverified |
-| TESTS | PostgreSQL 17: migrations from zero and 4 integration tests passed; local gates and GitHub CI passed on 4746a88 |
-| NEXT | Configure real ES256/JWKS and controlled Auth users, then validate JWT, verify-full, API ownership/persistence and health |
+| DONE | MDL 0 preserved; backend API/OpenAPI; Supabase 0001/0002, RLS and advisors verified; public JWKS exposes ES256; local PostgreSQL owner-isolation tests pass |
+| BLOCKERS | `DATABASE_URL` absent from secure local Codex environment; hosted TLS/API persistence/health and Email Auth/signup/recovery/real JWT remain unverified |
+| TESTS | Local lint, typecheck, unit, build, OpenAPI, secret scan, harness, and PostgreSQL 17 migrations plus 4 integration tests passed |
+| NEXT | Add the `beter-life-dev` connection string to secure local `DATABASE_URL`; verify Email Auth settings, then validate a controlled user/JWT and the live backend |
