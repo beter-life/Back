@@ -2,13 +2,13 @@
 
 | Field | Value |
 | --- | --- |
-| MODULE | MDL 1 — Platform Foundation & Identity |
-| STATUS | BLOCKED_AUTH_INTEGRATION |
+| MODULE | MDL 1B — Backend Foundation & Identity |
+| STATUS | READY_FOR_MDL1F |
 | SCOPE | Backend |
 | BRANCH | feat/mdl1b-backend-foundation |
-| LAST_STABLE_COMMIT | 4746a885e20e1da9e322124f80d63a5e8cbc99e3 (profiles RLS migration and CI gates passed) |
-| CURRENT_TASK | Real Auth/JWT integration gate |
-| DONE | MDL 0 preserved; backend API/OpenAPI; Supabase 0001/0002, RLS and advisors verified; public JWKS exposes ES256; local PostgreSQL owner-isolation tests pass |
-| BLOCKERS | Direct `DATABASE_URL` matches the project but DNS returns `ENOTFOUND` on this IPv4-only host; hosted TLS/migrations/readiness unverified; Auth settings and real-user flow unavailable in this session |
-| TESTS | Local lint, typecheck, unit, build, OpenAPI, secret scan, harness, and PostgreSQL 17 migrations plus 4 integration tests passed; public JWKS ES256 verified |
-| NEXT | Set the exact Dashboard Shared Pooler Session URL securely in local `DATABASE_URL`; then validate hosted TLS/migrations and continue Email Auth with a controlled test address |
+| LAST_STABLE_COMMIT | 2ad7df8870ac64b6329ac4a1db0bbd0098596e7a |
+| CURRENT_TASK | MDL 1B external Auth/JWT integration gate complete |
+| DONE | MDL 0 preserved; Supabase Email Auth and real ES256/JWKS/JWT verified; hosted PostgreSQL 17 with TLS `verify-full`, migrations 0001/0002, RLS and policies; profile persistence, ownership guard, health and recovery initiation passed |
+| BLOCKERS | None |
+| TESTS | Real login, JWT tamper rejection, API, PostgreSQL and health PASS; disposable PostgreSQL 17 integration (4/4, including RLS A/B), unit, typecheck, lint, build, OpenAPI, secret scan and harness PASS |
+| NEXT | Begin MDL 1F only after explicit instruction |
