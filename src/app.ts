@@ -17,6 +17,8 @@ import { profileRoutes } from './modules/profile/routes.js';
 import { healthRoutes } from './modules/health/routes.js';
 import { createFinanceRepository, type FinanceRepository } from './modules/finance/repository.js';
 import { financeRoutes } from './modules/finance/routes.js';
+import { createBudgetRepository, type BudgetRepository } from './modules/finance/budget-repository.js';
+import { budgetRoutes } from './modules/finance/budget-routes.js';
 import { loggerOptions } from './plugins/logging.js';
 import { AppError, installErrors } from './shared/errors/index.js';
 import { EmptyQuery, ErrorResponses } from './shared/http/schemas.js';
@@ -24,10 +26,11 @@ import { EmptyQuery, ErrorResponses } from './shared/http/schemas.js';
 export interface AppDependencies {
   profiles: ProfileRepository;
   finance?: FinanceRepository;
+  budgets?: BudgetRepository;
   ping: () => Promise<void>;
   close: () => Promise<void>;
 }
-export interface AppOptions { dependencies?: AppDependencies; jwks?: JWTVerifyGetKey; logStream?: Writable }
+export interface AppOptions { dependencies?: AppDependencies; jwks?: JWTVerifyGetKey; logStream?: Writable; budgetClock?: () => Date }
 
 export async function buildApp(config: AppConfig, options: AppOptions = {}) {
   const app = Fastify({
@@ -50,7 +53,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
   });
   const database = options.dependencies ? undefined : createDatabase(config);
   const dependencies = options.dependencies ?? {
-    profiles: createProfileRepository(database!), finance: createFinanceRepository(database!), ping: database!.ping, close: database!.close,
+    profiles: createProfileRepository(database!), finance: createFinanceRepository(database!), budgets: createBudgetRepository(database!), ping: database!.ping, close: database!.close,
   };
   database?.pool.on('error', () => app.log.error({ code: 'DATABASE_POOL_ERROR' }, 'database connection failed'));
   app.addHook('onClose', dependencies.close);
@@ -65,7 +68,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
         if (!origin || config.corsOrigins.includes(origin)) callback(null, true);
         else callback(new AppError('FORBIDDEN'), false);
       },
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'], allowedHeaders: ['authorization', 'content-type', 'x-request-id'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], allowedHeaders: ['authorization', 'content-type', 'x-request-id'],
       exposedHeaders: ['x-request-id'], credentials: false, maxAge: 600,
     });
     await app.register(rateLimit, {
@@ -75,6 +78,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
     healthRoutes(app, dependencies.ping);
     profileRoutes(app, dependencies.profiles, createVerifier(config, options.jwks));
     if (dependencies.finance) financeRoutes(app, dependencies.finance, createVerifier(config, options.jwks));
+    if (dependencies.budgets) budgetRoutes(app, dependencies.budgets, dependencies.profiles, createVerifier(config, options.jwks), options.budgetClock);
     app.get('/api/v1/openapi.json', { schema: {
       operationId: 'getOpenApi', tags: ['Contract'], querystring: EmptyQuery,
       response: { 200: Type.Record(Type.String(), Type.Unknown()), ...ErrorResponses },

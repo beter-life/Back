@@ -4,6 +4,7 @@ import { buildApp } from '../src/app.js';
 import { loadConfig } from '../src/config/env.js';
 import { createDatabase } from '../src/db/client.js';
 import { createFinanceRepository } from '../src/modules/finance/repository.js';
+import { createBudgetRepository } from '../src/modules/finance/budget-repository.js';
 
 // Offline contract generation. No database or identity provider is contacted.
 const config = loadConfig({ NODE_ENV: 'test', TEST_DATABASE_URL: 'postgresql://test@127.0.0.1/beter_life_test',
@@ -11,7 +12,7 @@ const config = loadConfig({ NODE_ENV: 'test', TEST_DATABASE_URL: 'postgresql://t
 const unavailable = async (): Promise<never> => { throw new Error('Offline dependency must not be called'); };
 const database = createDatabase(config); // Lazy pool: contract generation never opens a connection.
 const app = await buildApp(config, { dependencies: {
-  profiles: { findByAuthUser: unavailable, upsertForAuthUser: unavailable }, finance: createFinanceRepository(database), ping: unavailable, close: database.close,
+  profiles: { findByAuthUser: unavailable, upsertForAuthUser: unavailable }, finance: createFinanceRepository(database), budgets: createBudgetRepository(database), ping: unavailable, close: database.close,
 } });
 try {
   const json = JSON.stringify(app.swagger(), null, 2) + '\n';
