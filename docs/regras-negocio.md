@@ -61,3 +61,41 @@ cursor contém ambos. Filtros owner, conta (origem ou destino), categoria,
 tipo e intervalo `[from,to)`. Cancelados aparecem sinalizados no histórico.
 Summary exige período explícito: receitas/despesas/net no intervalo; saldo
 até `to` exclusivo, separado por moeda. Nunca somar moedas diferentes.
+
+## Orçamento mensal — MDL 3
+
+- Um período por owner + YYYY-MM + moeda. Na criação, guardar timezone canônico
+  do perfil (UTC se não houver perfil). Mudanças posteriores no perfil não
+  deslocam meses existentes; períodos novos usam o timezone atual.
+- Calendário `[início do mês, início do seguinte)` convertido por PostgreSQL;
+  dias transcorridos incluem hoje no timezone do período. Mês futuro: 0 dias;
+  mês encerrado: todos os dias, incluindo fevereiro bissexto.
+- Somar EXPENSE não canceladas da mesma moeda no intervalo. Receitas e
+  transferências não participam. Considerar os registros do mês, incluindo
+  datas futuras já lançadas, sem gerar previsão ou recorrência.
+- Base por categoria: 0..9223372036854775807 minor units; disponível = base +
+  sobra positiva. Gasto, somas e sobra derivados com inteiros exatos;
+  restante = disponível − gasto e pode ser negativo.
+- Utilização = gasto/disponível × 100, string decimal com duas casas truncadas;
+  disponível zero retorna null, nunca Infinity/NaN.
+- Policy no **destino**: NONE não carrega; POSITIVE_ONLY acrescenta
+  max(disponível anterior − gasto anterior, 0), somente se o mês imediatamente
+  anterior estiver encerrado e houver limite ativo da categoria na mesma moeda.
+  Mês ausente/limite removido interrompe a cadeia. Sobra acumulada positiva pode
+  continuar mês a mês. Nenhum overspending negativo é carregado. Recalcular após
+  alterações/cancelamentos históricos; não há snapshot de fechamento.
+- Só EXPENSE recebe limite. Categoria inativa mantém histórico e permite editar
+  limite já ativo, mas não criar/reativar/copiar novos limites. Remover limite é
+  desativar allocation; preserva registros e move os gastos para sem orçamento.
+- Copy previous copia categoria/base/policy de limites ativos e categorias
+  atualmente ativas; nunca gastos/transações. Preservar limites existentes no
+  destino, inclusive os removidos. Repetição/concorrência não duplica. Sem
+  período anterior: 404. Não exigir que o anterior esteja encerrado para copiar.
+- Despesas sem allocation ativa, inclusive sem categoria, compõem unbudgeted.
+  Summary: budgeted_total = disponível; spent_budgeted e remaining_budgeted
+  consideram só categorias planejadas; expense_total = planejadas + unbudgeted.
+  Utilização e ritmo geral incluem todas as despesas, para não ocultar gastos.
+- Referência até hoje = floor(disponível × dias transcorridos / dias no mês).
+  Gasto > disponível: OVER_BUDGET; senão gasto > referência: ATTENTION;
+  senão ON_TRACK. Mesma regra por categoria e no resumo. Sem previsão/conselho.
+- Nenhuma conversão: BRL, USD, JPY e demais moedas têm períodos separados.

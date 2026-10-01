@@ -30,3 +30,26 @@ Drizzle gera o schema/snapshot. A migration foi revisada para não recriar as
 policies de profiles que já existiam na migration manual 0002. A repetição do
 migrator é no-op. Falhas de transferência são testadas com trigger sintético
 AFTER INSERT exclusivamente no banco descartável e rollback comprovado.
+
+## MDL 3 — Migration 0004_monthly_budgeting
+
+Incremental pelo mesmo journal/migrator Drizzle, sem alterar migrations antigas,
+Auth, dados MDL 2, grants Data API ou configuração PostgreSQL/TLS.
+
+| Tabela em app | Conteúdo | Integridade |
+| --- | --- | --- |
+| financial_budget_periods | owner, mês YYYY-MM, currency, time_zone, timestamps | UNIQUE owner+month+currency; UNIQUE id+owner+currency; CHECK mês/moeda/timezone válido |
+| financial_budget_allocations | owner, período, categoria EXPENSE, currency, base BIGINT, policy, is_active, timestamps | UNIQUE period+category; CHECK base >= 0, kind EXPENSE, policy NONE/POSITIVE_ONLY; FKs compostas owner/currency e owner/kind |
+
+Índice owner+period em allocations serve consulta mensal/RLS; UNIQUE do período
+serve lookup/histórico por owner. Índices existentes de transações atendem a
+agregação por owner/intervalo. Sem índices especulativos ou dinheiro float.
+As duas tabelas têm SELECT/INSERT/UPDATE authenticated por `(select auth.uid())`;
+UPDATE também usa WITH CHECK. Nenhuma policy DELETE: remoção é soft-deactivate.
+Backend deriva owner mesmo usando conexão administrativa. Schema `app` privado.
+
+Spent, remaining, percentuais, pace e rollover não são colunas persistidas.
+Snapshot Drizzle é `meta/0003_snapshot.json` (índice sequencial do journal);
+SQL público é `0004_monthly_budgeting.sql` para manter nomenclatura de migrations
+anteriores. Reexecutar migrator é no-op. Testes A/B usam grants somente no banco
+descartável; não criar dados financeiros hospedados por SQL para gate humano.
