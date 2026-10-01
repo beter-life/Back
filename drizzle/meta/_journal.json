@@ -22,6 +22,13 @@
       "when": 1790863856109,
       "tag": "0003_finance_core",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790873423640,
+      "tag": "0004_monthly_budgeting",
+      "breakpoints": true
     }
   ]
 }
