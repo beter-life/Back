@@ -3,6 +3,11 @@
 Node **24 LTS**, pnpm **11.19.0**, TypeScript strict/ESM, Fastify 5.
 Frontend is a separate repository and consumes the versioned OpenAPI artifact.
 
+MDL 2 Finance is the first functional bounded context: own accounts/categories,
+income/expense, idempotent atomic transfers, calculated balances and period
+summary. Auth, profile, PostgreSQL TLS and the approved infrastructure remain
+unchanged. No MDL 3 features are implemented.
+
 ## Development and gates
 
 Install Node 24 and the package manager version in `package.json`. Configure local
@@ -32,6 +37,12 @@ pnpm compact security:scan
 entrypoint with Node so Windows `.cmd` wrappers require no shell quoting. Full logs
 remain in ignored `.harness/logs/`. Exit codes are preserved.
 
+Finance adds migration `0003_finance_core`, applied through the same Drizzle
+migrator. `pnpm test:postgres` validates it and ownership/RLS in a disposable
+PostgreSQL 17, never the hosted database. Generate/verify the frontend contract
+with `node --import tsx scripts/finance-contract.ts [--check]` and run the harness
+with `node .codex/scripts/test-harness.mjs`.
+
 ## HTTP contract
 
 | Route | Authentication | Behavior |
@@ -51,3 +62,6 @@ backend files through the filesystem. Responses and bodies derive from TypeBox.
 See [operations](docs/BACKEND_OPERATIONS.md) for environment, migrations, external
 setup, test database safety and deployment; [architecture](docs/ARCHITECTURE.md) for
 boundaries and [ADR 0001](docs/adr/0001-backend-foundation.md) for durable decisions.
+
+Finance details: [architecture](docs/arquitetura.md), [requirements/API](docs/requisitos.md),
+[Money/transfer/balance rules](docs/regras-negocio.md), [database/RLS](docs/banco-de-dados.md).

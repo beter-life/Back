@@ -1,7 +1,7 @@
 name: Backend quality gates
 on:
   push:
-    branches: [main, 'feat/**']
+    branches: [main, 'feat/**', 'codex/**']
   pull_request:
     branches: [main]
 permissions:
@@ -60,12 +60,15 @@ jobs:
         run: >-
           psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -c
           "GRANT USAGE ON SCHEMA app TO anon, authenticated;
-          GRANT SELECT, INSERT, UPDATE, DELETE ON app.profiles TO anon, authenticated;"
+          GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA app TO anon, authenticated;"
       - name: PostgreSQL integration and migration idempotency
         run: pnpm compact test:integration
       - run: pnpm compact openapi:check
+      - name: Finance client contract drift
+        run: node .codex/scripts/compact-command.mjs -- node --import tsx scripts/finance-contract.ts --check
       - run: pnpm compact build
       - run: pnpm compact security:scan
+      - run: node .codex/scripts/test-harness.mjs
       - name: Ensure clean contract and migration metadata
         run: git diff --exit-code && git diff --check
       - name: Failure diagnostics

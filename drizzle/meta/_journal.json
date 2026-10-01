@@ -15,6 +15,13 @@
       "when": 1790595653209,
       "tag": "0002_profiles_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790863856109,
+      "tag": "0003_finance_core",
+      "breakpoints": true
     }
   ]
 }
