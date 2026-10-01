@@ -31,10 +31,10 @@ OpenAPI gerado. `authUserId`/`auth_user_id` não são campos de entrada.
 Fora de escopo: orçamento, metas, recorrência, cartão avançado, investimento
 avançado, importação, banco/OpenFinance, IA, analytics/forecast e MDL 3.
 
-## Gate real manual
+## Gate real manual — aprovado
 
-Após os gates automáticos e migration hospedada, usar uma sessão Auth real pela
-UI/API: criar duas contas BRL, categoria, receita/despesa, verificar saldo,
-transferir, recarregar e conferir persistência/ownership. Nenhum dado financeiro
-de gate deve ser inserido por SQL. O módulo só fica COMPLETE depois da aprovação
-real manual; os testes com fronteiras interceptadas não substituem esse gate.
+O usuário aprovou o fluxo com sessão Auth real: contas, categorias,
+receita/despesa, transferência, saldos e persistência após reload passaram no
+Supabase hospedado. O ownership foi validado pelos gates de API e RLS. Nenhum
+dado do gate foi inserido por SQL; os testes automatizados continuam sendo
+evidência complementar, não substituto do fluxo real.

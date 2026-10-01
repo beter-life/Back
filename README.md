@@ -6,7 +6,8 @@ Frontend is a separate repository and consumes the versioned OpenAPI artifact.
 MDL 2 Finance is the first functional bounded context: own accounts/categories,
 income/expense, idempotent atomic transfers, calculated balances and period
 summary. Auth, profile, PostgreSQL TLS and the approved infrastructure remain
-unchanged. No MDL 3 features are implemented.
+unchanged. The real authenticated financial gate and persisted data were
+approved by the user. No MDL 3 features are implemented.
 
 ## Development and gates
 
