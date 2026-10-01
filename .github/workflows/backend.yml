@@ -68,6 +68,8 @@ jobs:
         run: node .codex/scripts/compact-command.mjs -- node --import tsx scripts/finance-contract.ts --check
       - run: pnpm compact build
       - run: pnpm compact security:scan
+      - name: Install pinned Codex CLI for strict harness validation
+        run: npm install --global @openai/codex@0.159.2
       - run: node .codex/scripts/test-harness.mjs
       - name: Ensure clean contract and migration metadata
         run: git diff --exit-code && git diff --check
