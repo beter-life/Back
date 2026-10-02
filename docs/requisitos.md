@@ -56,9 +56,8 @@ ausente ou alheio, 409 tentativa de novo limite em categoria inativa. Não aceit
 owner, timezone, gastos ou saldos calculados do cliente. `month` é YYYY-MM,
 anos 1000–9998. Contratos completos e tipos Zod são gerados offline.
 
-Gate real MDL 3 pendente: criar limite 500, despesa 100, restante 400,
-utilização 20%; reload, edição, cópia e ownership com sessão real. Não inserir
-dados por SQL para simular aprovação humana.
+Gate real MDL 3 aprovado pelo usuário em 2026-10-02: orçamento, despesa,
+cálculos, reload, edição, copy previous e ownership PASS.
 
 ## Gate real manual — aprovado
 
@@ -67,3 +66,28 @@ receita/despesa, transferência, saldos e persistência após reload passaram no
 Supabase hospedado. O ownership foi validado pelos gates de API e RLS. Nenhum
 dado do gate foi inserido por SQL; os testes automatizados continuam sendo
 evidência complementar, não substituto do fluxo real.
+
+## MDL 4 — Financial Goals (gate real pendente)
+
+Criar/listar/consultar/editar metas, pausar/retomar/arquivar, registrar contribuição
+e retirada manual, consultar histórico e read model de planejamento. Moeda fixa
+por meta; descrição/prazo mensal/plano mensal opcionais; prioridade LOW/MEDIUM/HIGH.
+
+| Caminho /api/v1/finance/goals | Operação |
+| --- | --- |
+| / | GET com status/currency opcionais; POST cria (201) |
+| /:goalId | GET detalhe; PATCH campos explícitos |
+| /:goalId/events | GET histórico (limit 1–100, cursorAt+cursorId); POST evento idempotente (201, inclusive replay) |
+
+Owner vem exclusivamente do JWT. Não aceitar saldo, progresso, required monthly,
+estimated completion ou currency no PATCH. 400 para entrada inválida; 401 para
+identidade ausente/inválida; 404 uniforme para meta alheia/inexistente; 409 para
+conteúdo idempotente divergente, saldo insuficiente ou novos eventos inativos.
+Preservar MDL 2/3 e Auth. Não implementar rendimento, recorrência, simulação,
+integração conta/meta, Conflict Detector, Safe to Spend, IA, Open Finance ou MDL5+.
+
+Gate manual sugerido: criar Reserva teste BRL 10.000, plano 1.000/mês e prazo
+futuro; contribuir 2.500 (25%/7.500 restantes), reload, retirar 500 (20%/8.000),
+editar alvo para 12.000 (16,66%/10.000), pausar/retomar, conferir projeção,
+ownership e ausência de efeitos em contas/movimentos/budgets. STATUS permanece
+AWAITING_REAL_GATE e READY_FOR_MDL5=false; não mesclar MDL4 antes da aprovação.

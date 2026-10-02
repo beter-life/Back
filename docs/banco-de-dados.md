@@ -53,3 +53,25 @@ Snapshot Drizzle é `meta/0003_snapshot.json` (índice sequencial do journal);
 SQL público é `0004_monthly_budgeting.sql` para manter nomenclatura de migrations
 anteriores. Reexecutar migrator é no-op. Testes A/B usam grants somente no banco
 descartável; não criar dados financeiros hospedados por SQL para gate humano.
+
+## MDL 4 — Migration 0005_financial_goals
+
+Adiciona somente financial_goals e financial_goal_events no schema privado app;
+não altera migrations/tabelas anteriores. Snapshot gerado meta/0004_snapshot.json
+é o índice 4 do journal; SQL renomeado para 0005_financial_goals conserva a
+sequência pública existente. Instalação DEV após revisão e PostgreSQL/RLS PASS,
+com TLS verify-full e hashes inalterados de profiles e seis tabelas Finance.
+
+Goals: UUID/owner, nome/descrição, moeda, alvo BIGINT >0, mês opcional válido,
+plano BIGINT nullable/>=0, prioridade/status limitados, timestamps/archive coerente.
+Events: UUID/owner/goal, CONTRIBUTION/WITHDRAWAL, BIGINT >0, occurred_at, note,
+UUID idempotency key e created_at. UNIQUE owner+key e FK goal+owner impedem
+relação cross-owner. Índices owner+status, owner+currency, goal+occurred_at+id
+servem filtros, agregação e histórico paginado. Não persistir current_amount.
+
+RLS goals: SELECT/INSERT/UPDATE authenticated por (select auth.uid())=owner;
+UPDATE tem USING e WITH CHECK, sem DELETE. Events: somente SELECT own, sem
+INSERT/UPDATE/DELETE direto para clientes; append requer backend privado e seu
+controle transacional de status, retirada e idempotência. Nenhum grant Data API
+novo. Testes descartáveis dão grants apenas para verificar allow/deny A/B/anon.
+Backend administrativo sempre filtra owner. Não inserir dados remotos de gate.

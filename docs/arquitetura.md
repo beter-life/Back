@@ -52,3 +52,22 @@ PUT de período é idempotente. Alterações/cópia serializam pelo período des
 cópia é transacional e preserva limites já existentes, mesmo desativados. RLS e
 FKs compostas complementam filtros owner do backend. Auth e as quatro tabelas
 do MDL 2 não são alterados.
+
+## MDL 4 — Financial Goals
+
+JWT sub → goal-routes (TypeBox) → goal-application (validação/timezone do perfil)
+→ goal-repository (ownership/transações) → app.financial_goals/financial_goal_events.
+goal-domain calcula o read model com BigInt, sem persistir saldo/progresso.
+Listagem e detalhe agregam goal+eventos em uma única instrução SQL; prioridade
+HIGH/MEDIUM/LOW ordena a listagem. Histórico usa cursor occurred_at+id, até 100
+eventos por página. O mês atual é obtido do timezone atual do perfil, com UTC
+quando não há perfil. Contratos TypeBox/OpenAPI/Zod são gerados offline.
+
+Evento é append-only e representa destinação declarada, não movimentação de conta.
+Nenhuma escrita alcança accounts, transactions, transfers ou budgets. A transação
+adquire advisory lock por owner+idempotency key e row lock da meta: mudanças de
+status e retiradas concorrentes não podem furar o saldo nem duplicar progresso.
+Replay verifica todos os campos normalizados e pode ocorrer após pausa/archive;
+um novo evento exige ACTIVE. Schema app permanece privado e sem novos grants
+Data API. RLS e FK composta reforçam isolamento; eventos não têm policies de
+escrita direta, para impedir contorno das invariantes do serviço.
