@@ -9,7 +9,7 @@ summary. Auth, profile, PostgreSQL TLS and the approved infrastructure remain
 unchanged. The real authenticated financial gate and persisted data were
 approved by the user. MDL 3 extends the same Finance context with monthly budgets,
 expense-category limits, positive rollover, copy-previous and spending pace.
-The monthly budgeting real gate is still pending; MDL 4 is not implemented.
+The monthly budgeting real gate was approved on 2026-10-02; MDL 3 is complete and ready for MDL 4. MDL 4 is not implemented.
 
 ## Development and gates
 
