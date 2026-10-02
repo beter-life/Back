@@ -36,6 +36,13 @@
       "when": 1790955497297,
       "tag": "0005_financial_goals",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790961915729,
+      "tag": "0006_financial_recurrences",
+      "breakpoints": true
     }
   ]
 }
