@@ -67,7 +67,7 @@ Supabase hospedado. O ownership foi validado pelos gates de API e RLS. Nenhum
 dado do gate foi inserido por SQL; os testes automatizados continuam sendo
 evidência complementar, não substituto do fluxo real.
 
-## MDL 4 — Financial Goals (gate real pendente)
+## MDL 4 — Financial Goals (gate real aprovado)
 
 Criar/listar/consultar/editar metas, pausar/retomar/arquivar, registrar contribuição
 e retirada manual, consultar histórico e read model de planejamento. Moeda fixa
@@ -86,8 +86,9 @@ conteúdo idempotente divergente, saldo insuficiente ou novos eventos inativos.
 Preservar MDL 2/3 e Auth. Não implementar rendimento, recorrência, simulação,
 integração conta/meta, Conflict Detector, Safe to Spend, IA, Open Finance ou MDL5+.
 
-Gate manual sugerido: criar Reserva teste BRL 10.000, plano 1.000/mês e prazo
+Exemplo do fluxo de gate: criar Reserva teste BRL 10.000, plano 1.000/mês e prazo
 futuro; contribuir 2.500 (25%/7.500 restantes), reload, retirar 500 (20%/8.000),
 editar alvo para 12.000 (16,66%/10.000), pausar/retomar, conferir projeção,
-ownership e ausência de efeitos em contas/movimentos/budgets. STATUS permanece
-AWAITING_REAL_GATE e READY_FOR_MDL5=false; não mesclar MDL4 antes da aprovação.
+ownership e ausência de efeitos em contas/movimentos/budgets. META/CONTRIBUIÇÃO/RETIRADA/CÁLCULOS/RELOAD/EDIÇÃO/PAUSE_RESUME/PROJEÇÃO/
+ISOLAMENTO_FINANCEIRO/OWNERSHIP=PASS. STATUS=COMPLETE; REAL_GATE=PASS;
+READY_FOR_MDL5=true. Nenhum módulo futuro foi iniciado.

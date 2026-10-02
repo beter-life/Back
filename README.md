@@ -9,7 +9,7 @@ summary. Auth, profile, PostgreSQL TLS and the approved infrastructure remain
 unchanged. The real authenticated financial gate and persisted data were
 approved by the user. MDL 3 extends the same Finance context with monthly budgets,
 expense-category limits, positive rollover, copy-previous and spending pace.
-The monthly budgeting real gate was approved on 2026-10-02; MDL 0–3 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals on `codex/mdl4-financial-goals`; its real gate is pending. Goal events never move account balances, transactions, transfers or budgets. MDL 5+ is not implemented.
+The monthly budgeting real gate was approved on 2026-10-02; MDL 0–3 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals on `codex/mdl4-financial-goals`; its real gate was approved by the user on 2026-10-02 and MDL 4 is complete. Goal events never move account balances, transactions, transfers or budgets. MDL 5+ is not implemented.
 
 ## Development and gates
 
