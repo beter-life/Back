@@ -84,11 +84,49 @@ estimated completion ou currency no PATCH. 400 para entrada inválida; 401 para
 identidade ausente/inválida; 404 uniforme para meta alheia/inexistente; 409 para
 conteúdo idempotente divergente, saldo insuficiente ou novos eventos inativos.
 Preservar MDL 2/3 e Auth. Não implementar rendimento, recorrência, simulação,
-integração conta/meta, Conflict Detector, Safe to Spend, IA, Open Finance ou MDL5+.
+integração conta/meta, Conflict Detector, Safe to Spend, IA, Open Finance ou MDL6+.
 
 Exemplo do fluxo de gate: criar Reserva teste BRL 10.000, plano 1.000/mês e prazo
 futuro; contribuir 2.500 (25%/7.500 restantes), reload, retirar 500 (20%/8.000),
 editar alvo para 12.000 (16,66%/10.000), pausar/retomar, conferir projeção,
 ownership e ausência de efeitos em contas/movimentos/budgets. META/CONTRIBUIÇÃO/RETIRADA/CÁLCULOS/RELOAD/EDIÇÃO/PAUSE_RESUME/PROJEÇÃO/
 ISOLAMENTO_FINANCEIRO/OWNERSHIP=PASS. STATUS=COMPLETE; REAL_GATE=PASS;
-READY_FOR_MDL5=true. Nenhum módulo futuro foi iniciado.
+READY_FOR_MDL5=true registra o pré-requisito aprovado. MDL5 está na branch dedicada, aguardando gate; MDL6 não iniciado.
+
+## MDL 5 — Recurrences, Subscriptions & Financial Calendar
+
+Implementation on `codex/mdl5-recurring-calendar`; MDL0–4 remain approved on the
+verified main baseline `7f8dd4c632b8192d485aa12c173e998f37a2d9ea`.
+STATUS=AWAITING_REAL_GATE; REAL_GATE=PENDING; READY_FOR_MDL6=false.
+
+| Endpoint under /api/v1/finance | Behavior |
+| --- | --- |
+| GET /recurrences | Own rules; filters status, transactionType, recurrenceKind, currency, accountId, categoryId |
+| POST /recurrences | Validate and create ACTIVE rule; 201 |
+| GET /recurrences/:recurrenceId | Own rule and next occurrence |
+| PATCH /recurrences/:recurrenceId | Edit planning fields; type/currency fixed; no status field |
+| POST /recurrences/:recurrenceId/pause | Stop active projections |
+| POST /recurrences/:recurrenceId/resume | Restore active projections |
+| POST /recurrences/:recurrenceId/archive | Terminal, preserve rule |
+| GET /calendar | Required from/to DATE; [from,to), 1–366 days; optional type/kind/currency/account/category |
+| GET /subscriptions/radar | ACTIVE subscriptions; [profile today,today+30); optional currency |
+
+All routes require JWT; owner derives only from sub. Bodies/queries are strict
+TypeBox, OpenAPI and generated Front Zod. Status bodies are empty JSON objects.
+Foreign rule/account/category IDs return 404. Subscriptions require EXPENSE.
+List default 50, maximum 100, descending createdAt/id; nextCursor carries both
+createdAt and id. Calendar/radar return explicit 409 above 500 eligible rules,
+requiring narrower filters; no silently incomplete totals. Calendar loads rules
+once and projects in memory; no occurrence writes or database N+1. Radar counts
+all ACTIVE subscriptions, including future/ended rules whose window total may
+be zero and nextOccurrenceDate null after their end. There is no monthly-cost
+normalization or merchant detection.
+
+Human gate via Front localhost:3101 and Back localhost:3001: create a 100 BRL
+monthly subscription starting 2026-10-31; verify calendar dates 31 Oct, 30 Nov,
+31 Dec, 31 Jan; radar actual occurrences in its displayed 30-day window; edit
+and reload; pause removes projections, resume restores them; archive is terminal.
+Create an income rule and optionally USD; inspect separate income/expense/net
+and currencies. Verify account balances, transactions, transfers, budgets and
+goals unchanged. Use another user to check ownership when available. Do not
+insert fixtures by SQL. Await user PASS; no COMPLETE checkpoint, PR/merge or MDL6.

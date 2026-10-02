@@ -75,3 +75,28 @@ INSERT/UPDATE/DELETE direto para clientes; append requer backend privado e seu
 controle transacional de status, retirada e idempotência. Nenhum grant Data API
 novo. Testes descartáveis dão grants apenas para verificar allow/deny A/B/anon.
 Backend administrativo sempre filtra owner. Não inserir dados remotos de gate.
+
+## MDL 5 — Migration 0006_financial_recurrences
+
+One private app.financial_recurrences table: UUID id/owner; name/description;
+INCOME/EXPENSE, STANDARD/SUBSCRIPTION; amount_minor BIGINT >0 and explicit
+currency; nullable account/category; WEEKLY/MONTHLY/YEARLY and bounded interval;
+start_date/end_date DATE; ACTIVE/PAUSED/ARCHIVED and lifecycle timestamps.
+Checks enforce name, enums, positive money, EXPENSE subscription, interval per
+frequency, supported civil dates/inclusive end and archive timestamp coherence.
+Indexes owner+status, owner+kind, owner+currency support bounded projection/filtering.
+Compound FKs reference account(id,owner,currency) and category(id,owner,kind).
+Projected occurrences, next date and totals are derived, never persisted.
+
+RLS SELECT/INSERT/UPDATE for authenticated uses (select auth.uid())=auth_user_id;
+UPDATE has USING and WITH CHECK. No DELETE policy, new hosted grants or app Data
+API exposure. Direct SQL grants in disposable integration are test-only to prove
+allow/deny for A/B/anon, owner reassignment, FK integrity and no DELETE.
+
+Only new 0006 SQL and generated meta/0005_snapshot.json/journal entry were added;
+0001–0005 are unchanged. Reviewed DDL and PostgreSQL17 migrations/RLS regression
+passed before application to existing Supabase DEV, with TLS verify-full.
+Exact SHA256 snapshots of all rows in profiles and eight previous financial
+tables (accounts, categories, transactions, transfers, budget periods/allocations,
+goals/events) were unchanged. No resets, destructive migrations, secrets or
+remote fixture records. Local environment files remain ignored and preserved.
