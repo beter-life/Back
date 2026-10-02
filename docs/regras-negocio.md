@@ -99,3 +99,34 @@ até `to` exclusivo, separado por moeda. Nunca somar moedas diferentes.
   Gasto > disponível: OVER_BUDGET; senão gasto > referência: ATTENTION;
   senão ON_TRACK. Mesma regra por categoria e no resumo. Sem previsão/conselho.
 - Nenhuma conversão: BRL, USD, JPY e demais moedas têm períodos separados.
+
+## MDL 4 — Metas e eventos de planejamento
+
+- Uma meta não é conta bancária. Eventos apenas declaram valores destinados;
+  nunca lançam transaction/transfer nem mudam account/budget. Moeda é fixa,
+  valores alvo/eventos > 0, plano nullable ou >= 0, BIGINT e JSON strings.
+- CURRENT = soma de CONTRIBUTION menos WITHDRAWAL, de todos os eventos registrados
+  (occurredAt é data declarada do histórico, não corte temporal de saldo).
+  Saldo/progresso não são colunas mutáveis. Withdrawal > current é 409, com lock
+  transacional por meta. Correção usa novo evento compensatório, sem edição/delete.
+- Persistir ACTIVE/PAUSED/ARCHIVED. PAUSED bloqueia novos eventos e pode retomar;
+  ARCHIVED é terminal, preserva histórico e bloqueia eventos e edições. Mesmo
+  conteúdo/chave já confirmado permite replay em qualquer status.
+- Idempotência é owner+UUID key, global às metas do owner. Comparar goal, tipo,
+  amount, instante ISO normalizado e nota trim/null. Mesmo conteúdo retorna evento
+  original; mudança de conteúdo ou reutilização em outra meta retorna 409.
+- Remaining = max(target-current,0). Percentual = floor(current*10000/target)/100,
+  com duas casas (16,66% no gate). Não limitar texto acima de 100%; só barra visual.
+- Meses válidos YYYY-MM, anos 1000–9998. Slots = max(targetOrdinal-currentOrdinal+1,0)
+  no timezone atual do perfil (fallback UTC). Inclui o mês corrente.
+- Required = ceil(remaining/slots), em unidades menores. Atingida: 0; sem prazo
+  ou prazo vencido ainda não atingido: null (não dividir por zero).
+- Previsão sem rendimento: ceil(remaining/planned) contribuições, primeira no mês
+  atual; mês previsto = atual + quantidade - 1. Plano 0/null: null; atingida: atual.
+  Resultado além de 9998-12 é null, sem inventar data fora do calendário suportado.
+- Status derivado tem precedência: current>=target → ACHIEVED; prazo passado →
+  OVERDUE; prazo vigente + plano presente (inclusive zero) → ON_TRACK se planned
+  >= required, senão ATTENTION; informação insuficiente → NO_PLAN. Status persistido
+  permanece separado desse diagnóstico, inclusive em metas pausadas/arquivadas.
+- Prioridade somente ordena/informa. Nunca converte moedas nem soma BRL e USD
+  num total único. Não promete recomendação, retorno financeiro ou recorrência.

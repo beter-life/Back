@@ -29,6 +29,13 @@
       "when": 1790873423640,
       "tag": "0004_monthly_budgeting",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790955497297,
+      "tag": "0005_financial_goals",
+      "breakpoints": true
     }
   ]
 }

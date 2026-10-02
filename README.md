@@ -9,7 +9,7 @@ summary. Auth, profile, PostgreSQL TLS and the approved infrastructure remain
 unchanged. The real authenticated financial gate and persisted data were
 approved by the user. MDL 3 extends the same Finance context with monthly budgets,
 expense-category limits, positive rollover, copy-previous and spending pace.
-The monthly budgeting real gate was approved on 2026-10-02; MDL 3 is complete and ready for MDL 4. MDL 4 is not implemented.
+The monthly budgeting real gate was approved on 2026-10-02; MDL 0–3 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals on `codex/mdl4-financial-goals`; its real gate was approved by the user on 2026-10-02 and MDL 4 is complete. Goal events never move account balances, transactions, transfers or budgets. MDL 5+ is not implemented.
 
 ## Development and gates
 
@@ -72,3 +72,11 @@ minor-unit strings. Existing financial data and Auth flows are preserved.
 
 Finance details: [architecture](docs/arquitetura.md), [requirements/API](docs/requisitos.md),
 [Money/transfer/balance rules](docs/regras-negocio.md), [database/RLS](docs/banco-de-dados.md).
+
+Financial Goals expose `/api/v1/finance/goals` and `/:goalId/events`. Migration
+`0005_financial_goals` adds two private `app` tables with RLS. Money stays in
+BIGINT minor units and JSON strings. The server derives progress, required
+monthly contribution and a simple no-interest completion month using the
+profile timezone. Paused and archived goals reject new events; safe retries
+replay existing events. Apply migrations only to the intended DEV environment
+after review and disposable PostgreSQL/RLS validation; preserve verified TLS.
