@@ -21,6 +21,8 @@ import { createBudgetRepository, type BudgetRepository } from './modules/finance
 import { budgetRoutes } from './modules/finance/budget-routes.js';
 import { createGoalRepository, type GoalRepository } from './modules/finance/goal-repository.js';
 import { goalRoutes } from './modules/finance/goal-routes.js';
+import { createRecurrenceRepository, type RecurrenceRepository } from './modules/finance/recurrence-repository.js';
+import { recurrenceRoutes } from './modules/finance/recurrence-routes.js';
 import { loggerOptions } from './plugins/logging.js';
 import { AppError, installErrors } from './shared/errors/index.js';
 import { EmptyQuery, ErrorResponses } from './shared/http/schemas.js';
@@ -30,10 +32,11 @@ export interface AppDependencies {
   finance?: FinanceRepository;
   budgets?: BudgetRepository;
   goals?: GoalRepository;
+  recurrences?: RecurrenceRepository;
   ping: () => Promise<void>;
   close: () => Promise<void>;
 }
-export interface AppOptions { dependencies?: AppDependencies; jwks?: JWTVerifyGetKey; logStream?: Writable; budgetClock?: () => Date; goalClock?: () => Date }
+export interface AppOptions { dependencies?: AppDependencies; jwks?: JWTVerifyGetKey; logStream?: Writable; budgetClock?: () => Date; goalClock?: () => Date; recurrenceClock?: () => Date }
 
 export async function buildApp(config: AppConfig, options: AppOptions = {}) {
   const app = Fastify({
@@ -56,7 +59,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
   });
   const database = options.dependencies ? undefined : createDatabase(config);
   const dependencies = options.dependencies ?? {
-    profiles: createProfileRepository(database!), finance: createFinanceRepository(database!), budgets: createBudgetRepository(database!), goals: createGoalRepository(database!), ping: database!.ping, close: database!.close,
+    profiles: createProfileRepository(database!), finance: createFinanceRepository(database!), budgets: createBudgetRepository(database!), goals: createGoalRepository(database!), recurrences: createRecurrenceRepository(database!), ping: database!.ping, close: database!.close,
   };
   database?.pool.on('error', () => app.log.error({ code: 'DATABASE_POOL_ERROR' }, 'database connection failed'));
   app.addHook('onClose', dependencies.close);
@@ -83,6 +86,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
     if (dependencies.finance) financeRoutes(app, dependencies.finance, createVerifier(config, options.jwks));
     if (dependencies.budgets) budgetRoutes(app, dependencies.budgets, dependencies.profiles, createVerifier(config, options.jwks), options.budgetClock);
     if (dependencies.goals) goalRoutes(app, dependencies.goals, dependencies.profiles, createVerifier(config, options.jwks), options.goalClock);
+    if (dependencies.recurrences) recurrenceRoutes(app, dependencies.recurrences, dependencies.profiles, createVerifier(config, options.jwks), options.recurrenceClock);
     app.get('/api/v1/openapi.json', { schema: {
       operationId: 'getOpenApi', tags: ['Contract'], querystring: EmptyQuery,
       response: { 200: Type.Record(Type.String(), Type.Unknown()), ...ErrorResponses },

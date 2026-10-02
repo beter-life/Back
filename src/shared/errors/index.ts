@@ -2,6 +2,8 @@ import type { FastifyInstance } from 'fastify';
 
 export const errors = {
   VALIDATION_ERROR: [400, 'Invalid request.'],
+  RECURRENCE_RANGE_INVALID: [400, 'Calendar range must contain 1 to 366 days, using valid local dates.'],
+  RECURRENCE_PROJECTION_LIMIT: [409, 'Projection exceeds 500 eligible recurrence rules. Refine the filters.'],
   AUTH_MISSING_TOKEN: [401, 'Bearer access token required.'],
   AUTH_INVALID_TOKEN: [401, 'Invalid or expired access token.'],
   AUTH_UNAVAILABLE: [503, 'Identity verification temporarily unavailable.'],
