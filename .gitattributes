@@ -1,0 +1,2 @@
+# Preserve deterministic contract bytes across Windows and Linux clones.
+openapi/openapi.json text eol=lf

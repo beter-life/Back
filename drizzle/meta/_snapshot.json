@@ -1,0 +1,138 @@
+{
+  "id": "35bd4bf7-1c9b-4eda-83fe-49e2aab37cdf",
+  "prevId": "5c16f910-29d6-4a96-8951-9c4aebb61d97",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "app.profiles": {
+      "name": "profiles",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "locale": {
+          "name": "locale",
+          "type": "varchar(35)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timezone": {
+          "name": "timezone",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "profiles_auth_user_id_unique": {
+          "name": "profiles_auth_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "profiles_select_own": {
+          "name": "profiles_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\""
+        },
+        "profiles_insert_own": {
+          "name": "profiles_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\""
+        },
+        "profiles_update_own": {
+          "name": "profiles_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\""
+        },
+        "profiles_delete_own": {
+          "name": "profiles_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "profiles_display_name_nonempty": {
+          "name": "profiles_display_name_nonempty",
+          "value": "length(trim(\"app\".\"profiles\".\"display_name\")) > 0"
+        },
+        "profiles_locale_nonempty": {
+          "name": "profiles_locale_nonempty",
+          "value": "length(trim(\"app\".\"profiles\".\"locale\")) > 0"
+        },
+        "profiles_timezone_nonempty": {
+          "name": "profiles_timezone_nonempty",
+          "value": "length(trim(\"app\".\"profiles\".\"timezone\")) > 0"
+        }
+      },
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "app": "app"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
