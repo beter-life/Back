@@ -43,6 +43,13 @@
       "when": 1790961915729,
       "tag": "0006_financial_recurrences",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791203295709,
+      "tag": "0007_financial_net_worth",
+      "breakpoints": true
     }
   ]
 }
