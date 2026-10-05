@@ -103,7 +103,7 @@ remote fixture records. Local environment files remain ignored and preserved.
 
 ## MDL 6 — Net Worth / Patrimônio
 
-Implementado em `codex/mdl6-net-worth`, sem merge: patrimônio por moeda,
+MDL6 COMPLETE, integrado em `main`: patrimônio por moeda,
 saldos assinados de contas somente leitura, itens externos, avaliações append-only,
 posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
 O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em

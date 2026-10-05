@@ -91,13 +91,12 @@ futuro; contribuir 2.500 (25%/7.500 restantes), reload, retirar 500 (20%/8.000),
 editar alvo para 12.000 (16,66%/10.000), pausar/retomar, conferir projeção,
 ownership e ausência de efeitos em contas/movimentos/budgets. META/CONTRIBUIÇÃO/RETIRADA/CÁLCULOS/RELOAD/EDIÇÃO/PAUSE_RESUME/PROJEÇÃO/
 ISOLAMENTO_FINANCEIRO/OWNERSHIP=PASS. STATUS=COMPLETE; REAL_GATE=PASS;
-READY_FOR_MDL5=true registra o pré-requisito aprovado. MDL5 está na branch dedicada, aguardando gate; MDL6 não iniciado.
+READY_FOR_MDL5=true registra o pré-requisito aprovado. MDL5 e MDL6 estão COMPLETE, com gates humanos aprovados e integração em main.
 
 ## MDL 5 — Recurrences, Subscriptions & Financial Calendar
 
-Implementation on `codex/mdl5-recurring-calendar`; MDL0–4 remain approved on the
-verified main baseline `7f8dd4c632b8192d485aa12c173e998f37a2d9ea`.
-STATUS=AWAITING_REAL_GATE; REAL_GATE=PENDING; READY_FOR_MDL6=false.
+Implemented and integrated into main; MDL0–MDL5 approved ancestry is preserved.
+STATUS=COMPLETE; REAL_GATE=PASS; READY_FOR_MDL6=true.
 
 | Endpoint under /api/v1/finance | Behavior |
 | --- | --- |
@@ -129,11 +128,11 @@ and reload; pause removes projections, resume restores them; archive is terminal
 Create an income rule and optionally USD; inspect separate income/expense/net
 and currencies. Verify account balances, transactions, transfers, budgets and
 goals unchanged. Use another user to check ownership when available. Do not
-insert fixtures by SQL. Await user PASS; no COMPLETE checkpoint, PR/merge or MDL6.
+insert fixtures by SQL. This human gate is approved; MDL5 is COMPLETE and merged.
 
 ## MDL 6 — Net Worth / Patrimônio
 
-Implementado em `codex/mdl6-net-worth`, sem merge: patrimônio por moeda,
+MDL6 COMPLETE, integrado em `main`: patrimônio por moeda,
 saldos assinados de contas somente leitura, itens externos, avaliações append-only,
 posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
 O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
