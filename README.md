@@ -9,7 +9,7 @@ summary. Auth, profile, PostgreSQL TLS and the approved infrastructure remain
 unchanged. The real authenticated financial gate and persisted data were
 approved by the user. MDL 3 extends the same Finance context with monthly budgets,
 expense-category limits, positive rollover, copy-previous and spending pace.
-The monthly budgeting real gate was approved on 2026-10-02; MDL 0–6 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals; its real gate was approved by the user on 2026-10-02. Goal events never move account balances, transactions, transfers or budgets. MDL 5 recurrence planning and MDL 6 Net Worth are COMPLETE after approved human gates. MDL7 Yield Engine is implemented on codex/mdl7-yield-engine, awaiting its human gate; MDL8 is not started.
+The monthly budgeting real gate was approved on 2026-10-02; MDL 0–6 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals; its real gate was approved by the user on 2026-10-02. Goal events never move account balances, transactions, transfers or budgets. MDL 5 recurrence planning and MDL 6 Net Worth are COMPLETE after approved human gates. MDL7 Yield Engine is COMPLETE after the user-approved real gate on 2026-10-05; integration into main is pending; MDL8 is not started.
 
 ## Development and gates
 
@@ -110,4 +110,4 @@ savings estimates, bounded BCB cache, estimated IR/IOF, comparison and history.
 No real ledger/net-worth writes, FX or paid sources. TypeBox/OpenAPI and generated
 Front client remain canonical. [Model, sources and human gate](docs/YIELD_ENGINE.md).
 Migration0008 follows the existing Drizzle workflow after disposable PG17/RLS
-validation. REAL_GATE=PENDING; READY_FOR_MDL8=false. Local ports remain3001/3101.
+validation. REAL_GATE=PASS; MDL7_STATUS=COMPLETE. Release follows approved closure PR/merge/main CI; MDL8 is not started. Local ports remain3001/3101.

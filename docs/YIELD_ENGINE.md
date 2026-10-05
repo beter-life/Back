@@ -64,11 +64,12 @@ to the calculator. No provider/bank-specific rules, FX, paid service or schedule
   [IOF Decreto6306 annex](https://planalto.gov.br/ccivil_03/_ato2007-2010/2007/decreto/d6306compilado.htm).
 
 CI uses deterministic HTTP fixtures only; live BCB smoke is separate. Human gate
-remains PENDING until explicitly approved. MDL8 is out of scope.
+was explicitly approved by the user on 2026-10-05 (PASS). MDL8 is out of scope.
 
-## Gate humano pendente
+## Gate humano aprovado
 
-At http://localhost:3101/finance/yield, use a real existing login. Configure fixed
+The user approved the following real hosted flow on 2026-10-05 (PASS), using
+http://localhost:3101/finance/yield and a real existing login. Checklist: fixed
 10% annual on an active account and reload; inspect gross/net/IR/IOF estimates.
 Create a future CDI115% version and verify previous dates/rules/history. Compare
 CDI100%/savings/fixed for the same principal/horizon; check30/90/365/custom windows,
@@ -76,4 +77,4 @@ source freshness and explicit future weekday assumption. Savings needs an explic
 profile, complete birthday and minimum real eligible balance. Verify archive/history,
 optional non-BRL fixed with separate totals, ownership and unchanged real balances,
 transactions, transfers, budgets, goals, recurrences and net worth. No SQL fixture
-replaces this gate. Do not declare COMPLETE or start MDL8 before user approval.
+replaces the human evidence. MDL7 is COMPLETE; release requires green branch/PR/main CI and merge commits. Do not start MDL8 automatically.
