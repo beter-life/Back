@@ -77,4 +77,4 @@ source freshness and explicit future weekday assumption. Savings needs an explic
 profile, complete birthday and minimum real eligible balance. Verify archive/history,
 optional non-BRL fixed with separate totals, ownership and unchanged real balances,
 transactions, transfers, budgets, goals, recurrences and net worth. No SQL fixture
-replaces the human evidence. MDL7 is COMPLETE; release requires green branch/PR/main CI and merge commits. Do not start MDL8 automatically.
+replaces the human evidence. MDL7 is COMPLETE; branch/PR/main CI and merge commits PASS. Do not start MDL8 automatically.
