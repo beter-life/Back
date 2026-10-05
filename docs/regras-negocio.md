@@ -172,3 +172,25 @@ saldos assinados de contas somente leitura, itens externos, avaliações append-
 posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
 O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
 [Net Worth](./net-worth.md).
+
+## MDL 7 — Yield Engine / Rendimentos
+
+Rates em strings normalizadas (10%=0.10;115% CDI=1.15). Money continua em
+minor units; composição Decimal, sem juros simples sobre taxa anual e sem
+arredondamento diário. CDI/Selic histórico usa somente observações diárias
+BCB; futuro CURRENT_RATE usa última taxa e weekdays, explicitamente sem
+calendário completo de feriados. ZERO/saldo não positivo rende zero.
+Carência e teto limitam principal elegível; nova versão fecha intervalo anterior
+sem editar sua regra. Perfil arquivado/conta inativa conserva história, não futuro.
+
+Poupança exige mês completo/aniversário e menor saldo real do período; dias29–31
+ancoram no dia1 do próximo mês. TR e adicional da Meta Selic são compostos;
+regra e arredondamento seguem Circular3595. Não há crédito diário fictício.
+IR 22,5/20/17,5/15% e IOF regressivo até29 dias incidem somente sobre ganhos;
+IR após IOF. São estimativas sem lotes/come-cotas, não imposto exato a pagar.
+
+Histórico diário é contrafactual composto sobre saldos reais elegíveis; não
+reconcilia rendimentos pagos pela instituição. Futuro mantém principal real e
+reinveste somente no cenário em memória. Nenhuma transação/saldo/patrimônio,
+meta, budget ou recorrência é alterada. Falta de taxa retorna UNAVAILABLE,
+nunca taxa inventada; fallback cacheado é STALE. [Detalhes](./YIELD_ENGINE.md).

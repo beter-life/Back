@@ -137,3 +137,28 @@ saldos assinados de contas somente leitura, itens externos, avaliações append-
 posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
 O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
 [Net Worth](./net-worth.md).
+
+## MDL 7 — Yield Engine / Rendimentos
+
+Implementado: um profile explícito por conta, versões cronológicas de regras
+ZERO/FIXED_RATE/BENCHMARK_PERCENTAGE/SAVINGS_BR, projeções e histórico estimado,
+comparação BRL somente leitura, benchmarks e resumo separado por moeda.
+
+| Caminho sob /api/v1/finance | Operações |
+| --- | --- |
+| /yield/benchmarks | GET; BCB, unidade, data e CURRENT/STALE/UNAVAILABLE |
+| /yield/profiles | GET; profiles próprios e versões |
+| /yield/summary | GET; from opcional, to obrigatório |
+| /yield/comparison | POST; comparação sem criar conta/profile |
+| /accounts/:accountId/yield-profile | GET; POST criação |
+| /accounts/:accountId/yield-profile/history | GET versões preservadas |
+| /accounts/:accountId/yield-profile/versions | POST nova versão |
+| /accounts/:accountId/yield-profile/archive | POST arquivamento terminal |
+| /accounts/:accountId/yield/estimate | GET; from/to e CURRENT_RATE |
+
+JWT.sub é o único proprietário; IDs alheios404. Contratos estritos gerados.
+Projeções não são saldo nem retorno confirmado. CDI/Selic/poupança/tributação
+brasileira exigem BRL; fixa/ZERO suportam o catálogo existente, sem FX.
+Limites explícitos:10 anos por estimativa,500 profiles/versões por profile e
+10000 movimentos/versões na leitura agrupada. Gate humano aprovado pelo usuário em 2026-10-05 (PASS):
+[roteiro](./YIELD_ENGINE.md#gate-humano-aprovado). Não iniciar MDL8.

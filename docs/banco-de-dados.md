@@ -108,3 +108,20 @@ saldos assinados de contas somente leitura, itens externos, avaliações append-
 posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
 O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
 [Net Worth](./net-worth.md).
+
+## MDL 7 — Yield Engine / Rendimentos
+
+Migration incremental gerada/revisada `0008_financial_yield_engine` acrescenta:
+`app.financial_yield_profiles`, `financial_yield_rules` e `financial_market_rates`.
+Profile único por conta; FK composta account+owner+currency. Rule pertence ao
+profile+owner; datas sem sobreposição, shape/tax/cap/carência validados.
+Trigger SECURITY INVOKER com search_path fixo e row lock impede edição histórica
+e concorrência sobreposta; apenas primeiro fechamento de effectiveTo permitido.
+
+RLS: profile SELECT/INSERT/UPDATE próprios; regras SELECT/INSERT próprios somente
+em profile ativo, sem policies UPDATE/DELETE. Cache global backend-only com RLS
+sem policies públicas, chave benchmark+series+date e taxa numeric(38,18).
+Sem grants novos ao Data API, sem extensão ou alteração de0001–0007.
+Antes de DEV: disposable PostgreSQL17/RLS PASS e comparação de hashes exatos das
+12 tabelas anteriores antes/depois. Sem fixtures remotas. TLS verify-full intacto.
+O estado efetivo da aplicação remota é registrado em PROJECT_STATE.
