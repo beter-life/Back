@@ -8,6 +8,8 @@ import { createBudgetRepository } from '../src/modules/finance/budget-repository
 import { createGoalRepository } from '../src/modules/finance/goal-repository.js';
 import { createRecurrenceRepository } from '../src/modules/finance/recurrence-repository.js';
 import { createNetWorthRepository } from '../src/modules/finance/net-worth-repository.js';
+import { createYieldRepository,createMarketRateCache } from '../src/modules/finance/yield-repository.js';
+import { MarketRateService } from '../src/modules/finance/yield-market.js';
 
 // Offline contract generation. No database or identity provider is contacted.
 const config = loadConfig({ NODE_ENV: 'test', TEST_DATABASE_URL: 'postgresql://test@127.0.0.1/beter_life_test',
@@ -15,7 +17,7 @@ const config = loadConfig({ NODE_ENV: 'test', TEST_DATABASE_URL: 'postgresql://t
 const unavailable = async (): Promise<never> => { throw new Error('Offline dependency must not be called'); };
 const database = createDatabase(config); // Lazy pool: contract generation never opens a connection.
 const app = await buildApp(config, { dependencies: {
-  profiles: { findByAuthUser: unavailable, upsertForAuthUser: unavailable }, finance: createFinanceRepository(database), budgets: createBudgetRepository(database), goals: createGoalRepository(database), recurrences: createRecurrenceRepository(database), netWorth:createNetWorthRepository(database), ping: unavailable, close: database.close,
+  profiles: { findByAuthUser: unavailable, upsertForAuthUser: unavailable }, finance: createFinanceRepository(database), budgets: createBudgetRepository(database), goals: createGoalRepository(database), recurrences: createRecurrenceRepository(database), netWorth:createNetWorthRepository(database),yield:createYieldRepository(database),market:new MarketRateService(createMarketRateCache(database)),ping: unavailable, close: database.close,
 } });
 try {
   const json = JSON.stringify(app.swagger(), null, 2) + '\n';

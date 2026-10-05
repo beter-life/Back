@@ -100,3 +100,13 @@ saldos assinados de contas somente leitura, itens externos, avaliações append-
 posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
 O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
 [Net Worth](./net-worth.md).
+
+## MDL 7 — Yield Engine / Rendimentos
+
+Yield permanece no contexto Finance: yield-routes/contracts → yield-application →
+yield-repository + yield-domain. O serviço lê contas/ledger real, nunca os escreve.
+MarketRateService usa somente BCB público via adaptador bounded, cache privado
+PostgreSQL e deduplicação de requests; não há scheduler nem serviço pago.
+TypeBox gera OpenAPI/Zod; decimal.js 10.6.0 é a única dependência nova, para
+composição com precisão50 e arredondamento monetário somente na saída.
+Veja [modelo e fontes](./YIELD_ENGINE.md).
