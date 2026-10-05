@@ -93,4 +93,12 @@ Supabase DEV received it after reviewed SQL and disposable PostgreSQL 17/RLS PAS
 verified TLS and exact snapshots confirm all nine existing tables were preserved.
 No remote test records were inserted. See the Finance docs for limits and the
 [human gate checklist](docs/requisitos.md#mdl-5--recurrences-subscriptions--financial-calendar).
-MDL5 awaits the human gate; REAL_GATE=PENDING; READY_FOR_MDL6=false. No MDL5 merge.
+MDL5 is COMPLETE; REAL_GATE=PASS; merged to main. MDL6 continues on its dedicated branch.
+
+## MDL 6 — Net Worth / Patrimônio
+
+Implementado em `codex/mdl6-net-worth`, sem merge: patrimônio por moeda,
+saldos assinados de contas somente leitura, itens externos, avaliações append-only,
+posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
+O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
+[Net Worth](docs/net-worth.md).

@@ -164,3 +164,11 @@ até `to` exclusivo, separado por moeda. Nunca somar moedas diferentes.
   occurrences in [today,today+30), e.g. five weekly dates count five charges.
   Subscription classification is user-entered; no transaction matching, posting,
   reconciliation, confidence, notifications or financial ingestion.
+
+## MDL 6 — Net Worth / Patrimônio
+
+Implementado em `codex/mdl6-net-worth`, sem merge: patrimônio por moeda,
+saldos assinados de contas somente leitura, itens externos, avaliações append-only,
+posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
+O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
+[Net Worth](./net-worth.md).

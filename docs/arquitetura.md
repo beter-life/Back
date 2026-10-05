@@ -92,3 +92,11 @@ association validation uses FOR SHARE on existing account/category rows. Owner
 filters, compound FKs and RLS enforce isolation. No Auth transport/config changes,
 new dependencies or writes to earlier module tables. Pause/archive serialization
 preserves terminal status; hosted app remains outside the Data API.
+
+## MDL 6 — Net Worth / Patrimônio
+
+Implementado em `codex/mdl6-net-worth`, sem merge: patrimônio por moeda,
+saldos assinados de contas somente leitura, itens externos, avaliações append-only,
+posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
+O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
+[Net Worth](./net-worth.md).

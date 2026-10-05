@@ -130,3 +130,11 @@ Create an income rule and optionally USD; inspect separate income/expense/net
 and currencies. Verify account balances, transactions, transfers, budgets and
 goals unchanged. Use another user to check ownership when available. Do not
 insert fixtures by SQL. Await user PASS; no COMPLETE checkpoint, PR/merge or MDL6.
+
+## MDL 6 — Net Worth / Patrimônio
+
+Implementado em `codex/mdl6-net-worth`, sem merge: patrimônio por moeda,
+saldos assinados de contas somente leitura, itens externos, avaliações append-only,
+posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
+O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
+[Net Worth](./net-worth.md).
