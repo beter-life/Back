@@ -100,3 +100,11 @@ Exact SHA256 snapshots of all rows in profiles and eight previous financial
 tables (accounts, categories, transactions, transfers, budget periods/allocations,
 goals/events) were unchanged. No resets, destructive migrations, secrets or
 remote fixture records. Local environment files remain ignored and preserved.
+
+## MDL 6 — Net Worth / Patrimônio
+
+Implementado em `codex/mdl6-net-worth`, sem merge: patrimônio por moeda,
+saldos assinados de contas somente leitura, itens externos, avaliações append-only,
+posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
+O gate humano ainda está pendente. Regras, API, schema, limites e roteiro estão em
+[Net Worth](./net-worth.md).
