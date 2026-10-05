@@ -110,3 +110,14 @@ PostgreSQL e deduplicação de requests; não há scheduler nem serviço pago.
 TypeBox gera OpenAPI/Zod; decimal.js 10.6.0 é a única dependência nova, para
 composição com precisão50 e arredondamento monetário somente na saída.
 Veja [modelo e fontes](./YIELD_ENGINE.md).
+
+## MDL 8 — Cards, Invoices & Installments
+
+card-routes/contracts → card-application → card-repository + pure card-domain.
+One backing credit account; purchase/installments/EXPENSE transactions in one SQL
+transaction. Payments use Finance Core transfers; invoices/limits are read models.
+Shared account locks serialize purchase, payments and corrective cancellation.
+Compound FKs, private RLS, immutable rules and deferred ledger constraints enforce
+ownership and completeness. No writes to Budget/Goals/Recurrences/Net Worth/Yield.
+Calendar extension deferred; Cards supplies due dates without changing MDL5.
+[Decisions](./CARDS_INVOICES.md). No new dependency or external cost.

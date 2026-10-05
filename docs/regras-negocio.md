@@ -194,3 +194,15 @@ reconcilia rendimentos pagos pela instituição. Futuro mantém principal real e
 reinveste somente no cenário em memória. Nenhuma transação/saldo/patrimônio,
 meta, budget ou recorrência é alterada. Falta de taxa retorna UNAVAILABLE,
 nunca taxa inventada; fallback cacheado é STALE. [Detalhes](./YIELD_ENGINE.md).
+
+## MDL 8 — Cartões
+
+Compra é despesa na conta credit; pagamento é transferência recebida. Cada parcela
+tem uma transação, soma exata e data mensal com anchor preservado. Futuras não
+afetam saldo real/Net Worth atual; somente o compromisso estimado na área Cards.
+Faturas derivadas, regras versionadas, vencimento estritamente após fechamento.
+Pagamento FIFO compensa legado e depois faturas reconhecidas; excedente vira
+crédito. Limite informativo pode ficar negativo, sem rejeição automática da compra.
+Cancelamento é correção com rows preservadas, bloqueado com pagamento aplicado;
+não é refund. Arquivo terminal preserva parcelas/faturas e permite pagamentos.
+Sem FX, juros/rotativo, integrações de cartão ou PAN/CVV. [Detalhes](./CARDS_INVOICES.md).
