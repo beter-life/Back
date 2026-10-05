@@ -136,5 +136,5 @@ insert fixtures by SQL. Await user PASS; no COMPLETE checkpoint, PR/merge or MDL
 Implementado em `codex/mdl6-net-worth`, sem merge: patrimônio por moeda,
 saldos assinados de contas somente leitura, itens externos, avaliações append-only,
 posição histórica e arquivamento terminal. Sem FX, projeções ou alteração do ledger.
-O gate humano ainda está pendente. Regras, API, schema, limites e roteiro estão em
+O gate humano foi aprovado em 2026-10-05. Regras, API, schema, limites e roteiro estão em
 [Net Worth](./net-worth.md).

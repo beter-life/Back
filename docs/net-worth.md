@@ -64,9 +64,14 @@ values and an accessible table. Manual entry warns against double counting.
 
 Disposable PostgreSQL17 API/RLS tests validate accounting, cutoff, ties, rollback,
 ownership and financial isolation; browser fixtures validate rendering/interaction,
-not hosted login. Human gate must still validate baseline → Carro BRL50,000 →
+not hosted login. Approved human gate validates baseline → Carro BRL50,000 →
 Financiamento BRL20,000 → new Carro55,000 (old value retained), reload, breakdown,
 archive debt, currency separation and previous modules unchanged. Expected delta
 before archive is baseline+35,000. No remote fixture created by automation.
 
-MDL6_STATUS=AWAITING_REAL_GATE; REAL_GATE=PENDING; READY_FOR_MDL7=false.
+MDL6_STATUS=COMPLETE; REAL_GATE=PASS; READY_FOR_MDL7=true.
+
+Human gate approved by the user on 2026-10-05: net worth, account breakdown,
+manual asset/liability, valuation/history, monthly history, reload, archive,
+currency separation, financial isolation and ownership PASS. Final closure
+regression PASS; do not start MDL7 without a separate explicit request.
