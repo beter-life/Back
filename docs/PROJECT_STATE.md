@@ -3,14 +3,14 @@
 | Field | Value |
 | --- | --- |
 | MODULE | MDL 5 — Recurrences, Subscriptions & Financial Calendar |
-| STATUS | AWAITING_REAL_GATE |
-| REAL_GATE | PENDING |
+| STATUS | COMPLETE |
+| REAL_GATE | PASS; human gate approved by the user on 2026-10-05 |
 | READY_FOR_MDL6 | false |
 | BRANCH | codex/mdl5-recurring-calendar; created exclusively from synchronized main |
 | BASELINE_MAIN | 7f8dd4c632b8192d485aa12c173e998f37a2d9ea; approved MDL0–4, MDL4 COMPLETE/REAL_GATE=PASS/MERGED_TO_MAIN=true; main unchanged |
 | SCOPE | Owned recurrence rules, deterministic DATE engine, read-only financial calendar and subscription radar |
-| LAST_TESTED_COMMIT | d656c642a25add244c9e17f52b93a12758e45b24; local regression and complete branch CI PASS; this development checkpoint changes documentation only |
-| CI | [Implementation 37044327116](https://github.com/beter-life/Back/actions/runs/37044327116) PASS on d656c642a25add244c9e17f52b93a12758e45b24; the documentation checkpoint uses the unchanged quality workflow, whose final result is checked before handoff |
+| LAST_TESTED_COMMIT | fe78cbada2d772abba8ec0df551eac4fa8666d97; final local Unit141, lint/typecheck, OpenAPI/contract drift, build, secret scan and harness PASS; closure changes documentation only |
+| CI | Final branch/PR/main checks pending. PostgreSQL17 integration/RLS must pass in the existing disposable CI service; local Docker startup is blocked by dockerInference socket failure |
 | DONE | Nine strict TypeBox/JWT endpoints, original-anchor weekly/monthly/yearly projection without drift, month-end/leap restoration, next occurrence, exact per-currency totals, optional own account/category, locked pause/resume/archive, RLS/composite FKs, generated OpenAPI/Zod |
 | DECISIONS | Recurrence != transaction; expectations never change confirmed ledger, accounts, transfers, budgets or goals. Type/currency fixed after creation; archive terminal. Edits replace rule and recalculate projections, no historical occurrence ledger. SUBSCRIPTION is a user classification requiring EXPENSE; no autodetection/matching/automatic posting |
 | DATES | DATE / YYYY-MM-DD years 1000–9998; 9999-01-01 only exclusive upper calendar bound; original anchor retained after clamp. Profile timezone discovers today, UTC fallback; projected dates never become UTC-midnight timestamps |
@@ -26,8 +26,9 @@
 | TEST_LIMITS | Disposable integration uses synthetic JWT/Auth schema for ownership/RLS; it does not replace hosted human login and gate |
 | LOCAL | Back http://localhost:3001 (ready200, protected recurrence401 without JWT); Front http://localhost:3101/finance/recurrences and /finance/calendar (200), approved CORS; apps running for human gate |
 | AUTOMATED_GATES | RECURRENCE_MODEL=PASS; RECURRENCE_ENGINE=PASS; WEEKLY=PASS; MONTHLY=PASS; YEARLY=PASS; MONTH_END_CLAMP=PASS; LEAP_YEAR=PASS; SUBSCRIPTIONS=PASS; SUBSCRIPTION_RADAR=PASS; NEXT_OCCURRENCE=PASS; FINANCIAL_CALENDAR=PASS; PROJECTED_TOTALS=PASS; MULTI_CURRENCY=PASS; ACCOUNT_LINK=PASS; CATEGORY_LINK=PASS; PAUSE_RESUME=PASS; ARCHIVE=PASS; FINANCIAL_ISOLATION=PASS; RLS=PASS; OWNERSHIP=PASS; OPENAPI=PASS |
-| HUMAN_GATE | Pending user: monthly Assinatura teste 100 BRL/start2026-10-31, calendar31Oct/30Nov/31Dec/31Jan, radar actual30day window; edit/reload, pause/resume/archive; income and optional USD totals; unchanged existing finance; second-user ownership when available |
-| CHECKPOINT | Development documentation AWAITING_REAL_GATE on branch; no MDL5 COMPLETE tag. Existing module checkpoints preserved |
-| MERGED_TO_MAIN | false; no MDL5 PR/merge in this execution |
-| BLOCKER | Human approval pending; MDL6 remains blocked by the required real gate |
-| NEXT | Stop here for the user gate. After user PASS, await a separate closure/PR/merge instruction. Do not initiate MDL6 |
+| PERSISTENCE | PASS; human reload gate approved |
+| HUMAN_GATE | ASSINATURA=PASS; MONTH_END_CLAMP=PASS; RADAR=PASS; PAUSE_RESUME=PASS; RECEITA_RECORRENTE=PASS; CALENDÁRIO=PASS; PROJECTED_TOTALS=PASS; RELOAD=PASS; ARCHIVE=PASS; ISOLAMENTO_FINANCEIRO=PASS; OWNERSHIP=PASS |
+| CHECKPOINT | checkpoint/mdl5-recurring-calendar-complete-2026-10-05 will point to the final branch closure commit; previous checkpoints preserved |
+| MERGED_TO_MAIN | false; merge requires final branch and PR CI PASS |
+| BLOCKER | Final CI/merge validation pending; no application regression found |
+| NEXT | Validate final CI, checkpoint and merge using merge commits only; validate main CI. Do not initiate MDL6 |
