@@ -9,7 +9,7 @@ summary. Auth, profile, PostgreSQL TLS and the approved infrastructure remain
 unchanged. The real authenticated financial gate and persisted data were
 approved by the user. MDL 3 extends the same Finance context with monthly budgets,
 expense-category limits, positive rollover, copy-previous and spending pace.
-The monthly budgeting real gate was approved on 2026-10-02; MDL 0–4 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals in `main`; its real gate was approved by the user on 2026-10-02 and MDL 4 is complete. Goal events never move account balances, transactions, transfers or budgets. MDL 5+ is not implemented.
+The monthly budgeting real gate was approved on 2026-10-02; MDL 0–4 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals in `main`; its real gate was approved by the user on 2026-10-02 and MDL 4 is complete. Goal events never move account balances, transactions, transfers or budgets. MDL 5 recurrence planning is implemented on codex/mdl5-recurring-calendar and awaits the human gate; MDL 6+ is not implemented.
 
 ## Development and gates
 
@@ -80,3 +80,17 @@ monthly contribution and a simple no-interest completion month using the
 profile timezone. Paused and archived goals reject new events; safe retries
 replay existing events. Apply migrations only to the intended DEV environment
 after review and disposable PostgreSQL/RLS validation; preserve verified TLS.
+
+## MDL 5 — Recurrences, Subscriptions & Financial Calendar
+
+Branch `codex/mdl5-recurring-calendar` adds financial expectations, independent of
+confirmed transactions. Nine JWT-protected endpoints under Finance provide rule
+CRUD, pause/resume/archive, a DATE calendar and a next-30-days subscription radar.
+The anchored engine handles month-end clamp and leap-year restoration. Money and
+per-currency totals stay exact BIGINT/string values; projected net is not balance.
+Migration `0006_financial_recurrences` adds only the private RLS-protected table.
+Supabase DEV received it after reviewed SQL and disposable PostgreSQL 17/RLS PASS;
+verified TLS and exact snapshots confirm all nine existing tables were preserved.
+No remote test records were inserted. See the Finance docs for limits and the
+[human gate checklist](docs/requisitos.md#mdl-5--recurrences-subscriptions--financial-calendar).
+MDL5 awaits the human gate; REAL_GATE=PENDING; READY_FOR_MDL6=false. No MDL5 merge.

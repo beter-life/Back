@@ -71,3 +71,24 @@ Replay verifica todos os campos normalizados e pode ocorrer após pausa/archive;
 um novo evento exige ACTIVE. Schema app permanece privado e sem novos grants
 Data API. RLS e FK composta reforçam isolamento; eventos não têm policies de
 escrita direta, para impedir contorno das invariantes do serviço.
+
+## MDL 5 — Recurrence boundary
+
+recurrence-contracts (TypeBox) → recurrence-routes (JWT) → recurrence-application
+(profile today/window orchestration) → recurrence-repository (owner filters,
+locks/associations) → app.financial_recurrences. recurrence-domain is a pure civil
+calendar engine and exact-money aggregation. Generated OpenAPI and Zod remain
+byte-identical between repos, without runtime filesystem coupling.
+
+Projection does one eligible-rule SELECT with account/category owner joins;
+optional filter-reference validation and profile context are constant queries,
+never one query per occurrence. A 501-row probe detects the 500-rule limit.
+Each rule seeks directly from its original anchor and probes at most 54 dates
+in a 366-day window. No scheduler, jobs, materialized occurrence table or writes
+on reads. Service derives next date, calendar and radar from the same engine.
+
+Writes affect only recurrence rows: patch/status acquire FOR UPDATE, while
+association validation uses FOR SHARE on existing account/category rows. Owner
+filters, compound FKs and RLS enforce isolation. No Auth transport/config changes,
+new dependencies or writes to earlier module tables. Pause/archive serialization
+preserves terminal status; hosted app remains outside the Data API.

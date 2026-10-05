@@ -130,3 +130,37 @@ até `to` exclusivo, separado por moeda. Nunca somar moedas diferentes.
   permanece separado desse diagnóstico, inclusive em metas pausadas/arquivadas.
 - Prioridade somente ordena/informa. Nunca converte moedas nem soma BRL e USD
   num total único. Não promete recomendação, retorno financeiro ou recorrência.
+
+## MDL 5 — Recurrence rules
+
+- Recurrence != transaction: a declaration projects expectations only. No action
+  changes profiles, accounts, categories, transactions, transfers, budgets or goals.
+- Money >0, at most PostgreSQL BIGINT, currency explicit, existing exponents,
+  integer JSON strings. Aggregate with BigInt; separate currencies and no FX.
+- startDate/endDate and projected dates are DATE / YYYY-MM-DD, years 1000–9998;
+  calendar may use 9999-01-01 only as exclusive upper bound. No UTC-midnight
+  serialization. Profile timezone discovers today; missing profile uses UTC.
+- WEEKLY uses anchor + n*interval*7 civil days (1–52). MONTHLY uses original
+  anchor day in each target month (1–24). YEARLY uses original month/day (1–10).
+  Clamp to the last valid day only for that occurrence: Jan31 → Feb28 → Mar31;
+  leap Jan31 → Feb29 → Mar31. Feb29 yearly → Feb28 in ordinary years, then
+  Feb29 again in leap years. Direct seeking avoids replaying centuries of history.
+- End is optional and inclusive, >= start. nextOccurrenceDate is first date >=
+  profile today, within end; paused/archived/ended return null. [from,to) excludes
+  to. Keys recurrenceId:date and ordering date/id are deterministic.
+- ACTIVE projects; PAUSED projects nothing until resume. ARCHIVED is terminal,
+  remains readable and cannot be edited/resumed. Same-status action is idempotent.
+  Edits replace the planning rule and recompute queried projections; they do not
+  create a historical occurrence ledger or alter confirmed financial records.
+- Type and currency are immutable after creation; mutable fields are name,
+  description, amount, kind (SUBSCRIPTION requires EXPENSE), associations,
+  frequency, interval and dates. PATCH validates the entire merged rule under lock.
+- New account/category association requires own active record, account currency
+  equal to the rule and category kind equal to income/expense. Later inactive
+  references stay visible and unchanged links survive unrelated edits; detaching
+  is allowed. Normalized UUID case cannot turn an unchanged link into a new one.
+- Calendar totals are incomeMinor, expenseMinor, projectedNetMinor per currency;
+  net is a forecast difference, never available balance. Radar sums actual
+  occurrences in [today,today+30), e.g. five weekly dates count five charges.
+  Subscription classification is user-entered; no transaction matching, posting,
+  reconciliation, confidence, notifications or financial ingestion.
