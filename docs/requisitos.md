@@ -161,4 +161,19 @@ Projeções não são saldo nem retorno confirmado. CDI/Selic/poupança/tributa�
 brasileira exigem BRL; fixa/ZERO suportam o catálogo existente, sem FX.
 Limites explícitos:10 anos por estimativa,500 profiles/versões por profile e
 10000 movimentos/versões na leitura agrupada. Gate humano aprovado pelo usuário em 2026-10-05 (PASS):
-[roteiro](./YIELD_ENGINE.md#gate-humano-aprovado). Não iniciar MDL8.
+[roteiro](./YIELD_ENGINE.md#gate-humano-aprovado). MDL8 autorizado separadamente.
+
+## MDL 8 — Cards, Invoices & Installments
+
+API `/api/v1/finance/cards`: list/create/summary; card detail/safe metadata PATCH;
+archive; billing-rules list/new version; purchases list/create/detail/metadata PATCH/
+corrective cancel; invoices list/range/asOf/detail by closing date; transfer payment.
+JWT.sub only; foreign resources404; strict TypeBox and generated Front Zod.
+Invoices include posted/scheduled/committed/payments/outstanding, installment detail
+and UPCOMING/OPEN/CLOSED/PAID/OVERDUE. Purchases1–60, exact minor units and stable
+cursor pagination; invoice filter ranges limited to2192 days. Payments partial/full/
+excess, oldest recognized invoice first after legacy debt. Currencies separate.
+Human gate approved on 2026-10-06: card, purchase1x, transfer payment without
+another expense, exact installments/future commitments, reload, future billing
+version, correction, archive/history/payment, Budget/Net Worth isolation and ownership.
+MDL8 COMPLETE; MDL9 requires a separate request. [Model](./CARDS_INVOICES.md).

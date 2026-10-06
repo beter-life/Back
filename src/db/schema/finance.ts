@@ -127,6 +127,7 @@ export const financialTransactions = appSchema
           financialCategories.kind,
         ],
       }),
+      unique('financial_transactions_id_owner_unique').on(table.id, table.authUserId),
       check('financial_transactions_amount_check', sql`${table.amountMinor} > 0`),
       check('financial_transactions_type_check', sql`${table.type} in ('INCOME','EXPENSE')`),
       index('financial_transactions_owner_date_idx').on(

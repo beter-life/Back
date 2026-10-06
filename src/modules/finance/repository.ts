@@ -7,6 +7,7 @@ import {
   financialTransfers as transfers,
 } from '../../db/schema/finance.js';
 import { AppError } from '../../shared/errors/index.js';
+import { creditCards, cardInstallments } from '../../db/schema/cards.js';
 import type { Currency } from './domain.js';
 import type { TransferPatch } from './contracts.js';
 import type {
@@ -149,6 +150,10 @@ export function createFinanceRepository({ db }: Database): FinanceRepository {
       return (await ownAccount(owner, row!.id))!;
     },
     async patchAccount(owner, id, input) {
+      if (input.type && input.type !== 'credit') {
+        const linked = await db.select({ id: creditCards.id }).from(creditCards).where(and(eq(creditCards.authUserId, owner), eq(creditCards.accountId, id)));
+        if (linked.length) throw new AppError('CARD_MANAGED_ACCOUNT');
+      }
       const [row] = await db
         .update(accounts)
         .set({ ...input, updatedAt: new Date() })
@@ -183,6 +188,8 @@ export function createFinanceRepository({ db }: Database): FinanceRepository {
     async createTransaction(owner, input) {
       return db.transaction(async (tx) => {
         await lockedAccounts(tx, owner, [input.accountId], input.currency);
+        const managed = await tx.execute(sql`select 1 from app.financial_credit_cards c left join app.profiles p on p.auth_user_id=c.auth_user_id where c.auth_user_id=${owner} and c.account_id=${input.accountId} and (${new Date(input.occurredAt)}::timestamptz at time zone coalesce(p.timezone,'UTC'))::date >= c.tracking_start_date limit 1`);
+        if (managed.rows.length) throw new AppError('CARD_MANAGED_ACCOUNT');
         if (input.categoryId) {
           const [row] = await tx
             .select()
@@ -206,6 +213,8 @@ export function createFinanceRepository({ db }: Database): FinanceRepository {
       });
     },
     async patchTransaction(owner, id, input) {
+      const linked = await db.select({ id: cardInstallments.id }).from(cardInstallments).where(and(eq(cardInstallments.authUserId, owner), eq(cardInstallments.transactionId, id)));
+      if (linked.length) throw new AppError('CARD_MANAGED_ACCOUNT');
       const [row] = await db
         .update(transactions)
         .set({ ...input, updatedAt: new Date() })
@@ -267,6 +276,8 @@ export function createFinanceRepository({ db }: Database): FinanceRepository {
           [input.sourceAccountId, input.destinationAccountId],
           input.currency,
         );
+        const managedSource = await tx.execute(sql`select 1 from app.financial_credit_cards c left join app.profiles p on p.auth_user_id=c.auth_user_id where c.auth_user_id=${owner} and c.account_id=${input.sourceAccountId} and (${new Date(input.occurredAt)}::timestamptz at time zone coalesce(p.timezone,'UTC'))::date >= c.tracking_start_date limit 1`);
+        if (managedSource.rows.length) throw new AppError('CARD_SOURCE_NOT_ALLOWED');
         const [row] = await tx
           .insert(transfers)
           .values({

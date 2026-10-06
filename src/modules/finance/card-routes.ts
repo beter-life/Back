@@ -1,0 +1,30 @@
+import type { FastifyInstance } from 'fastify';
+import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import { Type } from 'typebox';
+import type { CardRepository } from './card-repository.js';
+import type { FinanceRepository } from './repository.js';
+import type { ProfileRepository } from '../profile/repository.js';
+import { authGuard, requireIdentity, type createVerifier } from '../auth/identity.js';
+import { EmptyQuery, ErrorResponses } from '../../shared/http/schemas.js';
+import { cardService } from './card-application.js';
+import * as C from './card-contracts.js';
+export function cardRoutes(app: FastifyInstance, repo: CardRepository, finance: FinanceRepository, profiles: ProfileRepository, verify: ReturnType<typeof createVerifier>, clock?: () => Date) {
+  const r = app.withTypeProvider<TypeBoxTypeProvider>(), s = cardService(repo, finance, profiles, clock), base = '/api/v1/finance/cards', item = base + '/:cardId', purchase = item + '/purchases/:purchaseId', preValidation = authGuard(verify), common = { tags: ['Finance Cards'], security: [{ bearerAuth: [] }], querystring: EmptyQuery };
+  const empty = Type.Object({}, { additionalProperties: false });
+  r.get(base, { preValidation, schema: { ...common, operationId: 'listCreditCards', response: { 200: Type.Array(C.Card), ...ErrorResponses } } }, req => s.list(requireIdentity(req).authUserId));
+  r.post(base, { preValidation, schema: { ...common, operationId: 'createCreditCard', body: C.CardInput, response: { 201: C.Card, ...ErrorResponses } } }, async (req, reply) => reply.code(201).send(await s.create(requireIdentity(req).authUserId, req.body)));
+  r.get(base + '/summary', { preValidation, schema: { ...common, querystring: C.AsOfQuery, operationId: 'getCardsSummary', response: { 200: C.CardsSummary, ...ErrorResponses } } }, req => s.summary(requireIdentity(req).authUserId, req.query.asOf));
+  r.get(item, { preValidation, schema: { ...common, params: C.CardParams, querystring: C.AsOfQuery, operationId: 'getCreditCard', response: { 200: C.CardView, ...ErrorResponses } } }, req => s.view(requireIdentity(req).authUserId, req.params.cardId, req.query.asOf));
+  r.patch(item, { preValidation, schema: { ...common, params: C.CardParams, operationId: 'patchCreditCard', body: C.CardPatch, response: { 200: C.Card, ...ErrorResponses } } }, req => s.patch(requireIdentity(req).authUserId, req.params.cardId, req.body));
+  r.post(item + '/archive', { preValidation, schema: { ...common, params: C.CardParams, operationId: 'archiveCreditCard', body: empty, response: { 200: C.Card, ...ErrorResponses } } }, req => s.archive(requireIdentity(req).authUserId, req.params.cardId));
+  r.get(item + '/billing-rules', { preValidation, schema: { ...common, params: C.CardParams, operationId: 'listCardBillingRules', response: { 200: Type.Array(C.BillingRule), ...ErrorResponses } } }, req => s.rules(requireIdentity(req).authUserId, req.params.cardId));
+  r.post(item + '/billing-rules', { preValidation, schema: { ...common, params: C.CardParams, operationId: 'addCardBillingRule', body: C.BillingRuleInput, response: { 201: C.BillingRule, ...ErrorResponses } } }, async (req, reply) => reply.code(201).send(await s.addRule(requireIdentity(req).authUserId, req.params.cardId, req.body)));
+  r.get(item + '/purchases', { preValidation, schema: { ...common, params: C.CardParams, querystring: C.PurchaseQuery, operationId: 'listCardPurchases', response: { 200: C.PurchasePage, ...ErrorResponses } } }, req => s.purchases(requireIdentity(req).authUserId, req.params.cardId, req.query));
+  r.post(item + '/purchases', { preValidation, schema: { ...common, params: C.CardParams, operationId: 'createCardPurchase', body: C.PurchaseInput, response: { 201: C.Purchase, ...ErrorResponses } } }, async (req, reply) => reply.code(201).send(await s.createPurchase(requireIdentity(req).authUserId, req.params.cardId, req.body)));
+  r.get(purchase, { preValidation, schema: { ...common, params: C.PurchaseParams, operationId: 'getCardPurchase', response: { 200: C.Purchase, ...ErrorResponses } } }, req => s.purchase(requireIdentity(req).authUserId, req.params.cardId, req.params.purchaseId));
+  r.patch(purchase, { preValidation, schema: { ...common, params: C.PurchaseParams, operationId: 'patchCardPurchase', body: C.PurchasePatch, response: { 200: C.Purchase, ...ErrorResponses } } }, req => s.patchPurchase(requireIdentity(req).authUserId, req.params.cardId, req.params.purchaseId, req.body));
+  r.post(purchase + '/cancel', { preValidation, schema: { ...common, params: C.PurchaseParams, operationId: 'cancelCardPurchase', body: empty, response: { 200: C.Purchase, ...ErrorResponses } } }, req => s.cancel(requireIdentity(req).authUserId, req.params.cardId, req.params.purchaseId));
+  r.get(item + '/invoices', { preValidation, schema: { ...common, params: C.CardParams, querystring: C.InvoiceQuery, operationId: 'listCardInvoices', response: { 200: Type.Array(C.Invoice), ...ErrorResponses } } }, req => s.invoices(requireIdentity(req).authUserId, req.params.cardId, req.query));
+  r.get(item + '/invoices/:closingDate', { preValidation, schema: { ...common, params: C.InvoiceParams, querystring: C.AsOfQuery, operationId: 'getCardInvoice', response: { 200: C.Invoice, ...ErrorResponses } } }, req => s.invoice(requireIdentity(req).authUserId, req.params.cardId, req.params.closingDate, req.query.asOf));
+  r.post(item + '/payments', { preValidation, schema: { ...common, params: C.CardParams, operationId: 'createCardPayment', body: C.PaymentInput, response: { 201: C.Payment, ...ErrorResponses } } }, async (req, reply) => reply.code(201).send(await s.payment(requireIdentity(req).authUserId, req.params.cardId, req.body)));
+}

@@ -125,3 +125,19 @@ Sem grants novos ao Data API, sem extensão ou alteração de0001–0007.
 Antes de DEV: disposable PostgreSQL17/RLS PASS e comparação de hashes exatos das
 12 tabelas anteriores antes/depois. Sem fixtures remotas. TLS verify-full intacto.
 O estado efetivo da aplicação remota é registrado em PROJECT_STATE.
+
+## MDL 8 — 0009_financial_cards
+
+Quatro tabelas privadas: financial_credit_cards, financial_card_billing_rules,
+financial_card_purchases e financial_card_installments. DATE para ciclos/datas;
+BIGINT para minor units. Conta credit de owner/currency iguais, única por cartão.
+FKs compostas também ligam categoria EXPENSE, purchase e transaction ao owner.
+Novo UNIQUE transaction(id,owner) e guards aditivos, sem modificar0001–0008.
+Rules sem overlap e immutable; installments immutable. Constraints deferred
+exigem N parcelas, soma total e transações EXPENSE consistentes, inclusive cancel.
+RLS: cartão own SELECT/INSERT/UPDATE; filhos own SELECT, escrita só pelo backend
+controlado. Sem DELETE público ou grants novos. Nenhum total/saldo de fatura
+duplicado. DEV recebeu estruturas vazias depois de PG17/RLS PASS; as15 tabelas
+anteriores foram preservadas na migration. Após o gate humano, a closure validou
+por leitura counts/hashes e estrutura das19 tabelas, preservando também os dados
+reais de Cards. Sem reset, fixtures extras, mudança de Auth/JWT/JWKS ou downgrade TLS.

@@ -9,7 +9,7 @@ summary. Auth, profile, PostgreSQL TLS and the approved infrastructure remain
 unchanged. The real authenticated financial gate and persisted data were
 approved by the user. MDL 3 extends the same Finance context with monthly budgets,
 expense-category limits, positive rollover, copy-previous and spending pace.
-The monthly budgeting real gate was approved on 2026-10-02; MDL 0–7 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals; its real gate was approved by the user on 2026-10-02. Goal events never move account balances, transactions, transfers or budgets. MDL 5 recurrence planning and MDL 6 Net Worth are COMPLETE after approved human gates. MDL7 Yield Engine is COMPLETE after the user-approved real gate on 2026-10-05; branch/PR/main CI and merge commits PASS; MDL8 is not started.
+The monthly budgeting real gate was approved on 2026-10-02; MDL 0–7 are integrated into main. MDL 4 Financial Goals adds personal planning goals and immutable contributions/withdrawals; its real gate was approved by the user on 2026-10-02. Goal events never move account balances, transactions, transfers or budgets. MDL 5 recurrence planning and MDL 6 Net Worth are COMPLETE after approved human gates. MDL7 Yield Engine is COMPLETE after the user-approved real gate on 2026-10-05; MDL8 Cards is COMPLETE after the user-approved real gate on 2026-10-06; publication/merge readiness is tracked in PROJECT_STATE.
 
 ## Development and gates
 
@@ -110,4 +110,14 @@ savings estimates, bounded BCB cache, estimated IR/IOF, comparison and history.
 No real ledger/net-worth writes, FX or paid sources. TypeBox/OpenAPI and generated
 Front client remain canonical. [Model, sources and human gate](docs/YIELD_ENGINE.md).
 Migration0008 follows the existing Drizzle workflow after disposable PG17/RLS
-validation. REAL_GATE=PASS; MDL7_STATUS=COMPLETE. Closure PR/merge/main CI PASS; await an explicit MDL8 request. Local ports remain3001/3101.
+validation. REAL_GATE=PASS; MDL7_STATUS=COMPLETE. Closure PR/merge/main CI PASS. Local ports remain3001/3101.
+
+## MDL 8 — Cards, invoices and installments
+
+Managed credit accounts, immutable billing cycles, atomic installment purchases,
+derived invoices and FIFO transfer payments. Purchase is EXPENSE; payment is
+TRANSFER, never a second expense. Recognized balance and future commitments stay
+separate. No payment processing, PAN/CVV, FX, interest or automatic Yield profile.
+[Accounting model and limits](docs/CARDS_INVOICES.md). Migration0009 applied to DEV
+after disposable PG17/RLS; earlier data and human-gate records preserved.
+Automated gates and the user-approved real Cards gate passed. No MDL9 implementation.
