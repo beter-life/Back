@@ -45,3 +45,12 @@ materializes installments and closes rule versions. Generic transactions and
 outgoing transfers cannot bypass managed-card accounting. PAN, CVV, PIN, banking
 credentials and payment tokens are not accepted or stored. There is no payment
 processing, interest, revolving debt, refund engine or paid external service.
+
+## Approved human gate
+
+On 2026-10-06 the user approved card creation, purchase1x, transfer payment and
+no double counting, exact installments/future commitments, reload persistence,
+billing-rule versioning, corrective cancellation, archive, Budget/Net Worth
+integration, financial isolation and ownership. REAL_GATE=PASS; MDL8=COMPLETE.
+Validation records remain in DEV. The final closure does not change accounting,
+reapply migrations or create fixtures. Calendar remains deferred; MDL9 is not started.

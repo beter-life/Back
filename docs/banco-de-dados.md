@@ -137,6 +137,7 @@ Rules sem overlap e immutable; installments immutable. Constraints deferred
 exigem N parcelas, soma total e transações EXPENSE consistentes, inclusive cancel.
 RLS: cartão own SELECT/INSERT/UPDATE; filhos own SELECT, escrita só pelo backend
 controlado. Sem DELETE público ou grants novos. Nenhum total/saldo de fatura
-duplicado. DEV recebeu estruturas vazias depois de PG17/RLS PASS;15 tabelas
-anteriores mantêm counts/hashes, columns/policies/grants/constraints anteriores.
-Não houve reset, fixtures remotas, mudança de Auth/JWT/JWKS ou downgrade TLS.
+duplicado. DEV recebeu estruturas vazias depois de PG17/RLS PASS; as15 tabelas
+anteriores foram preservadas na migration. Após o gate humano, a closure validou
+por leitura counts/hashes e estrutura das19 tabelas, preservando também os dados
+reais de Cards. Sem reset, fixtures extras, mudança de Auth/JWT/JWKS ou downgrade TLS.

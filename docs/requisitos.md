@@ -173,7 +173,7 @@ Invoices include posted/scheduled/committed/payments/outstanding, installment de
 and UPCOMING/OPEN/CLOSED/PAID/OVERDUE. Purchases1–60, exact minor units and stable
 cursor pagination; invoice filter ranges limited to2192 days. Payments partial/full/
 excess, oldest recognized invoice first after legacy debt. Currencies separate.
-Human gate pending: create BRL card5000/close10/due17; buy300; pay300 without
-another expense; buy1000/3; reload; future close12/due20; eligible correction;
-terminal archive/history/payment; Budget/Net Worth isolation and ownership.
-Do not close MDL8 or start MDL9 before user approval. [Model](./CARDS_INVOICES.md).
+Human gate approved on 2026-10-06: card, purchase1x, transfer payment without
+another expense, exact installments/future commitments, reload, future billing
+version, correction, archive/history/payment, Budget/Net Worth isolation and ownership.
+MDL8 COMPLETE; MDL9 requires a separate request. [Model](./CARDS_INVOICES.md).
