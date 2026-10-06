@@ -10,6 +10,8 @@ export const errors = {
   FORBIDDEN: [403, 'Request is not permitted.'],
   NOT_FOUND: [404, 'Resource not found.'],
   CONFLICT: [409, 'Resource conflict.'],
+  DEBT_MANAGED_ACCOUNT: [409, 'Use the Debt Payment API for this managed debt account.'],
+  DEBT_CANCEL_UNSAFE: [409, 'Only the latest active payment can be cancelled; archived debts are terminal.'],
   CARD_MANAGED_ACCOUNT: [409, 'Use the Card Purchase API for this managed credit account.'],
   CARD_SOURCE_NOT_ALLOWED: [409, 'A managed card cannot be the source of a transfer.'],
   CARD_CANCEL_UNSAFE: [409, 'Purchase correction is unavailable after invoice payments. Refunds are outside this module.'],

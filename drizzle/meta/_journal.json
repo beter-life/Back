@@ -64,6 +64,13 @@
       "when": 1791228426089,
       "tag": "0009_financial_cards",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791288720049,
+      "tag": "0010_financial_debts",
+      "breakpoints": true
     }
   ]
 }

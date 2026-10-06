@@ -60,6 +60,7 @@ export const financialAccounts = appSchema
       isActive: boolean('is_active').notNull().default(true),
     },
     (table) => [
+      unique('financial_accounts_owner_currency_type_key').on(table.id, table.authUserId, table.currency, table.type),
       unique('financial_accounts_owner_currency_key').on(
         table.id,
         table.authUserId,
@@ -69,7 +70,7 @@ export const financialAccounts = appSchema
       check('financial_accounts_name_check', sql`length(trim(${table.name})) > 0`),
       check(
         'financial_accounts_type_check',
-        sql`${table.type} in ('checking','savings','cash','credit','investment','other')`,
+        sql`${table.type} in ('checking','savings','cash','credit','investment','other','debt')`,
       ),
       check('financial_accounts_currency_check', sql`${table.currency} in (${currenciesSql})`),
       ...policies(table, 'financial_accounts'),
@@ -165,6 +166,7 @@ export const financialTransfers = appSchema
     },
     (table) => [
       unique('financial_transfers_idempotency_key').on(table.authUserId, table.idempotencyKey),
+      unique('financial_transfers_id_owner_key').on(table.id, table.authUserId),
       foreignKey({
         name: 'financial_transfers_source_owner_fk',
         columns: [table.sourceAccountId, table.authUserId, table.currency],

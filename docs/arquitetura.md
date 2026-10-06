@@ -121,3 +121,7 @@ Compound FKs, private RLS, immutable rules and deferred ledger constraints enfor
 ownership and completeness. No writes to Budget/Goals/Recurrences/Net Worth/Yield.
 Calendar extension deferred; Cards supplies due dates without changing MDL5.
 [Decisions](./CARDS_INVOICES.md). No new dependency or external cost.
+
+## MDL9 — Debt & payoff
+
+Finance: debt-routes/contracts → debt-application → debt-repository + debt-domain puro. Pagamento materializa transferência e custos em uma transação, com locks das contas ordenados e chave por owner. RLS privada e constraints diferidas conferem ledger; simulador lê principal e termos, sem consultas por mês nem escrita. Resumo por moeda em uma consulta. [Decisões](./DEBT_PAYOFF.md). Nenhuma nova dependência de produção.

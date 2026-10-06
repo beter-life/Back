@@ -26,6 +26,7 @@ export function createYieldRepository({db,pool}:Database){
       await db.transaction(async tx=>{
         const [account]=await tx.select().from(accounts).where(and(eq(accounts.id,accountId),eq(accounts.authUserId,owner))).for('update');if(!account)throw new AppError('NOT_FOUND');if(!account.isActive)throw new AppError('CONFLICT');
         const rule=validateYieldRule(input,account.currency);
+        if(account.type==='debt')throw new AppError('VALIDATION_ERROR');
         let [p]=await tx.select().from(profiles).where(and(eq(profiles.accountId,accountId),eq(profiles.authUserId,owner))).for('update');
         if(creating){if(p)throw new AppError('CONFLICT');[p]=await tx.insert(profiles).values({authUserId:owner,accountId,currency:account.currency}).returning();}
         if(!p)throw new AppError('NOT_FOUND');if(p.status!=='ACTIVE')throw new AppError('CONFLICT');
