@@ -120,8 +120,8 @@ TRANSFER, never a second expense. Recognized balance and future commitments stay
 separate. No payment processing, PAN/CVV, FX, interest or automatic Yield profile.
 [Accounting model and limits](docs/CARDS_INVOICES.md). Migration0009 applied to DEV
 after disposable PG17/RLS; earlier data and human-gate records preserved.
-Automated gates and the user-approved real Cards gate passed. MDL9 DEV implementation follows below; its real gate remains pending.
+Automated gates and the user-approved real Cards gate passed. MDL9 is COMPLETE with its user-approved real gate PASS; integration gates are recorded in PROJECT_STATE.
 
 ## MDL9 — Debt & Payoff Simulator
 
-DEV em codex/mdl9-debt-payoff-simulator; aguardando gate humano. Dívida usa conta debt, principal via TRANSFER e juros/tarifas via EXPENSE. Simulação somente leitura (mínimos/avalanche/snowball), sem FX, indexadores ou lançamentos automáticos. [Modelo, premissas e gate](docs/DEBT_PAYOFF.md). Sem MDL10.
+MDL9 COMPLETE; gate humano aprovado. Dívida usa conta debt, principal via TRANSFER e juros/tarifas via EXPENSE. Simulação somente leitura (mínimos/avalanche/snowball), sem FX, indexadores ou lançamentos automáticos. [Modelo, premissas e gate](docs/DEBT_PAYOFF.md). Sem MDL10.

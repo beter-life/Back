@@ -1,6 +1,6 @@
 # MDL9 — Debt Management & Payoff Simulator
 
-Estado: implementação DEV, aguardando gate humano. MDL0–MDL8 permanecem aprovados. Sem PR final, merge ou MDL10.
+Estado: MDL9 COMPLETE; REAL_GATE=PASS, aprovado pelo usuário em 2026-10-06. MDL0–MDL8 preservados. Integração em main condicionada aos gates de branch/PR/merge/main registrados em PROJECT_STATE. MDL10 não iniciado.
 
 ## Contabilidade real
 
@@ -72,7 +72,13 @@ Conversão manual é opt-in com `manualNetWorthItemId`: item próprio, ACTIVE, L
 
 Aplicação DEV somente após PostgreSQL17 vazio e regressão/RLS PASS, verificando hashes das migrations existentes e snapshots das19 tabelas antes/depois, com TLS verify-full. Nenhum dado fictício é inserido no hosted DEV. Schema da infraestrutura anterior é preservado, exceto extensões explicitamente necessárias do CHECK/uniques/triggers acima.
 
-## Gate humano pendente
+## Gate humano aprovado
+
+DEBT=PASS; PAYMENT=PASS; PRINCIPAL_TRANSFER=PASS; INTEREST_FEE_EXPENSE=PASS; NO_DOUBLE_COUNTING_DEBT=PASS; BUDGET_INTEGRATION=PASS; NET_WORTH_INTEGRATION=PASS; RELOAD=PASS; SIMULATOR=PASS; MINIMUM_ONLY=PASS; AVALANCHE=PASS; SNOWBALL=PASS; TERM_VERSIONING=PASS; PAYOFF=PASS; MANUAL_LIABILITY_CONVERSION=PASS; CARD_ISOLATION=PASS; YIELD_ISOLATION=PASS; RECURRENCE_ISOLATION=PASS; OWNERSHIP=PASS
+
+Fechamento: regressão completa preservada; comparação somente leitura das22 tabelas atuais inclui dados humanos MDL9 e verifica schema/indexes/constraints/policies/grants. A0010 permanece intacta, sem reaplicação. Smoke descartável revalidou cash1000/debt-1000/net0 → principal500/net0 → juros100/net-100. Nenhuma fixture foi criada no hosted DEV.
+
+Cenário de referência para revalidação:
 
 Back3001, Front3101, `/finance/debts`. Criar dívida10000BRL, taxa12% anual, mínimo500, dia10. Conta=-10000; um único passivo no patrimônio. Pagar400principal+90juros+10tarifa: origem−500, principal9600, Budget100. Recarregar. Comparar extra500 com segunda dívida de taxa maior/menor principal. Validar nova versão futura, payoff zero, ownership, Cards/Yield e conversão manual sem duplicação.
 
