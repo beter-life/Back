@@ -35,6 +35,7 @@ const AccountType = Type.Union([
   Type.Literal('credit'),
   Type.Literal('investment'),
   Type.Literal('other'),
+  Type.Literal('debt'),
 ]);
 const Kind = Type.Union([Type.Literal('INCOME'), Type.Literal('EXPENSE')]);
 const Metadata = { id: Id, createdAt: DateTime, updatedAt: DateTime };

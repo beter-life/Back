@@ -30,6 +30,8 @@ import { MarketRateService } from './modules/finance/yield-market.js';
 import { yieldRoutes } from './modules/finance/yield-routes.js';
 import { createCardRepository, type CardRepository } from './modules/finance/card-repository.js';
 import { cardRoutes } from './modules/finance/card-routes.js';
+import { createDebtRepository, type DebtRepository } from './modules/finance/debt-repository.js';
+import { debtRoutes } from './modules/finance/debt-routes.js';
 import { loggerOptions } from './plugins/logging.js';
 import { AppError, installErrors } from './shared/errors/index.js';
 import { EmptyQuery, ErrorResponses } from './shared/http/schemas.js';
@@ -44,10 +46,11 @@ export interface AppDependencies {
   yield?: YieldRepository;
   market?: MarketRateService;
   cards?: CardRepository;
+  debts?: DebtRepository;
   ping: () => Promise<void>;
   close: () => Promise<void>;
 }
-export interface AppOptions { dependencies?: AppDependencies; jwks?: JWTVerifyGetKey; logStream?: Writable; budgetClock?: () => Date; goalClock?: () => Date; recurrenceClock?: () => Date; netWorthClock?: () => Date; yieldClock?: () => Date; cardClock?: () => Date }
+export interface AppOptions { dependencies?: AppDependencies; jwks?: JWTVerifyGetKey; logStream?: Writable; budgetClock?: () => Date; goalClock?: () => Date; recurrenceClock?: () => Date; netWorthClock?: () => Date; yieldClock?: () => Date; cardClock?: () => Date; debtClock?: () => Date }
 
 export async function buildApp(config: AppConfig, options: AppOptions = {}) {
   const app = Fastify({
@@ -73,6 +76,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
     profiles: createProfileRepository(database!), finance: createFinanceRepository(database!), budgets: createBudgetRepository(database!), goals: createGoalRepository(database!), recurrences: createRecurrenceRepository(database!), netWorth: createNetWorthRepository(database!), yield:createYieldRepository(database!),market:new MarketRateService(createMarketRateCache(database!)),cards:createCardRepository(database!),ping: database!.ping, close: database!.close,
   };
   database?.pool.on('error', () => app.log.error({ code: 'DATABASE_POOL_ERROR' }, 'database connection failed'));
+  const debtRepository = options.dependencies?.debts ?? (database ? createDebtRepository(database) : undefined);
   app.addHook('onClose', dependencies.close);
   try {
     await app.register(swagger, { openapi: {
@@ -101,6 +105,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
     if (dependencies.netWorth) netWorthRoutes(app, dependencies.netWorth, dependencies.profiles, createVerifier(config, options.jwks), options.netWorthClock);
     if (dependencies.yield&&dependencies.market&&dependencies.finance) yieldRoutes(app,dependencies.yield,dependencies.finance,dependencies.profiles,dependencies.market,createVerifier(config,options.jwks),options.yieldClock);
     if (dependencies.cards && dependencies.finance) cardRoutes(app, dependencies.cards, dependencies.finance, dependencies.profiles, createVerifier(config, options.jwks), options.cardClock);
+    if (debtRepository) debtRoutes(app, debtRepository, dependencies.profiles, createVerifier(config, options.jwks), options.debtClock);
     app.get('/api/v1/openapi.json', { schema: {
       operationId: 'getOpenApi', tags: ['Contract'], querystring: EmptyQuery,
       response: { 200: Type.Record(Type.String(), Type.Unknown()), ...ErrorResponses },

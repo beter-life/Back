@@ -141,3 +141,7 @@ duplicado. DEV recebeu estruturas vazias depois de PG17/RLS PASS; as15 tabelas
 anteriores foram preservadas na migration. Após o gate humano, a closure validou
 por leitura counts/hashes e estrutura das19 tabelas, preservando também os dados
 reais de Cards. Sem reset, fixtures extras, mudança de Auth/JWT/JWKS ou downgrade TLS.
+
+## MDL9 — Migration0010
+
+0010_financial_debts: financial_debts/terms/payments, compound owner/currency/type FKs, RLS own SELECT com escrita controlada pelo backend, versões imutáveis/não sobrepostas, constraints diferidas do ledger. Tipo debt acrescentado ao CHECK existente; uniques de conta e transferência suportam FKs novas. Migrations0001–0009 e dados existentes preservados; sem reset, Auth/TLS ou grants Data API. [Integridade e rollout](./DEBT_PAYOFF.md).

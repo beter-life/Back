@@ -206,3 +206,7 @@ crédito. Limite informativo pode ficar negativo, sem rejeição automática da 
 Cancelamento é correção com rows preservadas, bloqueado com pagamento aplicado;
 não é refund. Arquivo terminal preserva parcelas/faturas e permite pagamentos.
 Sem FX, juros/rotativo, integrações de cartão ou PAN/CVV. [Detalhes](./CARDS_INVOICES.md).
+
+## MDL9 — Separação de principal e custos
+
+Principal real deriva da abertura negativa e do ledger, sem setter. Principal pago é transferência; somente juros/tarifas são despesas. Taxas efetivas fixas com conversão composta e arredondamento HALF_UP em unidades mínimas. Nenhuma projeção posta juros reais. Conversão manual apenas explícita e com valor/moeda/owner iguais; histórico imutável. [Regras completas](./DEBT_PAYOFF.md).
