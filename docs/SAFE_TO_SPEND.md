@@ -81,3 +81,13 @@ Gate humano ainda PENDING: login existente; abrir /finance/safe-to-spend; seleci
 buffer explicitamente; conferir liquidez, compromissos reais, toggles, teto do Budget, metas,
 cenário de receita, shortfall quando aplicável e persistência após reload. Cada moeda separada.
 Estado de entrega: AWAITING_REAL_GATE; READY_FOR_MDL11=false. Sem PR final, merge ou MDL11.
+
+Advisors pós-DDL: nenhuma falha de segurança nas tabelas novas. O INFO de RLS sem policy
+em financial_market_rates é o cache privado/backend-only preexistente; o WARN de
+[leaked password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)
+permanece fora do escopo, sem mudança de Auth. Os INFOs de
+[FKs sem índice cobrindo a lista completa](https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys)
+nas seleções foram revisados: PK com prefixo profile_id e índice owner/account suportam
+os predicados de igualdade; no máximo100 seleções por profile e identidade dos pais
+imutável. O teste de volume passou. Índice ainda não usado é esperado nas tabelas vazias;
+nenhum índice foi removido nem migration aplicada reescrita por conveniência.
