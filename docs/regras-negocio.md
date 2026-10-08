@@ -210,3 +210,7 @@ Sem FX, juros/rotativo, integrações de cartão ou PAN/CVV. [Detalhes](./CARDS_
 ## MDL9 — Separação de principal e custos
 
 Principal real deriva da abertura negativa e do ledger, sem setter. Principal pago é transferência; somente juros/tarifas são despesas. Taxas efetivas fixas com conversão composta e arredondamento HALF_UP em unidades mínimas. Nenhuma projeção posta juros reais. Conversão manual apenas explícita e com valor/moeda/owner iguais; histórico imutável. [Regras completas](./DEBT_PAYOFF.md).
+
+## MDL10 — Safe to Spend
+
+Liquidez signed menos obrigações, planos e buffer produz capacidade de caixa; orçamento limita com min, nunca nova subtração. Cartões/custos de dívida são deduplicados por vínculo estrutural; recorrências não são reconciliadas por heurística. Metas usam somente plano mensal restante. Nenhum movimento financeiro é criado. [Modelo e limites](./SAFE_TO_SPEND.md).

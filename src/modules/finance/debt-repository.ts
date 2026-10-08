@@ -10,7 +10,7 @@ import { recurrenceToday } from './recurrence-domain.js';
 import { nextDue, validateDebt, validateTerm } from './debt-domain.js';
 import type * as C from './debt-contracts.js';
 const debtView = (r: typeof debts.$inferSelect): C.Debt => ({ id:r.id,accountId:r.accountId,currency:r.currency,name:r.name,lender:r.lender,debtType:r.debtType,trackingStartDate:r.trackingStartDate,status:r.status,createdAt:r.createdAt.toISOString(),updatedAt:r.updatedAt.toISOString(),paidOffAt:r.paidOffAt?.toISOString()??null,archivedAt:r.archivedAt?.toISOString()??null });
-const termView = (r: typeof terms.$inferSelect): C.Term => ({ id:r.id,debtId:r.debtId,effectiveFrom:r.effectiveFrom,effectiveTo:r.effectiveTo,rate:r.rate.replace(/\.?0+$/, '') || '0',ratePeriod:r.ratePeriod,minimumPaymentMinor:String(r.minimumPaymentMinor),dueDay:r.dueDay,createdAt:r.createdAt.toISOString() });
+export const termView = (r: typeof terms.$inferSelect): C.Term => ({ id:r.id,debtId:r.debtId,effectiveFrom:r.effectiveFrom,effectiveTo:r.effectiveTo,rate:r.rate.replace(/\.?0+$/, '') || '0',ratePeriod:r.ratePeriod,minimumPaymentMinor:String(r.minimumPaymentMinor),dueDay:r.dueDay,createdAt:r.createdAt.toISOString() });
 const own = (owner:string,id:string) => and(eq(debts.authUserId,owner),eq(debts.id,id));
 export function createDebtRepository({db}:Database) {
   type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];

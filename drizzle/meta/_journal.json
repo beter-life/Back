@@ -71,6 +71,13 @@
       "when": 1791288720049,
       "tag": "0010_financial_debts",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791459226246,
+      "tag": "0011_financial_safe_to_spend",
+      "breakpoints": true
     }
   ]
 }

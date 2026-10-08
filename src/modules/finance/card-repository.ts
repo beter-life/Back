@@ -6,8 +6,37 @@ import { financialAccounts as accounts, financialCategories as categories, finan
 import { AppError } from '../../shared/errors/index.js';
 import { anchorMonth, billingCycle, splitInstallments, cardView, asOfCutoff, type CardSnapshot } from './card-domain.js';
 import type * as C from './card-contracts.js';
+import { delta } from './repository.js';
+import type { Account } from './contracts.js';
 type DB = Database['db'];
 type Tx = Parameters<Parameters<DB['transaction']>[0]>[0];
+// Batch adapter for consumers of the official Card engine. One query per relation,
+// not per card; no new invoice/allocation rules and no additional ledger writes.
+export async function readCardSnapshots(tx: Tx, owner: string, currency: C.Card['currency'], zone: string, now: Date, balances: Account[]): Promise<CardSnapshot[]> {
+  const cs = await tx.select().from(cards).where(and(eq(cards.authUserId,owner),eq(cards.currency,currency))).orderBy(cards.id).limit(501);
+  if (cs.length>500) throw new AppError('CONFLICT');
+  if (!cs.length) return [];
+  const rs = await tx.select().from(rules).where(and(eq(rules.authUserId,owner),inArray(rules.cardId,cs.map(c=>c.id)))).orderBy(rules.effectiveFrom).limit(50001);
+  const ps = await tx.select().from(purchases).where(and(eq(purchases.authUserId,owner),inArray(purchases.cardId,cs.map(c=>c.id)))).orderBy(purchases.id).limit(10001);
+  const ins = await tx.select().from(installments).where(and(eq(installments.authUserId,owner),inArray(installments.cardId,cs.map(c=>c.id)))).orderBy(installments.installmentNumber).limit(60001);
+  if (rs.length>50000 || ps.length>10000 || ins.length>60000) throw new AppError('CONFLICT');
+  const totals=await tx.execute<{id:string;legacy:string;payments:string}>(sql`
+    select c.id,(a.initial_balance_minor+${delta(owner,sql`a.id`,sql`c.tracking_start_date::timestamp at time zone ${zone}`)})::text legacy,
+      coalesce((select sum(t.amount_minor::numeric) from app.financial_transfers t where t.auth_user_id=${owner}::uuid and t.destination_account_id=c.account_id and not t.is_cancelled and t.occurred_at>=c.tracking_start_date::timestamp at time zone ${zone} and t.occurred_at<${now}),0)::text payments
+    from app.financial_credit_cards c join app.financial_accounts a on a.id=c.account_id and a.auth_user_id=c.auth_user_id where c.auth_user_id=${owner}::uuid and c.currency=${currency}`);
+  const group = <T,>(rows: T[], key: (row: T) => string) => {
+    const result = new Map<string,T[]>();
+    for (const row of rows) {const id=key(row), bucket=result.get(id)??[];bucket.push(row);result.set(id,bucket);}
+    return result;
+  };
+  const rulesByCard=group(rs,r=>r.cardId),purchasesByCard=group(ps,p=>p.cardId),installmentsByPurchase=group(ins,i=>i.purchaseId);
+  const totalsByCard=new Map(totals.rows.map(t=>[t.id,t])),balancesByAccount=new Map(balances.map(a=>[a.id,a.balanceMinor]));
+  return cs.map(row=>{
+    const billing=(rulesByCard.get(row.id)??[]).map(ruleRow), total=totalsByCard.get(row.id)!;
+    const mapped: C.Purchase[]=(purchasesByCard.get(row.id)??[]).map(p=>({id:p.id,cardId:p.cardId,categoryId:p.categoryId,currency:p.currency,description:p.description,merchantName:p.merchantName,purchaseDate:p.purchaseDate,totalAmountMinor:String(p.totalAmountMinor),installmentCount:p.installmentCount,idempotencyKey:p.idempotencyKey,status:p.status,createdAt:p.createdAt.toISOString(),cancelledAt:p.cancelledAt?.toISOString()??null,installments:(installmentsByPurchase.get(p.id)??[]).map(i=>({id:i.id,transactionId:i.transactionId,installmentNumber:i.installmentNumber,amountMinor:String(i.amountMinor),scheduledDate:i.scheduledDate,...billingCycle(i.scheduledDate,billing)}))}));
+    return {card:cardRow(row),rules:billing,purchases:mapped,realBalanceMinor:balancesByAccount.get(row.accountId)!,legacyBalanceMinor:total.legacy,inboundPaymentsMinor:total.payments};
+  });
+}
 const cardRow = (r: typeof cards.$inferSelect): C.Card => ({ id: r.id, accountId: r.accountId, currency: r.currency, displayName: r.displayName, issuerName: r.issuerName, brand: r.brand, last4: r.last4, creditLimitMinor: r.creditLimitMinor === null ? null : String(r.creditLimitMinor), trackingStartDate: r.trackingStartDate, status: r.status, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString(), archivedAt: r.archivedAt?.toISOString() ?? null });
 const ruleRow = (r: typeof rules.$inferSelect): C.BillingRule => ({ id: r.id, cardId: r.cardId, effectiveFrom: r.effectiveFrom, effectiveTo: r.effectiveTo, closingDay: r.closingDay, dueDay: r.dueDay, createdAt: r.createdAt.toISOString() });
 const own = (owner: string, id: string) => and(eq(cards.authUserId, owner), eq(cards.id, id));

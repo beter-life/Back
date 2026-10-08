@@ -181,3 +181,7 @@ MDL8 COMPLETE; MDL9 requires a separate request. [Model](./CARDS_INVOICES.md).
 ## MDL9 — Dívidas e quitação
 
 API privada de dívidas, termos versionados, pagamentos atômicos/idempotentes, payoff/arquivo e correção controlada. Simulador de até20 dívidas da mesma moeda por até600 meses; comparação e schedule opt-in. Gate humano aprovado (REAL_GATE=PASS). [Contrato e limites](./DEBT_PAYOFF.md).
+
+## MDL10 — Safe to Spend
+
+Configuração explícita por moeda/contas elegíveis; buffer/toggles; headline conservadora, ritmo diário, breakdown, shortfall e avisos. Receita projetada separada, Budget somente teto e nenhuma criação automática de Budget/profile. Gate humano permanece PENDING. [Modelo e limites](./SAFE_TO_SPEND.md).
