@@ -77,10 +77,38 @@ OpenAPI/contract drift, lint/typecheck/build, browser desktop/mobile/tablet/tecl
 A migration só vai ao DEV após PostgreSQL17 PASS, comparando snapshot privado das 22 tabelas
 existentes; novas tabelas devem nascer vazias. Não são criados fixtures financeiros remotos.
 
-Gate humano ainda PENDING: login existente; abrir /finance/safe-to-spend; selecionar contas e
-buffer explicitamente; conferir liquidez, compromissos reais, toggles, teto do Budget, metas,
-cenário de receita, shortfall quando aplicável e persistência após reload. Cada moeda separada.
-Estado de entrega: AWAITING_REAL_GATE; READY_FOR_MDL11=false. Sem PR final, merge ou MDL11.
+Gate humano aprovado pelo usuário:
+
+```text
+CONFIG=PASS
+LIQUID_FUNDS=PASS
+BREAKDOWN=PASS
+HARD_COMMITMENTS=PASS
+CARD_DEDUPE=PASS
+RECURRENCE_RESERVE=PASS
+GOAL_RESERVE=PASS
+BUDGET_CAP=PASS
+NO_DOUBLE_COUNT_BUDGET=PASS
+EXPECTED_INCOME_ISOLATION=PASS
+SHORTFALL=PASS
+RELOAD=PASS
+MULTI_CURRENCY=PASS
+OWNERSHIP=PASS
+```
+
+Regressão de fechamento: Back lint/typecheck/unit/PostgreSQL17+integration/RLS+ownership/
+OpenAPI/contract drift/build/secret scan/harness PASS. Front lint/typecheck/unit/integration/
+build/secret scan/harness/browser desktop+mobile PASS; 105 testes passaram e o caso tablet
+duplicado foi mantido como skip. CI do HEAD da branch PASS nos dois repositórios.
+
+Dados DEV: migrations Drizzle 0001–0011 e seus hashes/timestamps validados; as 22 tabelas
+anteriores preservaram dados e estrutura no snapshot privado. As duas tabelas MDL10 possuem
+uma configuração e uma seleção do gate humano. PostgreSQL 17, RLS, policies SELECT próprias,
+FKs compostas e ausência de grants públicos PASS. Nenhum movimento financeiro foi criado.
+Os advisors mantêm somente avisos preexistentes documentados acima.
+
+Estado de entrega: REAL_GATE_PASS_PENDING_MERGE; PR/merge/CI final pendentes;
+READY_FOR_MDL11=false. MDL11 não iniciado.
 
 Advisors pós-DDL: nenhuma falha de segurança nas tabelas novas. O INFO de RLS sem policy
 em financial_market_rates é o cache privado/backend-only preexistente; o WARN de
