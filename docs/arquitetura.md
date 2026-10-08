@@ -125,3 +125,7 @@ Calendar extension deferred; Cards supplies due dates without changing MDL5.
 ## MDL9 — Debt & payoff
 
 Finance: debt-routes/contracts → debt-application → debt-repository + debt-domain puro. Pagamento materializa transferência e custos em uma transação, com locks das contas ordenados e chave por owner. RLS privada e constraints diferidas conferem ledger; simulador lê principal e termos, sem consultas por mês nem escrita. Resumo por moeda em uma consulta. [Decisões](./DEBT_PAYOFF.md). Nenhuma nova dependência de produção.
+
+## MDL10 — Safe to Spend
+
+Snapshot financeiro único repeatable-read/read-only, leituras batch e cálculo puro. Reutiliza Cards, Debt terms, Budget, Goals e Recurrences; apenas configurações próprias são escritas. Contratos TypeBox → OpenAPI/Zod gerado, sem cálculo monetário paralelo no Front. [Modelo e limites](./SAFE_TO_SPEND.md).

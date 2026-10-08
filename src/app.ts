@@ -32,6 +32,8 @@ import { createCardRepository, type CardRepository } from './modules/finance/car
 import { cardRoutes } from './modules/finance/card-routes.js';
 import { createDebtRepository, type DebtRepository } from './modules/finance/debt-repository.js';
 import { debtRoutes } from './modules/finance/debt-routes.js';
+import { createSafeSpendRepository, type SafeSpendRepository } from './modules/finance/safe-spend-repository.js';
+import { safeSpendRoutes } from './modules/finance/safe-spend-routes.js';
 import { loggerOptions } from './plugins/logging.js';
 import { AppError, installErrors } from './shared/errors/index.js';
 import { EmptyQuery, ErrorResponses } from './shared/http/schemas.js';
@@ -47,10 +49,11 @@ export interface AppDependencies {
   market?: MarketRateService;
   cards?: CardRepository;
   debts?: DebtRepository;
+  safeSpend?: SafeSpendRepository;
   ping: () => Promise<void>;
   close: () => Promise<void>;
 }
-export interface AppOptions { dependencies?: AppDependencies; jwks?: JWTVerifyGetKey; logStream?: Writable; budgetClock?: () => Date; goalClock?: () => Date; recurrenceClock?: () => Date; netWorthClock?: () => Date; yieldClock?: () => Date; cardClock?: () => Date; debtClock?: () => Date }
+export interface AppOptions { dependencies?: AppDependencies; jwks?: JWTVerifyGetKey; logStream?: Writable; budgetClock?: () => Date; goalClock?: () => Date; recurrenceClock?: () => Date; netWorthClock?: () => Date; yieldClock?: () => Date; cardClock?: () => Date; debtClock?: () => Date; safeSpendClock?: () => Date }
 
 export async function buildApp(config: AppConfig, options: AppOptions = {}) {
   const app = Fastify({
@@ -77,6 +80,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
   };
   database?.pool.on('error', () => app.log.error({ code: 'DATABASE_POOL_ERROR' }, 'database connection failed'));
   const debtRepository = options.dependencies?.debts ?? (database ? createDebtRepository(database) : undefined);
+  const safeSpendRepository = options.dependencies?.safeSpend ?? (database ? createSafeSpendRepository(database) : undefined);
   app.addHook('onClose', dependencies.close);
   try {
     await app.register(swagger, { openapi: {
@@ -106,6 +110,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
     if (dependencies.yield&&dependencies.market&&dependencies.finance) yieldRoutes(app,dependencies.yield,dependencies.finance,dependencies.profiles,dependencies.market,createVerifier(config,options.jwks),options.yieldClock);
     if (dependencies.cards && dependencies.finance) cardRoutes(app, dependencies.cards, dependencies.finance, dependencies.profiles, createVerifier(config, options.jwks), options.cardClock);
     if (debtRepository) debtRoutes(app, debtRepository, dependencies.profiles, createVerifier(config, options.jwks), options.debtClock);
+    if (safeSpendRepository) safeSpendRoutes(app,safeSpendRepository,createVerifier(config,options.jwks),options.safeSpendClock);
     app.get('/api/v1/openapi.json', { schema: {
       operationId: 'getOpenApi', tags: ['Contract'], querystring: EmptyQuery,
       response: { 200: Type.Record(Type.String(), Type.Unknown()), ...ErrorResponses },

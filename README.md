@@ -124,4 +124,8 @@ Automated gates and the user-approved real Cards gate passed. MDL9 is COMPLETE w
 
 ## MDL9 — Debt & Payoff Simulator
 
-MDL9 COMPLETE; gate humano aprovado. Dívida usa conta debt, principal via TRANSFER e juros/tarifas via EXPENSE. Simulação somente leitura (mínimos/avalanche/snowball), sem FX, indexadores ou lançamentos automáticos. [Modelo, premissas e gate](docs/DEBT_PAYOFF.md). Sem MDL10.
+MDL9 COMPLETE; gate humano aprovado. Dívida usa conta debt, principal via TRANSFER e juros/tarifas via EXPENSE. Simulação somente leitura (mínimos/avalanche/snowball), sem FX, indexadores ou lançamentos automáticos. [Modelo, premissas e gate](docs/DEBT_PAYOFF.md).
+
+## MDL10 — Safe to Spend
+
+Estimativa conservadora por moeda, contas explicitamente selecionadas, obrigações e reservas, Budget como teto e receitas previstas em cenário separado. Somente configurações próprias são escritas. Rota protegida /finance/safe-to-spend; implementação automatizada preparada para gate humano PENDING, não COMPLETE. [Fórmula, limites e validação](docs/SAFE_TO_SPEND.md). Sem MDL11.

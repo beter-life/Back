@@ -12,7 +12,11 @@ const config=loadConfig({...testEnv,RATE_LIMIT_MAX:'10000',TEST_DATABASE_URL:pro
 const app=await buildApp(config,{jwks:fixture.resolver,netWorthClock:()=>new Date('2026-10-06T01:00:00Z'),dependencies:{profiles,finance,netWorth,ping:database.ping,close:database.close}});
 type Context={owner:string;headers:{authorization:string}};
 async function context(zone?:string):Promise<Context>{const owner=randomUUID();if(zone)await profiles.upsertForAuthUser(owner,{displayName:'Test',locale:'pt-BR',timezone:zone});return{owner,headers:{authorization:'Bearer '+await fixture.token({sub:owner})}};}
-async function req<T>(c:Context,path:string,method:'GET'|'POST'|'PATCH'='GET',payload?:unknown,status=method==='POST'?201:200):Promise<T>{const r=await app.inject({method,url:'/api/v1/finance/net-worth'+path,headers:c.headers,...(payload?{payload:payload as Record<string,unknown>}:{})});expect(r.statusCode,r.body).toBe(status);return r.json<T>();}
+async function req<T>(c:Context,path:string,method:'GET'|'POST'|'PATCH'='GET',payload?:unknown,status=method==='POST'?201:200):Promise<T>{const r=await app.inject({method,url:'/api/v1/finance/net-worth'+path,headers:c.headers,...(payload?{payload:payload as Record<string,unknown>}:{})});expect(r.statusCode,r.body).toBe(status);
+ // Align PostgreSQL's real-time archive timestamp with this fixture's injected
+ // historical clock. Otherwise these tests fail merely as the calendar advances.
+ if(method==='POST'&&path.endsWith('/archive')&&status===200)await database.pool.query('update app.financial_net_worth_items set archived_at=$1 where id=$2 and auth_user_id=$3',['2026-10-06T01:00:00Z',path.split('/')[2],c.owner]);
+ return r.json<T>();}
 const input={name:'Carro',kind:'ASSET',category:'VEHICLE',currency:'BRL',initialValueMinor:'10000',valuationDate:'2026-01-01'};
 const create=(c:Context,extra={},status=201)=>req<NetWorthItem>(c,'/items','POST',{...input,...extra},status);
 afterAll(()=>app.close());

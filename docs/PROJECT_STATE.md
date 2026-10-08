@@ -2,34 +2,25 @@
 
 | Field | Value |
 | --- | --- |
-| MODULE | MDL 9 — Debt Management & Payoff Simulator |
-| STATUS | COMPLETE |
-| MDL9_STATUS | COMPLETE |
-| REAL_GATE | PASS; user-approved complete Debt gate on 2026-10-06 |
-| READY_FOR_MDL10 | true; closure branch CI, PR CI, merge commit and exact merge main CI PASS; MDL10 not started |
-| SCOPE | Private Debt API, exact accounting, versioned terms and read-only payoff simulator |
-| BRANCH | main; MDL0–MDL9 integrated; local main synchronized with origin/main |
-| BASELINE_MAIN | 3ca6b092d70645f300967ea24dd2f3f77f535481; approved MDL0–MDL8 preserved; exact main CI PASS before implementation |
-| LAST_TESTED_COMMIT | 5b55db5f0df0f10dd60a72fd9655d5f0d14cb7bd; complete exact main CI PASS; final handoff changes PROJECT_STATE only |
-| DONE | New managed debt account; metadata; immutable term versions; atomic split payments; owner idempotency; latest-payment cancellation; paid-off/archive lifecycle; bounded simulation and explicit manual liability conversion |
-| ACCOUNTING | Positive input creates negative debt opening principal. Principal=TRANSFER; actual interest/fees=EXPENSE. No mutable second balance, automatic projected interest, FX or recurrence. Budget includes only costs; Net Worth principal transfer is neutral |
-| TERMS_RATE | Intervals [effectiveFrom,effectiveTo); atomic future version; effective annual=(1+r)^(1/12)-1; monthly direct; decimal strings/Decimal precision256; money rounded HALF_UP at minor-unit boundary; 0% allowed |
-| SIMULATION | Read-only MINIMUM_ONLY/AVALANCHE/SNOWBALL/COMPARE; one currency; 1–20 debts; 600 months; optional schedule; deterministic ties/freed minimum redistribution; NOT_AMORTIZING and HORIZON_EXCEEDED; future versions selected by due DATE |
-| PAYMENT_INTEGRITY | Source owner/active/currency; checking/savings/cash/other; sufficient total cash; no overpay; no future/pretracking/out-of-order payments; idempotent canonical retry; atomic linked transfer/interest/fee rollback; stable keyset history |
-| CONVERSION | Explicit owned active manual LIABILITY with matching currency/latest principal; atomic archive+new managed debt; no automatic conversion or double counting |
-| SECURITY | JWT.sub only; cross-owner404; compound owner/currency/type FKs; private app schema/RLS; client own SELECT only, writes controlled through API; no public DELETE/grants; generic managed-account writes and linked-payment edits blocked |
-| DATABASE | 0010_financial_debts applied once to Supabase DEV after disposable PostgreSQL17 PASS; canonical LF migration hashes0001–0010 verified; files0001–0009 unchanged; three new tables with RLS; CHECK adds debt and only reviewed core constraints/indexes/triggers |
-| EXISTING_DATA | PASS; read-only closure before/after snapshots of all22 app tables, including real MDL9 gate records; row counts/hashes/schema/indexes/constraints/policies/grants/RLS/functions/triggers unchanged; no hosted writes or fixtures |
-| HOSTED_SECURITY | Existing Auth/JWT/JWKS configuration and TLS verify-full preserved; NODE_USE_SYSTEM_CA=1 uses system trust without disabling certificate validation; local env SHA256 unchanged and ignored |
-| TESTS | unit230; PostgreSQL17 integration/RLS/ownership150; plus isolated exact Net Worth smoke (0→principal-neutral0→interest-10000 minor) PASS; 500000/-100000→400000/-20000 and Budget expense20000 PASS; lint/typecheck/OpenAPI/contract drift/build/secret scan/harness PASS |
-| CI | [Closure branch](https://github.com/beter-life/Back/actions/runs/37500485457), [PR](https://github.com/beter-life/Back/actions/runs/37501033516), [merge main](https://github.com/beter-life/Back/actions/runs/37501634187): PASS; final documentation handoff runs the unchanged complete workflow and its exact final HEAD CI is reported at delivery |
-| MODEL_GATES | DEBT_MODEL=PASS; DEBT_ACCOUNT_TYPE=PASS; TERM_VERSIONING=PASS; RATE_ENGINE=PASS; PAYOFF=PASS; AVALANCHE=PASS; SNOWBALL=PASS; NEGATIVE_AMORTIZATION=PASS; SIMULATION_HORIZON=PASS; MULTI_CURRENCY=PASS |
-| ACCOUNTING_GATES | PAYMENTS=PASS; PRINCIPAL_TRANSFER=PASS; INTEREST_EXPENSE=PASS; FEE_EXPENSE=PASS; NO_DOUBLE_COUNTING_DEBT=PASS; PAYMENT_IDEMPOTENCY=PASS; BUDGET_INTEGRATION=PASS; NET_WORTH_INTEGRATION=PASS; MANUAL_LIABILITY_CONVERSION=PASS |
-| ISOLATION_GATES | CARD_ISOLATION=PASS; YIELD_ISOLATION=PASS; RECURRENCE_ISOLATION=PASS; complete MDL0–MDL9 regression; no paid APIs or new dependencies |
-| CONTRACT_GATES | RLS=PASS; OWNERSHIP=PASS; OPENAPI=PASS; TypeBox source → generated Front Zod; contract drift PASS |
-| LOCAL_APP | Back localhost:3001 and Front localhost:3101; /finance/debts human gate approved; .env files unchanged/ignored; verified hosted TLS retained |
-| HUMAN_GATE | DEBT=PASS; PAYMENT=PASS; PRINCIPAL_TRANSFER=PASS; INTEREST_FEE_EXPENSE=PASS; NO_DOUBLE_COUNTING_DEBT=PASS; BUDGET_INTEGRATION=PASS; NET_WORTH_INTEGRATION=PASS; RELOAD=PASS; SIMULATOR=PASS; MINIMUM_ONLY=PASS; AVALANCHE=PASS; SNOWBALL=PASS; TERM_VERSIONING=PASS; PAYOFF=PASS; MANUAL_LIABILITY_CONVERSION=PASS; CARD_ISOLATION=PASS; YIELD_ISOLATION=PASS; RECURRENCE_ISOLATION=PASS; OWNERSHIP=PASS |
-| CHECKPOINT | checkpoint/mdl9-debt-payoff-simulator-complete-2026-10-06 targets 5d6b3473a88fef10ac49c78ccf45493d5bb20f55, final closure branch commit; DEV/DEV v2 and MDL0–MDL8 checkpoints preserved |
-| BLOCKER | NONE; branch/PR/merge/main gates PASS; human gate PASS |
-| NEXT | Await an explicit MDL10 request (Safe to Spend). Do not create its branch or implement automatically |
-| MERGED_TO_MAIN | true; [PR7](https://github.com/beter-life/Back/pull/7), merge commit 5b55db5f0df0f10dd60a72fd9655d5f0d14cb7bd; no squash/rebase |
+| MODULE | MDL 10 — Safe to Spend / Quanto Posso Gastar com Segurança |
+| STATUS | REAL_GATE_PASS_PENDING_MERGE |
+| MDL10_STATUS | REAL_GATE_PASS_PENDING_MERGE |
+| REAL_GATE | PASS; human gate recorded in SAFE_TO_SPEND.md |
+| READY_FOR_MDL11 | false |
+| SCOPE | Private settings/API; consistent read-only financial snapshot and exact conservative calculation |
+| BRANCH | codex/mdl10-safe-to-spend; no final PR or merge |
+| BASELINE_MAIN | 6e8b8bdf4a1d023e8d55d4bff8033b2d2ecc8d27; exact origin/main and main CI PASS before implementation; MDL0–MDL9 preserved |
+| LAST_TESTED_COMMIT | 6ed87d0d08a050649a54975eea39e8db5977ef3f; exact implementation branch CI PASS; final handoff changes documentation only and exact final HEAD CI is reported at delivery |
+| MODEL | Signed selected cash minus card/debt/future expense obligations, optional recurrence/goal reserves and buffer; Budget is cap, not subtraction; expected income scenario only; floor daily pace and explicit shortfall/warnings |
+| SECURITY | JWT.sub only; strict inputs/foreign account404; private RLS own SELECT/backend settings writes, immutable owner/compound FKs; no secrets/logs/env versioned; no new dependencies, FX, AI or paid APIs |
+| SNAPSHOT | Repeatable-read/read-only, bounded batch reuse of Cards/Debt/Budget/Goals/Recurrences; 100 accounts/cards/debts and 500 recurrences/goals tested, <=30 SQL calls and <5s disposable read |
+| DATABASE | 0011_financial_safe_to_spend applied once to Supabase DEV after PostgreSQL17 PASS; migrations0001–0010 unchanged; two new tables initially empty, private RLS/ownership PASS |
+| EXISTING_DATA | PASS; counts/hashes/structure of all22 previous app tables UNCHANGED; no financial fixtures/writes hosted; Auth/JWT/JWKS/TLS preserved |
+| TESTS | 254 unit +160 PostgreSQL17 integration/RLS/ownership PASS; previous Net Worth/Debt fixture dates aligned to historical clocks, no production change; lint/typecheck/build/secret scan/harness/OpenAPI/contract drift PASS |
+| CI | Implementation [commit](https://github.com/beter-life/Back/actions/runs/37775758286) and closure-docs [HEAD](https://github.com/beter-life/Back/actions/runs/37776613974) PASS; final PR/main CI pending |
+| LOCAL_APP | Human gate PASS on hosted DEV; Back live/ready200; Front 3101 served; CORS preflight 204 |
+| LIMITS | [Formula, horizon, coverage and bounds](./SAFE_TO_SPEND.md); no obligations invented outside current-month horizon; only own settings are written |
+| CHECKPOINT | DEV checkpoint preserved; COMPLETE checkpoint pending validated closure commit |
+| ADVISORS | No security finding on new tables. Existing backend-only market-rate no-policy INFO and Auth leaked-password WARN left unchanged. New compound-FK coverage/unused-index INFO reviewed: profile PK prefix and owner/account index support bounded lookups; parent identity immutable; 100/500 volume test PASS |
+| BLOCKER | None before promotion; PR, merge-commit and final main CI gates remain |
+| NEXT | Create Back/Front PRs from codex/mdl10-safe-to-spend to main after closure docs CI; merge only after all required checks pass. MDL11 not started |

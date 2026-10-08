@@ -1,0 +1,4215 @@
+{
+  "id": "59923b81-3fd1-436a-9aeb-c58294b1095a",
+  "prevId": "df4f40f6-562d-4aad-91de-d404e2def102",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "app.financial_budget_allocations": {
+      "name": "financial_budget_allocations",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "budget_period_id": {
+          "name": "budget_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_kind": {
+          "name": "category_kind",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'EXPENSE'"
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_minor": {
+          "name": "amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rollover_policy": {
+          "name": "rollover_policy",
+          "type": "varchar(13)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'NONE'"
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {
+        "financial_budget_allocation_owner_period_idx": {
+          "name": "financial_budget_allocation_owner_period_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "budget_period_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "financial_budget_allocation_period_owner_fk": {
+          "name": "financial_budget_allocation_period_owner_fk",
+          "tableFrom": "financial_budget_allocations",
+          "tableTo": "financial_budget_periods",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "budget_period_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "financial_budget_allocation_category_owner_fk": {
+          "name": "financial_budget_allocation_category_owner_fk",
+          "tableFrom": "financial_budget_allocations",
+          "tableTo": "financial_categories",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "category_id",
+            "auth_user_id",
+            "category_kind"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "kind"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_budget_allocation_period_category_key": {
+          "name": "financial_budget_allocation_period_category_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "budget_period_id",
+            "category_id"
+          ]
+        }
+      },
+      "policies": {
+        "financial_budget_allocations_select_own": {
+          "name": "financial_budget_allocations_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_budget_allocations\".\"auth_user_id\""
+        },
+        "financial_budget_allocations_insert_own": {
+          "name": "financial_budget_allocations_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_budget_allocations\".\"auth_user_id\""
+        },
+        "financial_budget_allocations_update_own": {
+          "name": "financial_budget_allocations_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_budget_allocations\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_budget_allocations\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_budget_allocation_amount_check": {
+          "name": "financial_budget_allocation_amount_check",
+          "value": "\"app\".\"financial_budget_allocations\".\"amount_minor\" >= 0"
+        },
+        "financial_budget_allocation_category_kind_check": {
+          "name": "financial_budget_allocation_category_kind_check",
+          "value": "\"app\".\"financial_budget_allocations\".\"category_kind\" = 'EXPENSE'"
+        },
+        "financial_budget_allocation_rollover_check": {
+          "name": "financial_budget_allocation_rollover_check",
+          "value": "\"app\".\"financial_budget_allocations\".\"rollover_policy\" in ('NONE','POSITIVE_ONLY')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_budget_periods": {
+      "name": "financial_budget_periods",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "period_month": {
+          "name": "period_month",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "time_zone": {
+          "name": "time_zone",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_budget_period_owner_month_currency_key": {
+          "name": "financial_budget_period_owner_month_currency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id",
+            "period_month",
+            "currency"
+          ]
+        },
+        "financial_budget_period_owner_currency_key": {
+          "name": "financial_budget_period_owner_currency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ]
+        }
+      },
+      "policies": {
+        "financial_budget_periods_select_own": {
+          "name": "financial_budget_periods_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_budget_periods\".\"auth_user_id\""
+        },
+        "financial_budget_periods_insert_own": {
+          "name": "financial_budget_periods_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_budget_periods\".\"auth_user_id\""
+        },
+        "financial_budget_periods_update_own": {
+          "name": "financial_budget_periods_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_budget_periods\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_budget_periods\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_budget_period_month_check": {
+          "name": "financial_budget_period_month_check",
+          "value": "\"app\".\"financial_budget_periods\".\"period_month\" ~ '^[1-9][0-9]{3}-(0[1-9]|1[0-2])$' and left(\"app\".\"financial_budget_periods\".\"period_month\",4)::integer <= 9998"
+        },
+        "financial_budget_period_currency_check": {
+          "name": "financial_budget_period_currency_check",
+          "value": "\"app\".\"financial_budget_periods\".\"currency\" in ('BRL','USD','EUR','GBP','CAD','AUD','CHF','JPY','CLP','KRW','KWD','BHD')"
+        },
+        "financial_budget_period_timezone_check": {
+          "name": "financial_budget_period_timezone_check",
+          "value": "timezone(\"app\".\"financial_budget_periods\".\"time_zone\", timestamp '2000-01-01') is not null"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_card_billing_rules": {
+      "name": "financial_card_billing_rules",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "card_id": {
+          "name": "card_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_from": {
+          "name": "effective_from",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_to": {
+          "name": "effective_to",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "closing_day": {
+          "name": "closing_day",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "due_day": {
+          "name": "due_day",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "card_rule_owner_date_idx": {
+          "name": "card_rule_owner_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "card_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "effective_from",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "card_rule_owner_fk": {
+          "name": "card_rule_owner_fk",
+          "tableFrom": "financial_card_billing_rules",
+          "tableTo": "financial_credit_cards",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "card_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "card_rule_start_unique": {
+          "name": "card_rule_start_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "card_id",
+            "effective_from"
+          ]
+        }
+      },
+      "policies": {
+        "card_rule_select_own": {
+          "name": "card_rule_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_card_billing_rules\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "card_rule_shape_check": {
+          "name": "card_rule_shape_check",
+          "value": "\"app\".\"financial_card_billing_rules\".\"closing_day\" between 1 and 31 and \"app\".\"financial_card_billing_rules\".\"due_day\" between 1 and 31 and (\"app\".\"financial_card_billing_rules\".\"effective_to\" is null or \"app\".\"financial_card_billing_rules\".\"effective_to\">\"app\".\"financial_card_billing_rules\".\"effective_from\")"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_card_installments": {
+      "name": "financial_card_installments",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "card_id": {
+          "name": "card_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "purchase_id": {
+          "name": "purchase_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_id": {
+          "name": "transaction_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "installment_number": {
+          "name": "installment_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_minor": {
+          "name": "amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scheduled_date": {
+          "name": "scheduled_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "card_installment_owner_date_idx": {
+          "name": "card_installment_owner_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "card_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "scheduled_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "card_installment_purchase_owner_card_fk": {
+          "name": "card_installment_purchase_owner_card_fk",
+          "tableFrom": "financial_card_installments",
+          "tableTo": "financial_card_purchases",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "purchase_id",
+            "auth_user_id",
+            "card_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "card_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "card_installment_transaction_owner_fk": {
+          "name": "card_installment_transaction_owner_fk",
+          "tableFrom": "financial_card_installments",
+          "tableTo": "financial_transactions",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "transaction_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "card_installment_number_unique": {
+          "name": "card_installment_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "purchase_id",
+            "installment_number"
+          ]
+        },
+        "card_installment_transaction_unique": {
+          "name": "card_installment_transaction_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "transaction_id"
+          ]
+        }
+      },
+      "policies": {
+        "card_installment_select_own": {
+          "name": "card_installment_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_card_installments\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "card_installment_shape_check": {
+          "name": "card_installment_shape_check",
+          "value": "\"app\".\"financial_card_installments\".\"amount_minor\">0 and \"app\".\"financial_card_installments\".\"installment_number\" between 1 and 60"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_card_purchases": {
+      "name": "financial_card_purchases",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "card_id": {
+          "name": "card_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_kind": {
+          "name": "category_kind",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'EXPENSE'"
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(400)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "merchant_name": {
+          "name": "merchant_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "purchase_date": {
+          "name": "purchase_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_amount_minor": {
+          "name": "total_amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "installment_count": {
+          "name": "installment_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_fingerprint": {
+          "name": "request_fingerprint",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(9)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "card_purchase_owner_date_idx": {
+          "name": "card_purchase_owner_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "card_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "card_purchase_owner_currency_fk": {
+          "name": "card_purchase_owner_currency_fk",
+          "tableFrom": "financial_card_purchases",
+          "tableTo": "financial_credit_cards",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "card_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "card_purchase_category_owner_kind_fk": {
+          "name": "card_purchase_category_owner_kind_fk",
+          "tableFrom": "financial_card_purchases",
+          "tableTo": "financial_categories",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "category_id",
+            "auth_user_id",
+            "category_kind"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "kind"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "card_purchase_owner_key_unique": {
+          "name": "card_purchase_owner_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id",
+            "idempotency_key"
+          ]
+        },
+        "card_purchase_id_owner_card_unique": {
+          "name": "card_purchase_id_owner_card_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id",
+            "card_id"
+          ]
+        }
+      },
+      "policies": {
+        "card_purchase_select_own": {
+          "name": "card_purchase_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_card_purchases\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "card_purchase_shape_check": {
+          "name": "card_purchase_shape_check",
+          "value": "\"app\".\"financial_card_purchases\".\"total_amount_minor\" >= \"app\".\"financial_card_purchases\".\"installment_count\" and \"app\".\"financial_card_purchases\".\"installment_count\" between 1 and 60 and \"app\".\"financial_card_purchases\".\"category_kind\"='EXPENSE' and length(trim(\"app\".\"financial_card_purchases\".\"description\"))>0 and ((\"app\".\"financial_card_purchases\".\"status\"='ACTIVE' and \"app\".\"financial_card_purchases\".\"cancelled_at\" is null) or (\"app\".\"financial_card_purchases\".\"status\"='CANCELLED' and \"app\".\"financial_card_purchases\".\"cancelled_at\" is not null))"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_credit_cards": {
+      "name": "financial_credit_cards",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issuer_name": {
+          "name": "issuer_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "brand": {
+          "name": "brand",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last4": {
+          "name": "last4",
+          "type": "varchar(4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credit_limit_minor": {
+          "name": "credit_limit_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tracking_start_date": {
+          "name": "tracking_start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "card_owner_idx": {
+          "name": "card_owner_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "card_account_owner_currency_fk": {
+          "name": "card_account_owner_currency_fk",
+          "tableFrom": "financial_credit_cards",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "account_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "card_account_unique": {
+          "name": "card_account_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "account_id"
+          ]
+        },
+        "card_id_owner_unique": {
+          "name": "card_id_owner_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id"
+          ]
+        },
+        "card_id_owner_currency_unique": {
+          "name": "card_id_owner_currency_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ]
+        }
+      },
+      "policies": {
+        "card_select_own": {
+          "name": "card_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_credit_cards\".\"auth_user_id\""
+        },
+        "card_insert_own": {
+          "name": "card_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_credit_cards\".\"auth_user_id\""
+        },
+        "card_update_own": {
+          "name": "card_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_credit_cards\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_credit_cards\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "card_shape_check": {
+          "name": "card_shape_check",
+          "value": "length(trim(\"app\".\"financial_credit_cards\".\"display_name\"))>0 and (\"app\".\"financial_credit_cards\".\"last4\" is null or \"app\".\"financial_credit_cards\".\"last4\" ~ '^[0-9]{4}$') and (\"app\".\"financial_credit_cards\".\"credit_limit_minor\" is null or \"app\".\"financial_credit_cards\".\"credit_limit_minor\">0) and ((\"app\".\"financial_credit_cards\".\"status\"='ACTIVE' and \"app\".\"financial_credit_cards\".\"archived_at\" is null) or (\"app\".\"financial_credit_cards\".\"status\"='ARCHIVED' and \"app\".\"financial_credit_cards\".\"archived_at\" is not null)) and \"app\".\"financial_credit_cards\".\"tracking_start_date\" between date '1000-01-01' and date '9993-12-31'"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_debt_payments": {
+      "name": "financial_debt_payments",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "debt_id": {
+          "name": "debt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_account_id": {
+          "name": "source_account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "principal_amount_minor": {
+          "name": "principal_amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interest_amount_minor": {
+          "name": "interest_amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fee_amount_minor": {
+          "name": "fee_amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "remaining_principal_minor": {
+          "name": "remaining_principal_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transfer_id": {
+          "name": "transfer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "interest_transaction_id": {
+          "name": "interest_transaction_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fee_transaction_id": {
+          "name": "fee_transaction_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paid_at": {
+          "name": "paid_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_fingerprint": {
+          "name": "request_fingerprint",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(9)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "debt_payment_owner_date_idx": {
+          "name": "debt_payment_owner_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "debt_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "debt_payment_owner_currency_fk": {
+          "name": "debt_payment_owner_currency_fk",
+          "tableFrom": "financial_debt_payments",
+          "tableTo": "financial_debts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "debt_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "debt_payment_source_owner_currency_fk": {
+          "name": "debt_payment_source_owner_currency_fk",
+          "tableFrom": "financial_debt_payments",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "source_account_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "debt_payment_transfer_owner_fk": {
+          "name": "debt_payment_transfer_owner_fk",
+          "tableFrom": "financial_debt_payments",
+          "tableTo": "financial_transfers",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "transfer_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "debt_payment_interest_owner_fk": {
+          "name": "debt_payment_interest_owner_fk",
+          "tableFrom": "financial_debt_payments",
+          "tableTo": "financial_transactions",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "interest_transaction_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "debt_payment_fee_owner_fk": {
+          "name": "debt_payment_fee_owner_fk",
+          "tableFrom": "financial_debt_payments",
+          "tableTo": "financial_transactions",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "fee_transaction_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "debt_payment_owner_key": {
+          "name": "debt_payment_owner_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id",
+            "idempotency_key"
+          ]
+        },
+        "debt_payment_transfer_unique": {
+          "name": "debt_payment_transfer_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "transfer_id"
+          ]
+        },
+        "debt_payment_interest_unique": {
+          "name": "debt_payment_interest_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "interest_transaction_id"
+          ]
+        },
+        "debt_payment_fee_unique": {
+          "name": "debt_payment_fee_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "fee_transaction_id"
+          ]
+        }
+      },
+      "policies": {
+        "debt_payment_select_own": {
+          "name": "debt_payment_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid())=\"app\".\"financial_debt_payments\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "debt_payment_shape_check": {
+          "name": "debt_payment_shape_check",
+          "value": "\"app\".\"financial_debt_payments\".\"principal_amount_minor\">=0 and \"app\".\"financial_debt_payments\".\"interest_amount_minor\">=0 and \"app\".\"financial_debt_payments\".\"fee_amount_minor\">=0 and \"app\".\"financial_debt_payments\".\"principal_amount_minor\"::numeric+\"app\".\"financial_debt_payments\".\"interest_amount_minor\"+\"app\".\"financial_debt_payments\".\"fee_amount_minor\">0 and \"app\".\"financial_debt_payments\".\"remaining_principal_minor\">=0 and (\"app\".\"financial_debt_payments\".\"principal_amount_minor\">0)=(\"app\".\"financial_debt_payments\".\"transfer_id\" is not null) and (\"app\".\"financial_debt_payments\".\"interest_amount_minor\">0)=(\"app\".\"financial_debt_payments\".\"interest_transaction_id\" is not null) and (\"app\".\"financial_debt_payments\".\"fee_amount_minor\">0)=(\"app\".\"financial_debt_payments\".\"fee_transaction_id\" is not null) and ((\"app\".\"financial_debt_payments\".\"status\"='ACTIVE' and \"app\".\"financial_debt_payments\".\"cancelled_at\" is null) or (\"app\".\"financial_debt_payments\".\"status\"='CANCELLED' and \"app\".\"financial_debt_payments\".\"cancelled_at\" is not null))"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_debt_terms": {
+      "name": "financial_debt_terms",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "debt_id": {
+          "name": "debt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_from": {
+          "name": "effective_from",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_to": {
+          "name": "effective_to",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rate": {
+          "name": "rate",
+          "type": "numeric(11, 10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rate_period": {
+          "name": "rate_period",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "minimum_payment_minor": {
+          "name": "minimum_payment_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "due_day": {
+          "name": "due_day",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "debt_term_owner_date_idx": {
+          "name": "debt_term_owner_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "debt_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "effective_from",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "debt_term_owner_fk": {
+          "name": "debt_term_owner_fk",
+          "tableFrom": "financial_debt_terms",
+          "tableTo": "financial_debts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "debt_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "debt_term_start_key": {
+          "name": "debt_term_start_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "debt_id",
+            "effective_from"
+          ]
+        }
+      },
+      "policies": {
+        "debt_term_select_own": {
+          "name": "debt_term_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid())=\"app\".\"financial_debt_terms\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "debt_term_shape_check": {
+          "name": "debt_term_shape_check",
+          "value": "\"app\".\"financial_debt_terms\".\"rate\" between 0 and 1 and \"app\".\"financial_debt_terms\".\"rate_period\" in ('EFFECTIVE_ANNUAL','EFFECTIVE_MONTHLY') and \"app\".\"financial_debt_terms\".\"minimum_payment_minor\">0 and \"app\".\"financial_debt_terms\".\"due_day\" between 1 and 31 and (\"app\".\"financial_debt_terms\".\"effective_to\" is null or \"app\".\"financial_debt_terms\".\"effective_to\">\"app\".\"financial_debt_terms\".\"effective_from\")"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_debts": {
+      "name": "financial_debts",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_type": {
+          "name": "account_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'debt'"
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lender": {
+          "name": "lender",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "debt_type": {
+          "name": "debt_type",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tracking_start_date": {
+          "name": "tracking_start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "paid_off_at": {
+          "name": "paid_off_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "debt_owner_idx": {
+          "name": "debt_owner_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "debt_account_owner_currency_type_fk": {
+          "name": "debt_account_owner_currency_type_fk",
+          "tableFrom": "financial_debts",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "account_id",
+            "auth_user_id",
+            "currency",
+            "account_type"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency",
+            "type"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "debt_account_unique": {
+          "name": "debt_account_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "account_id"
+          ]
+        },
+        "debt_id_owner_key": {
+          "name": "debt_id_owner_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id"
+          ]
+        },
+        "debt_id_owner_currency_key": {
+          "name": "debt_id_owner_currency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ]
+        }
+      },
+      "policies": {
+        "debt_select_own": {
+          "name": "debt_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid())=\"app\".\"financial_debts\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "debt_shape_check": {
+          "name": "debt_shape_check",
+          "value": "\"app\".\"financial_debts\".\"account_type\"='debt' and length(trim(\"app\".\"financial_debts\".\"name\"))>0 and \"app\".\"financial_debts\".\"debt_type\" in ('PERSONAL_LOAN','MORTGAGE','VEHICLE_FINANCING','CONSUMER_FINANCING','STUDENT','MEDICAL','TAX','OTHER') and \"app\".\"financial_debts\".\"tracking_start_date\" between date '1000-01-01' and date '9998-12-31' and ((\"app\".\"financial_debts\".\"status\"='ACTIVE' and \"app\".\"financial_debts\".\"paid_off_at\" is null and \"app\".\"financial_debts\".\"archived_at\" is null) or (\"app\".\"financial_debts\".\"status\"='PAID_OFF' and \"app\".\"financial_debts\".\"paid_off_at\" is not null and \"app\".\"financial_debts\".\"archived_at\" is null) or (\"app\".\"financial_debts\".\"status\"='ARCHIVED' and \"app\".\"financial_debts\".\"paid_off_at\" is not null and \"app\".\"financial_debts\".\"archived_at\" is not null))"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_accounts": {
+      "name": "financial_accounts",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "initial_balance_minor": {
+          "name": "initial_balance_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {
+        "financial_accounts_owner_idx": {
+          "name": "financial_accounts_owner_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_accounts_owner_currency_type_key": {
+          "name": "financial_accounts_owner_currency_type_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id",
+            "currency",
+            "type"
+          ]
+        },
+        "financial_accounts_owner_currency_key": {
+          "name": "financial_accounts_owner_currency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ]
+        }
+      },
+      "policies": {
+        "financial_accounts_select_own": {
+          "name": "financial_accounts_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_accounts\".\"auth_user_id\""
+        },
+        "financial_accounts_insert_own": {
+          "name": "financial_accounts_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_accounts\".\"auth_user_id\""
+        },
+        "financial_accounts_update_own": {
+          "name": "financial_accounts_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_accounts\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_accounts\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_accounts_name_check": {
+          "name": "financial_accounts_name_check",
+          "value": "length(trim(\"app\".\"financial_accounts\".\"name\")) > 0"
+        },
+        "financial_accounts_type_check": {
+          "name": "financial_accounts_type_check",
+          "value": "\"app\".\"financial_accounts\".\"type\" in ('checking','savings','cash','credit','investment','other','debt')"
+        },
+        "financial_accounts_currency_check": {
+          "name": "financial_accounts_currency_check",
+          "value": "\"app\".\"financial_accounts\".\"currency\" in ('BRL','USD','EUR','GBP','CAD','AUD','CHF','JPY','CLP','KRW','KWD','BHD')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_categories": {
+      "name": "financial_categories",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {
+        "financial_categories_owner_idx": {
+          "name": "financial_categories_owner_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_categories_owner_kind_key": {
+          "name": "financial_categories_owner_kind_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id",
+            "kind"
+          ]
+        }
+      },
+      "policies": {
+        "financial_categories_select_own": {
+          "name": "financial_categories_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_categories\".\"auth_user_id\""
+        },
+        "financial_categories_insert_own": {
+          "name": "financial_categories_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_categories\".\"auth_user_id\""
+        },
+        "financial_categories_update_own": {
+          "name": "financial_categories_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_categories\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_categories\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_categories_name_check": {
+          "name": "financial_categories_name_check",
+          "value": "length(trim(\"app\".\"financial_categories\".\"name\")) > 0"
+        },
+        "financial_categories_kind_check": {
+          "name": "financial_categories_kind_check",
+          "value": "\"app\".\"financial_categories\".\"kind\" in ('INCOME','EXPENSE')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_transactions": {
+      "name": "financial_transactions",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_minor": {
+          "name": "amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_cancelled": {
+          "name": "is_cancelled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {
+        "financial_transactions_owner_date_idx": {
+          "name": "financial_transactions_owner_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "financial_transactions_account_date_idx": {
+          "name": "financial_transactions_account_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "financial_transactions_category_date_idx": {
+          "name": "financial_transactions_category_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "category_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "financial_transactions_account_owner_fk": {
+          "name": "financial_transactions_account_owner_fk",
+          "tableFrom": "financial_transactions",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "account_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "financial_transactions_category_owner_fk": {
+          "name": "financial_transactions_category_owner_fk",
+          "tableFrom": "financial_transactions",
+          "tableTo": "financial_categories",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "category_id",
+            "auth_user_id",
+            "type"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "kind"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_transactions_id_owner_unique": {
+          "name": "financial_transactions_id_owner_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "financial_transactions_select_own": {
+          "name": "financial_transactions_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_transactions\".\"auth_user_id\""
+        },
+        "financial_transactions_insert_own": {
+          "name": "financial_transactions_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_transactions\".\"auth_user_id\""
+        },
+        "financial_transactions_update_own": {
+          "name": "financial_transactions_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_transactions\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_transactions\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_transactions_amount_check": {
+          "name": "financial_transactions_amount_check",
+          "value": "\"app\".\"financial_transactions\".\"amount_minor\" > 0"
+        },
+        "financial_transactions_type_check": {
+          "name": "financial_transactions_type_check",
+          "value": "\"app\".\"financial_transactions\".\"type\" in ('INCOME','EXPENSE')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_transfers": {
+      "name": "financial_transfers",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "source_account_id": {
+          "name": "source_account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destination_account_id": {
+          "name": "destination_account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_minor": {
+          "name": "amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_cancelled": {
+          "name": "is_cancelled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "financial_transfers_owner_date_idx": {
+          "name": "financial_transfers_owner_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "financial_transfers_source_date_idx": {
+          "name": "financial_transfers_source_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source_account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "financial_transfers_destination_date_idx": {
+          "name": "financial_transfers_destination_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "destination_account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "financial_transfers_source_owner_fk": {
+          "name": "financial_transfers_source_owner_fk",
+          "tableFrom": "financial_transfers",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "source_account_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "financial_transfers_destination_owner_fk": {
+          "name": "financial_transfers_destination_owner_fk",
+          "tableFrom": "financial_transfers",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "destination_account_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_transfers_idempotency_key": {
+          "name": "financial_transfers_idempotency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id",
+            "idempotency_key"
+          ]
+        },
+        "financial_transfers_id_owner_key": {
+          "name": "financial_transfers_id_owner_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "financial_transfers_select_own": {
+          "name": "financial_transfers_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_transfers\".\"auth_user_id\""
+        },
+        "financial_transfers_insert_own": {
+          "name": "financial_transfers_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_transfers\".\"auth_user_id\""
+        },
+        "financial_transfers_update_own": {
+          "name": "financial_transfers_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_transfers\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_transfers\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_transfers_amount_check": {
+          "name": "financial_transfers_amount_check",
+          "value": "\"app\".\"financial_transfers\".\"amount_minor\" > 0"
+        },
+        "financial_transfers_different_accounts_check": {
+          "name": "financial_transfers_different_accounts_check",
+          "value": "\"app\".\"financial_transfers\".\"source_account_id\" <> \"app\".\"financial_transfers\".\"destination_account_id\""
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_goal_events": {
+      "name": "financial_goal_events",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "goal_id": {
+          "name": "goal_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_minor": {
+          "name": "amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "note": {
+          "name": "note",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "financial_goal_events_goal_occurred_idx": {
+          "name": "financial_goal_events_goal_occurred_idx",
+          "columns": [
+            {
+              "expression": "goal_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "financial_goal_events_goal_owner_fk": {
+          "name": "financial_goal_events_goal_owner_fk",
+          "tableFrom": "financial_goal_events",
+          "tableTo": "financial_goals",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "goal_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_goal_events_owner_idempotency_key": {
+          "name": "financial_goal_events_owner_idempotency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id",
+            "idempotency_key"
+          ]
+        }
+      },
+      "policies": {
+        "financial_goal_events_select_own": {
+          "name": "financial_goal_events_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_goal_events\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_goal_events_amount_check": {
+          "name": "financial_goal_events_amount_check",
+          "value": "\"app\".\"financial_goal_events\".\"amount_minor\" > 0"
+        },
+        "financial_goal_events_type_check": {
+          "name": "financial_goal_events_type_check",
+          "value": "\"app\".\"financial_goal_events\".\"type\" in ('CONTRIBUTION','WITHDRAWAL')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_goals": {
+      "name": "financial_goals",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_amount_minor": {
+          "name": "target_amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_month": {
+          "name": "target_month",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "planned_monthly_minor": {
+          "name": "planned_monthly_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "priority": {
+          "name": "priority",
+          "type": "varchar(6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "financial_goals_owner_status_idx": {
+          "name": "financial_goals_owner_status_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "financial_goals_owner_currency_idx": {
+          "name": "financial_goals_owner_currency_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "currency",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_goals_owner_key": {
+          "name": "financial_goals_owner_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "financial_goals_select_own": {
+          "name": "financial_goals_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_goals\".\"auth_user_id\""
+        },
+        "financial_goals_insert_own": {
+          "name": "financial_goals_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_goals\".\"auth_user_id\""
+        },
+        "financial_goals_update_own": {
+          "name": "financial_goals_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_goals\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_goals\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_goals_name_check": {
+          "name": "financial_goals_name_check",
+          "value": "length(trim(\"app\".\"financial_goals\".\"name\")) > 0"
+        },
+        "financial_goals_currency_check": {
+          "name": "financial_goals_currency_check",
+          "value": "\"app\".\"financial_goals\".\"currency\" in ('BRL','USD','EUR','GBP','CAD','AUD','CHF','JPY','CLP','KRW','KWD','BHD')"
+        },
+        "financial_goals_target_check": {
+          "name": "financial_goals_target_check",
+          "value": "\"app\".\"financial_goals\".\"target_amount_minor\" > 0"
+        },
+        "financial_goals_planned_check": {
+          "name": "financial_goals_planned_check",
+          "value": "\"app\".\"financial_goals\".\"planned_monthly_minor\" >= 0"
+        },
+        "financial_goals_month_check": {
+          "name": "financial_goals_month_check",
+          "value": "\"app\".\"financial_goals\".\"target_month\" ~ '^[1-9][0-9]{3}-(0[1-9]|1[0-2])$' and left(\"app\".\"financial_goals\".\"target_month\",4)::integer <= 9998"
+        },
+        "financial_goals_priority_check": {
+          "name": "financial_goals_priority_check",
+          "value": "\"app\".\"financial_goals\".\"priority\" in ('LOW','MEDIUM','HIGH')"
+        },
+        "financial_goals_status_check": {
+          "name": "financial_goals_status_check",
+          "value": "\"app\".\"financial_goals\".\"status\" in ('ACTIVE','PAUSED','ARCHIVED')"
+        },
+        "financial_goals_archive_check": {
+          "name": "financial_goals_archive_check",
+          "value": "(\"app\".\"financial_goals\".\"status\" = 'ARCHIVED') = (\"app\".\"financial_goals\".\"archived_at\" is not null)"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_net_worth_items": {
+      "name": "financial_net_worth_items",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(9)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "net_worth_items_owner_created_idx": {
+          "name": "net_worth_items_owner_created_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "net_worth_items_id_owner_unique": {
+          "name": "net_worth_items_id_owner_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "net_worth_items_select_own": {
+          "name": "net_worth_items_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_net_worth_items\".\"auth_user_id\""
+        },
+        "net_worth_items_insert_own": {
+          "name": "net_worth_items_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_net_worth_items\".\"auth_user_id\""
+        },
+        "net_worth_items_update_own": {
+          "name": "net_worth_items_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_net_worth_items\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_net_worth_items\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "net_worth_items_name_check": {
+          "name": "net_worth_items_name_check",
+          "value": "length(trim(\"app\".\"financial_net_worth_items\".\"name\")) > 0"
+        },
+        "net_worth_items_currency_check": {
+          "name": "net_worth_items_currency_check",
+          "value": "\"app\".\"financial_net_worth_items\".\"currency\" in ('BRL','USD','EUR','GBP','CAD','AUD','CHF','JPY','CLP','KRW','KWD','BHD')"
+        },
+        "net_worth_items_category_check": {
+          "name": "net_worth_items_category_check",
+          "value": "(\"app\".\"financial_net_worth_items\".\"kind\" = 'ASSET' and \"app\".\"financial_net_worth_items\".\"category\" in ('PROPERTY','VEHICLE','BUSINESS','VALUABLE','OTHER')) or (\"app\".\"financial_net_worth_items\".\"kind\" = 'LIABILITY' and \"app\".\"financial_net_worth_items\".\"category\" in ('MORTGAGE','LOAN','FINANCING','OTHER'))"
+        },
+        "net_worth_items_status_check": {
+          "name": "net_worth_items_status_check",
+          "value": "\"app\".\"financial_net_worth_items\".\"status\" in ('ACTIVE','ARCHIVED')"
+        },
+        "net_worth_items_archive_check": {
+          "name": "net_worth_items_archive_check",
+          "value": "(\"app\".\"financial_net_worth_items\".\"status\" = 'ARCHIVED') = (\"app\".\"financial_net_worth_items\".\"archived_at\" is not null)"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_net_worth_valuations": {
+      "name": "financial_net_worth_valuations",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value_minor": {
+          "name": "value_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valuation_date": {
+          "name": "valuation_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "note": {
+          "name": "note",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "net_worth_valuations_owner_item_date_idx": {
+          "name": "net_worth_valuations_owner_item_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "valuation_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "net_worth_valuations_item_owner_fk": {
+          "name": "net_worth_valuations_item_owner_fk",
+          "tableFrom": "financial_net_worth_valuations",
+          "tableTo": "financial_net_worth_items",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "item_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "net_worth_valuations_select_own": {
+          "name": "net_worth_valuations_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_net_worth_valuations\".\"auth_user_id\""
+        },
+        "net_worth_valuations_insert_own": {
+          "name": "net_worth_valuations_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_net_worth_valuations\".\"auth_user_id\" and exists (select 1 from app.financial_net_worth_items i where i.id = \"app\".\"financial_net_worth_valuations\".\"item_id\" and i.auth_user_id = \"app\".\"financial_net_worth_valuations\".\"auth_user_id\" and i.status = 'ACTIVE')"
+        }
+      },
+      "checkConstraints": {
+        "net_worth_valuations_value_check": {
+          "name": "net_worth_valuations_value_check",
+          "value": "\"app\".\"financial_net_worth_valuations\".\"value_minor\" >= 0"
+        },
+        "net_worth_valuations_date_check": {
+          "name": "net_worth_valuations_date_check",
+          "value": "\"app\".\"financial_net_worth_valuations\".\"valuation_date\" between date '1000-01-01' and date '9998-12-31'"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.profiles": {
+      "name": "profiles",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "locale": {
+          "name": "locale",
+          "type": "varchar(35)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timezone": {
+          "name": "timezone",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "profiles_auth_user_id_unique": {
+          "name": "profiles_auth_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "profiles_select_own": {
+          "name": "profiles_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\""
+        },
+        "profiles_insert_own": {
+          "name": "profiles_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\""
+        },
+        "profiles_update_own": {
+          "name": "profiles_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\""
+        },
+        "profiles_delete_own": {
+          "name": "profiles_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) IS NOT NULL AND (select auth.uid()) = \"app\".\"profiles\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "profiles_display_name_nonempty": {
+          "name": "profiles_display_name_nonempty",
+          "value": "length(trim(\"app\".\"profiles\".\"display_name\")) > 0"
+        },
+        "profiles_locale_nonempty": {
+          "name": "profiles_locale_nonempty",
+          "value": "length(trim(\"app\".\"profiles\".\"locale\")) > 0"
+        },
+        "profiles_timezone_nonempty": {
+          "name": "profiles_timezone_nonempty",
+          "value": "length(trim(\"app\".\"profiles\".\"timezone\")) > 0"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_recurrences": {
+      "name": "financial_recurrences",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transaction_type": {
+          "name": "transaction_type",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recurrence_kind": {
+          "name": "recurrence_kind",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_minor": {
+          "name": "amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "frequency": {
+          "name": "frequency",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interval_count": {
+          "name": "interval_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "financial_recurrences_owner_status_idx": {
+          "name": "financial_recurrences_owner_status_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "financial_recurrences_owner_kind_idx": {
+          "name": "financial_recurrences_owner_kind_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "recurrence_kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "financial_recurrences_owner_currency_idx": {
+          "name": "financial_recurrences_owner_currency_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "currency",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "financial_recurrences_account_owner_fk": {
+          "name": "financial_recurrences_account_owner_fk",
+          "tableFrom": "financial_recurrences",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "account_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "financial_recurrences_category_owner_fk": {
+          "name": "financial_recurrences_category_owner_fk",
+          "tableFrom": "financial_recurrences",
+          "tableTo": "financial_categories",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "category_id",
+            "auth_user_id",
+            "transaction_type"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "kind"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "financial_recurrences_select_own": {
+          "name": "financial_recurrences_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_recurrences\".\"auth_user_id\""
+        },
+        "financial_recurrences_insert_own": {
+          "name": "financial_recurrences_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_recurrences\".\"auth_user_id\""
+        },
+        "financial_recurrences_update_own": {
+          "name": "financial_recurrences_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid()) = \"app\".\"financial_recurrences\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid()) = \"app\".\"financial_recurrences\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "financial_recurrences_name_check": {
+          "name": "financial_recurrences_name_check",
+          "value": "length(trim(\"app\".\"financial_recurrences\".\"name\")) > 0"
+        },
+        "financial_recurrences_amount_check": {
+          "name": "financial_recurrences_amount_check",
+          "value": "\"app\".\"financial_recurrences\".\"amount_minor\" > 0"
+        },
+        "financial_recurrences_currency_check": {
+          "name": "financial_recurrences_currency_check",
+          "value": "\"app\".\"financial_recurrences\".\"currency\" in ('BRL','USD','EUR','GBP','CAD','AUD','CHF','JPY','CLP','KRW','KWD','BHD')"
+        },
+        "financial_recurrences_type_check": {
+          "name": "financial_recurrences_type_check",
+          "value": "\"app\".\"financial_recurrences\".\"transaction_type\" in ('INCOME','EXPENSE')"
+        },
+        "financial_recurrences_kind_check": {
+          "name": "financial_recurrences_kind_check",
+          "value": "\"app\".\"financial_recurrences\".\"recurrence_kind\" in ('STANDARD','SUBSCRIPTION')"
+        },
+        "financial_recurrences_subscription_check": {
+          "name": "financial_recurrences_subscription_check",
+          "value": "\"app\".\"financial_recurrences\".\"recurrence_kind\" <> 'SUBSCRIPTION' or \"app\".\"financial_recurrences\".\"transaction_type\" = 'EXPENSE'"
+        },
+        "financial_recurrences_frequency_check": {
+          "name": "financial_recurrences_frequency_check",
+          "value": "\"app\".\"financial_recurrences\".\"frequency\" in ('WEEKLY','MONTHLY','YEARLY')"
+        },
+        "financial_recurrences_interval_check": {
+          "name": "financial_recurrences_interval_check",
+          "value": "\"app\".\"financial_recurrences\".\"interval_count\" between 1 and case \"app\".\"financial_recurrences\".\"frequency\" when 'WEEKLY' then 52 when 'MONTHLY' then 24 when 'YEARLY' then 10 else 0 end"
+        },
+        "financial_recurrences_dates_check": {
+          "name": "financial_recurrences_dates_check",
+          "value": "\"app\".\"financial_recurrences\".\"start_date\" between date '1000-01-01' and date '9998-12-31' and (\"app\".\"financial_recurrences\".\"end_date\" is null or (\"app\".\"financial_recurrences\".\"end_date\" >= \"app\".\"financial_recurrences\".\"start_date\" and \"app\".\"financial_recurrences\".\"end_date\" <= date '9998-12-31'))"
+        },
+        "financial_recurrences_status_check": {
+          "name": "financial_recurrences_status_check",
+          "value": "\"app\".\"financial_recurrences\".\"status\" in ('ACTIVE','PAUSED','ARCHIVED')"
+        },
+        "financial_recurrences_archive_check": {
+          "name": "financial_recurrences_archive_check",
+          "value": "(\"app\".\"financial_recurrences\".\"status\" = 'ARCHIVED') = (\"app\".\"financial_recurrences\".\"archived_at\" is not null)"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_safe_spend_accounts": {
+      "name": "financial_safe_spend_accounts",
+      "schema": "app",
+      "columns": {
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_type": {
+          "name": "account_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "safe_spend_account_owner_idx": {
+          "name": "safe_spend_account_owner_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "safe_spend_profile_owner_currency_fk": {
+          "name": "safe_spend_profile_owner_currency_fk",
+          "tableFrom": "financial_safe_spend_accounts",
+          "tableTo": "financial_safe_spend_profiles",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "profile_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "safe_spend_account_owner_currency_type_fk": {
+          "name": "safe_spend_account_owner_currency_type_fk",
+          "tableFrom": "financial_safe_spend_accounts",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "account_id",
+            "auth_user_id",
+            "currency",
+            "account_type"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency",
+            "type"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "financial_safe_spend_accounts_profile_id_account_id_pk": {
+          "name": "financial_safe_spend_accounts_profile_id_account_id_pk",
+          "columns": [
+            "profile_id",
+            "account_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {
+        "safe_spend_account_select_own": {
+          "name": "safe_spend_account_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid())=\"app\".\"financial_safe_spend_accounts\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "safe_spend_account_type_check": {
+          "name": "safe_spend_account_type_check",
+          "value": "\"app\".\"financial_safe_spend_accounts\".\"account_type\" in ('checking','cash','savings','other')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_safe_spend_profiles": {
+      "name": "financial_safe_spend_profiles",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "safety_buffer_minor": {
+          "name": "safety_buffer_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "0"
+        },
+        "respect_budget": {
+          "name": "respect_budget",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "reserve_recurrences": {
+          "name": "reserve_recurrences",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "reserve_goal_plans": {
+          "name": "reserve_goal_plans",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "safe_spend_owner_currency_key": {
+          "name": "safe_spend_owner_currency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "auth_user_id",
+            "currency"
+          ]
+        },
+        "safe_spend_id_owner_currency_key": {
+          "name": "safe_spend_id_owner_currency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ]
+        }
+      },
+      "policies": {
+        "safe_spend_profile_select_own": {
+          "name": "safe_spend_profile_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid())=\"app\".\"financial_safe_spend_profiles\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "safe_spend_profile_shape_check": {
+          "name": "safe_spend_profile_shape_check",
+          "value": "\"app\".\"financial_safe_spend_profiles\".\"safety_buffer_minor\">=0 and \"app\".\"financial_safe_spend_profiles\".\"currency\" in ('BRL','USD','EUR','GBP','CAD','AUD','CHF','JPY','CLP','KRW','KWD','BHD')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_market_rates": {
+      "name": "financial_market_rates",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "benchmark": {
+          "name": "benchmark",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "series_code": {
+          "name": "series_code",
+          "type": "varchar(4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rate_date": {
+          "name": "rate_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rate_value": {
+          "name": "rate_value",
+          "type": "numeric(38, 18)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rate_unit": {
+          "name": "rate_unit",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'BCB'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "market_rate_series_date_idx": {
+          "name": "market_rate_series_date_idx",
+          "columns": [
+            {
+              "expression": "series_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "rate_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "market_rate_observation_unique": {
+          "name": "market_rate_observation_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "benchmark",
+            "series_code",
+            "rate_date"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "market_rate_value_check": {
+          "name": "market_rate_value_check",
+          "value": "\"app\".\"financial_market_rates\".\"rate_value\" between 0 and 10 and \"app\".\"financial_market_rates\".\"source\"='BCB'"
+        },
+        "market_rate_series_check": {
+          "name": "market_rate_series_check",
+          "value": "(\"app\".\"financial_market_rates\".\"benchmark\"='CDI' and ((\"app\".\"financial_market_rates\".\"series_code\"='12' and \"app\".\"financial_market_rates\".\"rate_unit\"='DAILY_DECIMAL') or (\"app\".\"financial_market_rates\".\"series_code\"='4389' and \"app\".\"financial_market_rates\".\"rate_unit\"='ANNUAL_DECIMAL'))) or (\"app\".\"financial_market_rates\".\"benchmark\"='SELIC' and ((\"app\".\"financial_market_rates\".\"series_code\"='11' and \"app\".\"financial_market_rates\".\"rate_unit\"='DAILY_DECIMAL') or (\"app\".\"financial_market_rates\".\"series_code\"='1178' and \"app\".\"financial_market_rates\".\"rate_unit\"='ANNUAL_DECIMAL'))) or (\"app\".\"financial_market_rates\".\"benchmark\"='SELIC_TARGET' and \"app\".\"financial_market_rates\".\"series_code\"='432' and \"app\".\"financial_market_rates\".\"rate_unit\"='ANNUAL_DECIMAL') or (\"app\".\"financial_market_rates\".\"benchmark\"='TR' and \"app\".\"financial_market_rates\".\"series_code\"='226' and \"app\".\"financial_market_rates\".\"rate_unit\"='MONTHLY_DECIMAL')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_yield_profiles": {
+      "name": "financial_yield_profiles",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "yield_profile_owner_idx": {
+          "name": "yield_profile_owner_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "yield_profile_account_owner_currency_fk": {
+          "name": "yield_profile_account_owner_currency_fk",
+          "tableFrom": "financial_yield_profiles",
+          "tableTo": "financial_accounts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "account_id",
+            "auth_user_id",
+            "currency"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id",
+            "currency"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "yield_profile_account_unique": {
+          "name": "yield_profile_account_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "account_id"
+          ]
+        },
+        "yield_profile_id_owner_unique": {
+          "name": "yield_profile_id_owner_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "auth_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "yield_profile_select_own": {
+          "name": "yield_profile_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid())=\"app\".\"financial_yield_profiles\".\"auth_user_id\""
+        },
+        "yield_profile_insert_own": {
+          "name": "yield_profile_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid())=\"app\".\"financial_yield_profiles\".\"auth_user_id\""
+        },
+        "yield_profile_update_own": {
+          "name": "yield_profile_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid())=\"app\".\"financial_yield_profiles\".\"auth_user_id\"",
+          "withCheck": "(select auth.uid())=\"app\".\"financial_yield_profiles\".\"auth_user_id\""
+        }
+      },
+      "checkConstraints": {
+        "yield_profile_status_check": {
+          "name": "yield_profile_status_check",
+          "value": "\"app\".\"financial_yield_profiles\".\"status\" in ('ACTIVE','ARCHIVED')"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "app.financial_yield_rules": {
+      "name": "financial_yield_rules",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "auth_user_id": {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rule_type": {
+          "name": "rule_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_from": {
+          "name": "effective_from",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_to": {
+          "name": "effective_to",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "benchmark": {
+          "name": "benchmark",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fixed_rate": {
+          "name": "fixed_rate",
+          "type": "numeric(38, 18)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "benchmark_percentage": {
+          "name": "benchmark_percentage",
+          "type": "numeric(38, 18)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rate_period": {
+          "name": "rate_period",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "day_count_convention": {
+          "name": "day_count_convention",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "eligibility_delay_days": {
+          "name": "eligibility_delay_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "eligible_balance_cap_minor": {
+          "name": "eligible_balance_cap_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tax_treatment": {
+          "name": "tax_treatment",
+          "type": "varchar(24)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tax_reference_date": {
+          "name": "tax_reference_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "yield_rule_owner_profile_date_idx": {
+          "name": "yield_rule_owner_profile_date_idx",
+          "columns": [
+            {
+              "expression": "auth_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "effective_from",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "yield_rule_profile_owner_fk": {
+          "name": "yield_rule_profile_owner_fk",
+          "tableFrom": "financial_yield_rules",
+          "tableTo": "financial_yield_profiles",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "profile_id",
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id",
+            "auth_user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "yield_rule_start_unique": {
+          "name": "yield_rule_start_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "profile_id",
+            "effective_from"
+          ]
+        }
+      },
+      "policies": {
+        "yield_rule_select_own": {
+          "name": "yield_rule_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(select auth.uid())=\"app\".\"financial_yield_rules\".\"auth_user_id\""
+        },
+        "yield_rule_insert_own": {
+          "name": "yield_rule_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(select auth.uid())=\"app\".\"financial_yield_rules\".\"auth_user_id\" and exists(select 1 from app.financial_yield_profiles p where p.id=\"app\".\"financial_yield_rules\".\"profile_id\" and p.auth_user_id=\"app\".\"financial_yield_rules\".\"auth_user_id\" and p.status='ACTIVE')"
+        }
+      },
+      "checkConstraints": {
+        "yield_rule_interval_check": {
+          "name": "yield_rule_interval_check",
+          "value": "\"app\".\"financial_yield_rules\".\"effective_from\" between date '1000-01-01' and date '9988-12-31' and (\"app\".\"financial_yield_rules\".\"effective_to\" is null or \"app\".\"financial_yield_rules\".\"effective_to\">\"app\".\"financial_yield_rules\".\"effective_from\")"
+        },
+        "yield_rule_delay_cap_check": {
+          "name": "yield_rule_delay_cap_check",
+          "value": "\"app\".\"financial_yield_rules\".\"eligibility_delay_days\" between 0 and 3650 and (\"app\".\"financial_yield_rules\".\"eligible_balance_cap_minor\" is null or \"app\".\"financial_yield_rules\".\"eligible_balance_cap_minor\">0)"
+        },
+        "yield_rule_tax_check": {
+          "name": "yield_rule_tax_check",
+          "value": "\"app\".\"financial_yield_rules\".\"tax_treatment\" in ('NONE','BR_FIXED_INCOME_STANDARD','BR_SAVINGS_EXEMPT') and (\"app\".\"financial_yield_rules\".\"tax_reference_date\" is null or \"app\".\"financial_yield_rules\".\"tax_reference_date\"<=\"app\".\"financial_yield_rules\".\"effective_from\")"
+        },
+        "yield_rule_shape_check": {
+          "name": "yield_rule_shape_check",
+          "value": "(\"app\".\"financial_yield_rules\".\"rule_type\"='ZERO' and \"app\".\"financial_yield_rules\".\"fixed_rate\" is null and \"app\".\"financial_yield_rules\".\"benchmark\" is null and \"app\".\"financial_yield_rules\".\"benchmark_percentage\" is null and \"app\".\"financial_yield_rules\".\"rate_period\" is null and \"app\".\"financial_yield_rules\".\"day_count_convention\"='CALENDAR_365' and \"app\".\"financial_yield_rules\".\"tax_treatment\"='NONE') or (\"app\".\"financial_yield_rules\".\"rule_type\"='FIXED_RATE' and \"app\".\"financial_yield_rules\".\"fixed_rate\" between 0 and 10 and \"app\".\"financial_yield_rules\".\"benchmark\" is null and \"app\".\"financial_yield_rules\".\"benchmark_percentage\" is null and \"app\".\"financial_yield_rules\".\"rate_period\" in ('ANNUAL','MONTHLY') and \"app\".\"financial_yield_rules\".\"day_count_convention\" in ('CALENDAR_365','BUSINESS_252') and \"app\".\"financial_yield_rules\".\"tax_treatment\" in ('NONE','BR_FIXED_INCOME_STANDARD')) or (\"app\".\"financial_yield_rules\".\"rule_type\"='BENCHMARK_PERCENTAGE' and \"app\".\"financial_yield_rules\".\"fixed_rate\" is null and \"app\".\"financial_yield_rules\".\"benchmark\" in ('CDI','SELIC') and \"app\".\"financial_yield_rules\".\"benchmark_percentage\" between 0 and 10 and \"app\".\"financial_yield_rules\".\"rate_period\" is null and \"app\".\"financial_yield_rules\".\"day_count_convention\"='BUSINESS_252' and \"app\".\"financial_yield_rules\".\"tax_treatment\" in ('NONE','BR_FIXED_INCOME_STANDARD')) or (\"app\".\"financial_yield_rules\".\"rule_type\"='SAVINGS_BR' and \"app\".\"financial_yield_rules\".\"fixed_rate\" is null and \"app\".\"financial_yield_rules\".\"benchmark\" is null and \"app\".\"financial_yield_rules\".\"benchmark_percentage\" is null and \"app\".\"financial_yield_rules\".\"rate_period\" is null and \"app\".\"financial_yield_rules\".\"day_count_convention\"='MONTHLY_ANNIVERSARY' and \"app\".\"financial_yield_rules\".\"tax_treatment\"='BR_SAVINGS_EXEMPT')"
+        }
+      },
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "app": "app"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

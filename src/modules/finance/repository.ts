@@ -86,10 +86,10 @@ const movements = (owner: string) => sql`(
   select id, source_account_id, destination_account_id, null::uuid, 'TRANSFER', amount_minor, currency, description, occurred_at, created_at, updated_at, is_cancelled
   from app.financial_transfers where auth_user_id=${owner}::uuid
 )`;
-const delta = (
+export const delta = (
   owner: string,
   accountId: string | ReturnType<typeof sql>,
-  asOf: Date,
+  asOf: Date | ReturnType<typeof sql>,
 ) => sql`coalesce((
   select sum(case when m.type='INCOME' then m.amount_minor when m.type='EXPENSE' then -m.amount_minor
     when m.account_id=${accountId}::uuid then -m.amount_minor else m.amount_minor end)
@@ -97,12 +97,12 @@ const delta = (
     and (m.account_id=${accountId}::uuid or m.destination_account_id=${accountId}::uuid)
 ),0)`;
 
-export function createFinanceRepository({ db }: Database): FinanceRepository {
+export function createFinanceRepository({ db }: Database, clock = () => new Date()): FinanceRepository {
   async function listAccounts(owner: string, id?: string): Promise<Account[]> {
     const rows = await db
       .select({
         row: accounts,
-        balance: sql<string>`(${accounts.initialBalanceMinor} + ${delta(owner, sql`${accounts.id}`, new Date())})::text`,
+        balance: sql<string>`(${accounts.initialBalanceMinor} + ${delta(owner, sql`${accounts.id}`, clock())})::text`,
       })
       .from(accounts)
       .where(and(eq(accounts.authUserId, owner), id ? eq(accounts.id, id) : undefined))
