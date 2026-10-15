@@ -56,3 +56,27 @@ concurrent retries, stale edit/confirm races, forced rollback after ledger inser
 financial isolation and bounded performance using synthetic fixtures only.
 Hosted migration requires separate authorization after local gates; no hosted
 financial writes are part of development validation. No MDL12 work is included.
+
+DEV migration0012 was explicitly authorized and applied once on2026-10-15 using
+the official `db:migrate` script, with SQL matching commit
+`d809ffa20bd0e18b0e895b5b46137f8603b6715b`. Drizzle12/12, no pending migrations;
+new table empty,8 constraints/7 indexes/function/trigger/RLS/restricted grants
+verified. The24 pre-existing app tables retain identical row counts/hashes and
+structure; existing app functions and historical ledger rows are unchanged.
+TLS verify-full, CA and hostname verification passed. A consistent app+drizzle
+pg_dump17 recovery archive is retained locally, outside Git, encrypted with
+Windows DPAPI CurrentUser and a restricted ACL. Decryption and archive contents
+were verified; a restoration drill was not performed. It is an app/Drizzle
+recovery point, not a full Supabase/Auth/Storage backup or managed PITR.
+Local health live/ready200 and Inbox JWT guard401 were verified. A valid-session
+Inbox read was reserved for an explicitly chosen human test account;
+no automatic signup/login, financial fixtures, final PR or merge were performed.
+
+The user subsequently approved the real MDL11 human gate:7/7 PASS. Final promotion
+still awaits validation/release of the Front card-account presentation fix.
+Cards (including archived cards) are identified by their official accountId, not
+names or credit account type. This UI correction does not change backend code,
+ledger rules, RLS, migrations or the date-sensitive MANAGED_ACCOUNT condition.
+Fresh Back regression passed260 unit and181 disposable PostgreSQL17 integration
+tests, lint/typecheck/OpenAPI/contract drift/build. No hosted database requests or
+financial writes were made for this correction. No COMPLETE checkpoint or merge.
