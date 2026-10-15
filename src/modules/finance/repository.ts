@@ -78,6 +78,36 @@ const transaction = (row: typeof transactions.$inferSelect): Transaction => ({
   isCancelled: row.isCancelled,
 });
 
+export type FinanceTransaction = Parameters<Parameters<Database['db']['transaction']>[0]>[0];
+async function lockedAccounts(tx: FinanceTransaction, owner: string, ids: string[], currency: string) {
+  const rows = await tx.select().from(accounts)
+    .where(and(eq(accounts.authUserId, owner), inArray(accounts.id, ids)))
+    .orderBy(accounts.id).for('update');
+  if (rows.length !== ids.length) throw new AppError('NOT_FOUND');
+  if (rows.some(row => !row.isActive)) throw new AppError('CONFLICT');
+  if (rows.some(row => row.currency !== currency)) throw new AppError('VALIDATION_ERROR');
+}
+
+// Shared posting boundary. Callers supply their SQL transaction so Inbox can commit
+// its terminal state and the existing ledger insertion atomically.
+export async function postFinancialTransaction(tx: FinanceTransaction, owner: string, input: TransactionInput): Promise<Transaction> {
+  await lockedAccounts(tx, owner, [input.accountId], input.currency);
+  const debt = await tx.execute(sql`select 1 from app.financial_debts where auth_user_id=${owner}::uuid and account_id=${input.accountId}::uuid`);
+  if (debt.rows.length) throw new AppError('DEBT_MANAGED_ACCOUNT');
+  const managed = await tx.execute(sql`select 1 from app.financial_credit_cards c left join app.profiles p on p.auth_user_id=c.auth_user_id where c.auth_user_id=${owner} and c.account_id=${input.accountId} and (${new Date(input.occurredAt)}::timestamptz at time zone coalesce(p.timezone,'UTC'))::date >= c.tracking_start_date limit 1`);
+  if (managed.rows.length) throw new AppError('CARD_MANAGED_ACCOUNT');
+  if (input.categoryId) {
+    const [row] = await tx.select().from(categories)
+      .where(and(eq(categories.id, input.categoryId), eq(categories.authUserId, owner))).for('share');
+    if (!row) throw new AppError('NOT_FOUND');
+    if (!row.isActive) throw new AppError('CONFLICT');
+    if (row.kind !== input.type) throw new AppError('VALIDATION_ERROR');
+  }
+  const [row] = await tx.insert(transactions).values({ authUserId: owner, ...input,
+    amountMinor: BigInt(input.amountMinor), occurredAt: new Date(input.occurredAt) }).returning();
+  return transaction(row!);
+}
+
 // One transfer row represents BOTH balance effects. There is no independently writable half.
 const movements = (owner: string) => sql`(
   select id, account_id, null::uuid as destination_account_id, category_id, type, amount_minor, currency, description, occurred_at, created_at, updated_at, is_cancelled
@@ -119,22 +149,6 @@ export function createFinanceRepository({ db }: Database, clock = () => new Date
   }
   const ownAccount = async (owner: string, id: string) =>
     (await listAccounts(owner, id))[0] ?? null;
-  async function lockedAccounts(
-    tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
-    owner: string,
-    ids: string[],
-    currency: string,
-  ) {
-    const rows = await tx
-      .select()
-      .from(accounts)
-      .where(and(eq(accounts.authUserId, owner), inArray(accounts.id, ids)))
-      .orderBy(accounts.id)
-      .for('update');
-    if (rows.length !== ids.length) throw new AppError('NOT_FOUND');
-    if (rows.some((row) => !row.isActive)) throw new AppError('CONFLICT');
-    if (rows.some((row) => row.currency !== currency)) throw new AppError('VALIDATION_ERROR');
-  }
   return {
     listAccounts,
     getAccount: ownAccount,
@@ -188,33 +202,7 @@ export function createFinanceRepository({ db }: Database, clock = () => new Date
       return row ? category(row) : null;
     },
     async createTransaction(owner, input) {
-      return db.transaction(async (tx) => {
-        await lockedAccounts(tx, owner, [input.accountId], input.currency);
-        const debt = await tx.execute(sql`select 1 from app.financial_debts where auth_user_id=${owner}::uuid and account_id=${input.accountId}::uuid`);
-        if (debt.rows.length) throw new AppError('DEBT_MANAGED_ACCOUNT');
-        const managed = await tx.execute(sql`select 1 from app.financial_credit_cards c left join app.profiles p on p.auth_user_id=c.auth_user_id where c.auth_user_id=${owner} and c.account_id=${input.accountId} and (${new Date(input.occurredAt)}::timestamptz at time zone coalesce(p.timezone,'UTC'))::date >= c.tracking_start_date limit 1`);
-        if (managed.rows.length) throw new AppError('CARD_MANAGED_ACCOUNT');
-        if (input.categoryId) {
-          const [row] = await tx
-            .select()
-            .from(categories)
-            .where(and(eq(categories.id, input.categoryId), eq(categories.authUserId, owner)))
-            .for('share');
-          if (!row) throw new AppError('NOT_FOUND');
-          if (!row.isActive) throw new AppError('CONFLICT');
-          if (row.kind !== input.type) throw new AppError('VALIDATION_ERROR');
-        }
-        const [row] = await tx
-          .insert(transactions)
-          .values({
-            authUserId: owner,
-            ...input,
-            amountMinor: BigInt(input.amountMinor),
-            occurredAt: new Date(input.occurredAt),
-          })
-          .returning();
-        return transaction(row!);
-      });
+      return db.transaction(tx => postFinancialTransaction(tx, owner, input));
     },
     async patchTransaction(owner, id, input) {
       const debt = await db.execute(sql`select 1 from app.financial_debt_payments where auth_user_id=${owner}::uuid and (interest_transaction_id=${id}::uuid or fee_transaction_id=${id}::uuid)`);

@@ -10,6 +10,8 @@ export const errors = {
   FORBIDDEN: [403, 'Request is not permitted.'],
   NOT_FOUND: [404, 'Resource not found.'],
   CONFLICT: [409, 'Resource conflict.'],
+  INBOX_INCOMPLETE: [409, 'Complete account, amount and date before confirming the candidate.'],
+  INBOX_POSSIBLE_DUPLICATE: [409, 'Review possible duplicates and explicitly acknowledge before confirming.'],
   SAFE_SPEND_NOT_CONFIGURED: [409, 'Confirm at least one active eligible liquid account for this currency.'],
   SAFE_SPEND_LIMIT: [409, 'Safe to Spend exceeds bounded data limits; no partial estimate is returned.'],
   DEBT_MANAGED_ACCOUNT: [409, 'Use the Debt Payment API for this managed debt account.'],

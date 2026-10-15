@@ -33,3 +33,10 @@ credentials and raw errors are never automatically logged; redaction adds defens
 in depth. Request IDs accept only 1–80 ASCII alphanumeric, underscore or hyphen.
 The in-memory rate limiter is per process. Scaling requires a shared rate-limit
 store or trusted edge controls, not an assumption of cluster-wide limits.
+
+MDL11 adds a private proposal boundary in `finance/inbox-*`. The shared
+`postFinancialTransaction` primitive retains Finance Core validations and accepts
+the caller's SQL transaction. Inbox confirmation uses owner/candidate locks and
+commits the ledger row plus terminal candidate reference atomically. Pending and
+discarded proposals have no reader or writer path into financial read models.
+TypeBox/OpenAPI remain canonical. [State machine, locks and RLS](./FINANCIAL_INBOX.md).

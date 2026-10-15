@@ -128,4 +128,11 @@ MDL9 COMPLETE; gate humano aprovado. Dívida usa conta debt, principal via TRANS
 
 ## MDL10 — Safe to Spend
 
-Estimativa conservadora por moeda, contas explicitamente selecionadas, obrigações e reservas, Budget como teto e receitas previstas em cenário separado. Somente configurações próprias são escritas. Rota protegida /finance/safe-to-spend; implementação automatizada preparada para gate humano PENDING, não COMPLETE. [Fórmula, limites e validação](docs/SAFE_TO_SPEND.md). Sem MDL11.
+Estimativa conservadora por moeda, contas explicitamente selecionadas, obrigações e reservas, Budget como teto e receitas previstas em cenário separado. Somente configurações próprias são escritas. Rota protegida /finance/safe-to-spend; MDL10 COMPLETE com gate humano aprovado. [Fórmula, limites e validação](docs/SAFE_TO_SPEND.md).
+
+## MDL11 — Financial Ingestion Hub + Financial Inbox
+
+Propostas manuais INCOME/EXPENSE, revisão/edição, possíveis duplicidades, confirmação
+atômica/idempotente pelo Finance Core e descarte com histórico. Pendente/descartado
+não altera o ledger. [Arquitetura e validação](docs/FINANCIAL_INBOX.md).
+Migration0012 somente local até autorização para DEV; gate humano PENDING.
