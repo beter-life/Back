@@ -107,8 +107,17 @@ uma configuração e uma seleção do gate humano. PostgreSQL 17, RLS, policies 
 FKs compostas e ausência de grants públicos PASS. Nenhum movimento financeiro foi criado.
 Os advisors mantêm somente avisos preexistentes documentados acima.
 
-Estado de entrega: REAL_GATE_PASS_PENDING_MERGE; PR/merge/CI final pendentes;
-READY_FOR_MDL11=false. MDL11 não iniciado.
+Estado de entrega: MDL10_STATUS=COMPLETE; REAL_GATE=PASS; MERGED_TO_MAIN=true;
+READY_FOR_MDL11=true. Back PR #8 foi integrado por merge commit
+`ca6746c83483d70c69bdfaf31137db6c74546d04`; [CI final de main](https://github.com/beter-life/Back/actions/runs/37790612267)
+PASS. O checkpoint existente [checkpoint/mdl10-safe-to-spend-complete-2026-10-08](https://github.com/beter-life/Back/tree/checkpoint/mdl10-safe-to-spend-complete-2026-10-08)
+aponta para o fechamento da implementação. MDL11 ainda não foi iniciado.
+
+Na retomada local de 2026-10-15, unit (254/254), lint, typecheck, OpenAPI,
+build, secret scan e harness passaram. O teste de integração com PostgreSQL17
+descartável não foi executado porque o daemon Docker estava indisponível; os
+resultados históricos de PostgreSQL17/RLS acima são evidência separada. Esta
+reconciliação altera somente documentação e não alterou banco nem dados.
 
 Advisors pós-DDL: nenhuma falha de segurança nas tabelas novas. O INFO de RLS sem policy
 em financial_market_rates é o cache privado/backend-only preexistente; o WARN de
