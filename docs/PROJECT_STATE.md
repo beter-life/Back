@@ -2,31 +2,33 @@
 
 | Field | Value |
 | --- | --- |
-| MODULE | MDL11 — Financial Ingestion Hub + Financial Inbox |
-| STATUS | REAL_GATE_PASS_PENDING_MERGE |
-| MDL11_STATUS | REAL_GATE_PASS_PENDING_MERGE |
-| REAL_GATE | PASS — seven-flow gate and final card-account UX/scrollbars approved by user |
-| MDL11_HUMAN_GATE | PASS |
-| MDL11_HUMAN_TESTS | 7/7 |
-| READY_FOR_MDL12 | false |
-| PREVIOUS_MODULES | MDL0–MDL10 COMPLETE; main baseline CI PASS |
-| BASELINE_MAIN | `8842cfb2e282d354ac88e618547797a9af216242`; [exact baseline CI PASS](https://github.com/beter-life/Back/actions/runs/38731701722) |
-| BRANCH | codex/mdl11-financial-ingestion-hub-inbox; documentary closure/PR preparation authorized; merge requires explicit user release |
-| LAST_TESTED_COMMIT | `dd177796cbc80d114018cb6729ed48d0de3f2a2c`; exact HEAD CI PASS; application source unchanged since tested d809ffa; closure changes are documentation only |
-| IMPLEMENTATION | Manual INCOME/EXPENSE proposals, bounded list/filters/history, versioned review/edit, duplicate hints/acknowledgement, terminal confirm/discard. TypeBox/OpenAPI generates Front Zod; no parallel Finance Core |
-| POSTING | Shared Finance Core primitive; owner advisory lock then candidate/account locks; ledger row and terminal candidate reference commit atomically. Concurrent retries return one original transaction. Creation replay uses owner/key + canonical input; stale versions conflict |
-| SECURITY | JWT.sub only; compound owner FKs, own SELECT RLS, no client write/DELETE grants, immutable identity/terminal history; no payload/token/fingerprint logging or new dependencies |
-| LOCAL_GATES | Node24.11.1/pnpm11.19.0; fresh lint/typecheck/260 unit/181 disposable PostgreSQL17 integration (RLS, ownership, concurrency, forced rollback, isolation)/OpenAPI/contract drift/build/secret scan/harness PASS; no hosted database requests during the UX correction |
-| BASELINE | Before MDL11: 254 unit and160 PostgreSQL integration PASS. Same postgres:17 image; regression retains all previous tests. Docker restored locally |
-| PERFORMANCE | Synthetic2000 proposals: bounded list/review<2500ms and core account read<1000ms PASS; no remote financial fixtures. No claim of unrestricted load certification |
-| DATABASE | 0012_financial_inbox generated/reviewed and PostgreSQL17 regression PASS; explicitly authorized DEV deployment via official db:migrate executed once on2026-10-15. Drizzle12/12, no pending; SQL matches approved commit d809ffa20bd0e18b0e895b5b46137f8603b6715b. Historical0001–0011 unchanged |
-| SUPABASE_DEV | Authorized deployment snapshot: beter-life-dev ACTIVE_HEALTHY, verify-full/CA/hostname PASS; encrypted app+drizzle pg_dump17 backup, restricted ACL, decryption/manifest verified (not restore-tested).24 existing app tables/data/functions preserved at deployment; not re-read or modified during the UX task |
-| DEPLOYMENT_CHECKS | At authorized deployment: Inbox empty;8 constraints/7 indexes/function+trigger/RLS/restricted grants PASS; live/ready200, guard401. Later real seven-flow human gate PASS per user; deployment snapshot is not a claim that Inbox remains empty |
-| FINANCIAL_BEHAVIOR_UNCHANGED | Back source/contracts/migrations unchanged; card tracking-date eligibility and managed-debt blocking remain backend-owned. Front links card.accountId to account.id for presentation only |
-| CARD_ACCOUNT_UX_FIX | PASS — real accountId links, archived-card history and contextual Inbox guidance approved by user; Finance Core preserved |
-| SCROLLBARS | INCLUDED — Front page/sidebar overlay indicators validated and approved by user |
-| CI | [Back dd17779 CI PASS](https://github.com/beter-life/Back/actions/runs/38770011019); documentary HEAD and PR checks must pass before promotion |
-| CHECKPOINT | Existing DEV tag checkpoint/mdl11-financial-ingestion-hub-inbox-dev-2026-10-15 preserved at d809ffa, not moved; no COMPLETE checkpoint |
-| DESIGN_AND_GATE | [State machine, migration and test boundaries](./FINANCIAL_INBOX.md); Front contains the manual test script |
-| BLOCKERS | Promotion awaits exact documentary HEAD/PR checks and explicit user merge authorization; no remaining human UX validation |
-| NEXT | Publish documentary closure and separate PR to main, verify checks/conflicts, then request final promotion release. No automatic merge, COMPLETE checkpoint or MDL12 |
+| MODULE | MDL12 — Financial File Import (CSV, OFX, PDF) |
+| MDL12_STATUS | AWAITING_REAL_GATE |
+| STATUS | AWAITING_REAL_GATE |
+| REAL_GATE | PENDING |
+| READY_FOR_MDL13 | false |
+| MDL11_MAIN_BACK | 0b039738287b10c94ac3ae1074bbb495852f81bc; PR10 merged; [exact main CI PASS](https://github.com/beter-life/Back/actions/runs/38888458337) |
+| MDL11_MAIN_FRONT | ce0d7322a36e45240fb4e726bf1fef43ea47fd7c; PR12 merged; [exact main CI PASS](https://github.com/beter-life/Front/actions/runs/38896972365) |
+| SYNC | Local main fast-forwarded cleanly; env preserved byte-for-byte; both MDL12 branches start from published MDL11 |
+| BRANCH | codex/mdl12-financial-file-import |
+| LAST_TESTED_COMMIT | 9fc5c407f907034ad8143fe877cf8eb20ad94437; all291 unit/196 PostgreSQL17 tests and quality gates PASS; later closure edits are documentation only |
+| CI_SOURCE | [38912900463 PASS](https://github.com/beter-life/Back/actions/runs/38912900463), exact9fc5c40; published documentary HEAD must also be verified at delivery |
+| IMPLEMENTATION | CSV/OFX/PDF adapters, explicit mapping, exact normalization, bounded preview/history, selected pending Inbox proposals and immutable trace receipts |
+| FINANCIAL_ISOLATION | Import never calls posting; complete financial-table snapshots stay unchanged until separate existing MDL11 confirmation. Shared confirmation primitive and all previous modules preserved |
+| IDEMPOTENCY | Owner/file hash, upload key, immutable batch-row receipts and account/currency/external ID; concurrency serialized with existing Inbox owner advisory lock; atomic candidate+receipt rollback. Proven references reuse candidates; possible matches need acknowledgement |
+| FORMATS | CSV quoted fields/UTF8/explicit1252/BR/INT/ISO-DMY-MDY; one bank OFX SGML/XML; documented digital PDF layout only. Native formats cannot be remapped to reinterpret transfers/corrections |
+| CONTRACT | Strict TypeBox -> OpenAPI -> official Back/Front generated Zod. OpenAPI and both contract drift checks PASS |
+| LOCAL_GATES | lint/typecheck/291 unit/196 disposable PostgreSQL17 integration/build/compiled PDF worker smoke/secret scan/production dependency audit/harness PASS |
+| RLS_OWNERSHIP | JWT.sub only; private schema, own SELECT policies, client writes denied, compound owner FKs, immutable identity/receipts and preserved Inbox terminal guards; real PostgreSQL tests PASS |
+| MIGRATION_LOCAL | 0013_financial_file_import generated/reviewed/applied in disposable PostgreSQL17; historical0001–0012 SQL unchanged; metadata idx12 uses0012_snapshot as generated by Drizzle |
+| MIGRATION_DEV | NOT_APPLIED — explicitly not authorized. No hosted database reads/writes or real financial fixtures during MDL12 |
+| RETENTION | Original bytes never persisted; parsed cells expire24h and are scrubbed on owner access/new analysis. Minimal immutable receipts retain proposal links even after expiry |
+| LIMITS | 2MiB/1000 rows/32 columns/8192 record chars/10 PDF pages/1M text chars/5s/2 workers;128MiB V8 heap cap is not an OS RSS sandbox;200 batches/10 active previews/20MiB per owner |
+| PERFORMANCE | Predeclared local bounds1000 rows<5s, preview50<2.5s, selection100<5s PASS. No hosted-load certification |
+| DEPENDENCIES | Pinned csv-parse7.0.3/fast-xml-parser5.11.2/pdfjs-dist6.4.299; Node24 compatible; production audit reported no known vulnerabilities at validation |
+| PRIVACY | Synthetic fixtures only; no payload/token/financial-content logs, no original-file storage, external AI/OCR or paid service. Local env/TLS/certificates preserved |
+| CHECKPOINT | DEV tag checkpoint/mdl12-financial-file-import-dev-2026-10-16 is reserved for the validated documentary HEAD; existing MDL11 DEV tag preserved; no COMPLETE |
+| PUBLICATION | Source branch pushed without force. Final documentation/DEV tag and exact HEAD CI are verified at delivery; no MDL12 PR or merge |
+| DESIGN | [Supported formats, migration and test boundaries](./FINANCIAL_FILE_IMPORT.md); Front branch provides the human gate and synthetic examples |
+| BLOCKERS | Supabase DEV0013 requires separate human authorization and normal backup/TLS checks before the real hosted gate |
+| NEXT | Finish Front gate/publication and exact HEAD CIs, then await human authorization for0013 and the real gate. No MDL13 or automatic MDL12 merge |
