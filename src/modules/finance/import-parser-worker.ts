@@ -63,7 +63,8 @@ async function pdf(){
       for(const [,group]of [...groups.entries()].sort((a,b)=>b[0]-a[0]))lines.push(group.sort((a,b)=>a.x-b.x).map(v=>v.text).join(' ').replace(/\s+/g,' ').trim());page.cleanup();
     }
     if(!lines.some(Boolean))fail('PDF_NO_TEXT');const normalized=lines.join('\n').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
-    const currency=/MOEDA\s*:\s*([A-Z]{3})/.exec(normalized)?.[1];if(!currency||!normalized.includes('EXTRATO')||!normalized.includes('DATA DESCRICAO VALOR'))fail('PDF_UNSUPPORTED');
+    const declarations=normalized.split('\n').filter(line=>line.startsWith('MOEDA')),currencies=declarations.map(line=>/^MOEDA\s*:\s*([A-Z]{3})$/.exec(line)?.[1]),currency=currencies[0];
+    if(!currency||currencies.some(value=>!value)||new Set(currencies).size!==1||!normalized.includes('EXTRATO')||!normalized.includes('DATA DESCRICAO VALOR'))fail('PDF_UNSUPPORTED');
     result.headers=['Data','Descrição','Valor','Tipo','Moeda','Identificador'];let table=false;
     for(const line of lines){const simple=line.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();if(simple.includes('DATA DESCRICAO VALOR')){table=true;continue;}if(!table||!line||/^(PAGINA|SALDO|TOTAL|SUBTOTAL|EXTRATO|MOEDA)/.test(simple))continue;
       const m=/^(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+([+-](?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,3})?)$/.exec(line);

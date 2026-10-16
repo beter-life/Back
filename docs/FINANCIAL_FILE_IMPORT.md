@@ -65,6 +65,8 @@ PDF scope: extractable digital text with EXTRATO, MOEDA: CODE, and DATA DESCRICA
 VALOR header; rows use DD/MM/YYYY, description and explicitly signed BR amount.
 This is a documented simple statement layout, not universal bank PDF support.
 Scans/no text, encrypted PDFs, unknown structure and ambiguous lines are reported.
+All currency declarations must use the exact supported header and agree across
+pages; mixed or ambiguous currency declarations reject the entire PDF.
 No OCR or document scripts are executed.
 
 All parsers run in bounded Node workers (application isolation, not development
@@ -104,7 +106,7 @@ checkpoint only after local gates. No COMPLETE, MDL12 merge or MDL13. Hosted gat
 remains pending separate migration authorization. The Front branch includes
 the human gate and synthetic CSV/OFX/PDF examples in docs/FINANCIAL_FILE_IMPORT.md.
 
-Local verification2026-10-16:291 unit,196 PostgreSQL17 integration, lint,
+Local verification2026-10-16:292 unit,196 PostgreSQL17 integration, lint,
 typecheck, build (including compiled JavaScript PDF worker smoke), official OpenAPI,
 both generated Zod drift checks, secret scan, production dependency audit and
 harness PASS. Historical0001–0012 SQL and local env files are unchanged.

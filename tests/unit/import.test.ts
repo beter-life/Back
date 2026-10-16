@@ -27,7 +27,7 @@ describe('isolated file parsing',()=>{
     await expect(parseImportFile(input('a;b;c\n7;8;9'))).rejects.toMatchObject({code:'RATE_LIMITED'});
     expect((await Promise.all(pending)).every(r=>!r.issues.length)).toBe(true);expect((await parseImportFile(input('a;b;c\n7;8;9'))).issues).toEqual([]);
   });
-  it.each([['synthetic-statement.pdf',null],['synthetic-image-only.pdf','PDF_NO_TEXT'],['synthetic-unknown-layout.pdf','PDF_UNSUPPORTED'],['synthetic-encrypted.pdf','PDF_ENCRYPTED'],['synthetic-too-many-pages.pdf','LIMIT_EXCEEDED']] as const)('extracts only the recognized digital layout: %s',async(name,issue)=>{
+  it.each([['synthetic-statement.pdf',null],['synthetic-image-only.pdf','PDF_NO_TEXT'],['synthetic-unknown-layout.pdf','PDF_UNSUPPORTED'],['synthetic-encrypted.pdf','PDF_ENCRYPTED'],['synthetic-too-many-pages.pdf','LIMIT_EXCEEDED'],['synthetic-mixed-currency.pdf','PDF_UNSUPPORTED']] as const)('extracts only the recognized digital layout: %s',async(name,issue)=>{
     const dataBase64=(await readFile(new URL('../fixtures/imports/'+name,import.meta.url))).toString('base64');
     const p=await parseImportFile(input('',{fileName:name,format:'PDF',dataBase64}));
     if(issue){expect(p.issues).toEqual([issue]);expect(p.rows).toEqual([]);}
