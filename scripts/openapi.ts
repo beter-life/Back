@@ -14,6 +14,7 @@ import { createCardRepository } from '../src/modules/finance/card-repository.js'
 import { createDebtRepository } from '../src/modules/finance/debt-repository.js';
 import { createSafeSpendRepository } from '../src/modules/finance/safe-spend-repository.js';
 import { createInboxRepository } from '../src/modules/finance/inbox-repository.js';
+import { createFileImportRepository } from '../src/modules/finance/import-repository.js';
 
 // Offline contract generation. No database or identity provider is contacted.
 const config = loadConfig({ NODE_ENV: 'test', TEST_DATABASE_URL: 'postgresql://test@127.0.0.1/beter_life_test',
@@ -24,6 +25,7 @@ const app = await buildApp(config, { dependencies: {
   debts: createDebtRepository(database),
   safeSpend: createSafeSpendRepository(database),
   inbox: createInboxRepository(database),
+  fileImports:createFileImportRepository(database),
   profiles: { findByAuthUser: unavailable, upsertForAuthUser: unavailable }, finance: createFinanceRepository(database), budgets: createBudgetRepository(database), goals: createGoalRepository(database), recurrences: createRecurrenceRepository(database), netWorth:createNetWorthRepository(database),yield:createYieldRepository(database),market:new MarketRateService(createMarketRateCache(database)),cards:createCardRepository(database),ping: unavailable, close: database.close,
 } });
 try {

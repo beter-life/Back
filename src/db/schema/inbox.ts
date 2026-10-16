@@ -22,6 +22,7 @@ export const inboxCandidates = appSchema.table('financial_inbox_candidates', {
   processedAt: timestamp('processed_at', { withTimezone: true }),
 }, t => [
   unique('inbox_owner_creation_key').on(t.authUserId, t.idempotencyKey),
+  unique('inbox_id_owner_key').on(t.id,t.authUserId),
   unique('inbox_posted_transaction_key').on(t.transactionId),
   foreignKey({ name: 'inbox_account_owner_currency_fk', columns: [t.accountId,t.authUserId,t.currency], foreignColumns: [financialAccounts.id,financialAccounts.authUserId,financialAccounts.currency] }),
   foreignKey({ name: 'inbox_category_owner_kind_fk', columns: [t.categoryId,t.authUserId,t.type], foreignColumns: [financialCategories.id,financialCategories.authUserId,financialCategories.kind] }),
@@ -30,7 +31,7 @@ export const inboxCandidates = appSchema.table('financial_inbox_candidates', {
   index('inbox_owner_created_idx').on(t.authUserId,t.createdAt,t.id),
   index('inbox_pending_duplicate_idx').on(t.authUserId,t.accountId,t.currency,t.type,t.amountMinor,t.occurredAt).where(sql`${t.status}='PENDING'`),
   index('inbox_category_owner_idx').on(t.categoryId,t.authUserId,t.type),
-  check('inbox_shape_check', sql`${t.source}='MANUAL' and ${t.type} in ('INCOME','EXPENSE') and ${t.currency} in (${currencies}) and ${t.version}>0 and length(trim(${t.description}))>0 and (${t.amountMinor} is null or ${t.amountMinor}>0) and ${t.creationFingerprint} ~ '^[0-9a-f]{64}$'`),
+  check('inbox_shape_check', sql`${t.source} in ('MANUAL','FILE_CSV','FILE_OFX','FILE_PDF') and ${t.type} in ('INCOME','EXPENSE') and ${t.currency} in (${currencies}) and ${t.version}>0 and length(trim(${t.description}))>0 and (${t.amountMinor} is null or ${t.amountMinor}>0) and ${t.creationFingerprint} ~ '^[0-9a-f]{64}$'`),
   check('inbox_state_check', sql`(${t.status}='PENDING' and ${t.transactionId} is null and ${t.processedAt} is null) or (${t.status}='DISCARDED' and ${t.transactionId} is null and ${t.processedAt} is not null) or (${t.status}='CONFIRMED' and ${t.transactionId} is not null and ${t.processedAt} is not null and ${t.accountId} is not null and ${t.amountMinor} is not null and ${t.occurredAt} is not null)`),
   pgPolicy('inbox_select_own', { for: 'select', to: authenticatedRole, using: sql`(select auth.uid())=${t.authUserId}` }),
 ]).enableRLS();

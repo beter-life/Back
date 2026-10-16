@@ -36,6 +36,8 @@ import { createSafeSpendRepository, type SafeSpendRepository } from './modules/f
 import { safeSpendRoutes } from './modules/finance/safe-spend-routes.js';
 import { createInboxRepository, type InboxRepository } from './modules/finance/inbox-repository.js';
 import { inboxRoutes } from './modules/finance/inbox-routes.js';
+import { createFileImportRepository,type FileImportRepository } from './modules/finance/import-repository.js';
+import { fileImportRoutes } from './modules/finance/import-routes.js';
 import { loggerOptions } from './plugins/logging.js';
 import { AppError, installErrors } from './shared/errors/index.js';
 import { EmptyQuery, ErrorResponses } from './shared/http/schemas.js';
@@ -53,6 +55,7 @@ export interface AppDependencies {
   debts?: DebtRepository;
   safeSpend?: SafeSpendRepository;
   inbox?: InboxRepository;
+  fileImports?: FileImportRepository;
   ping: () => Promise<void>;
   close: () => Promise<void>;
 }
@@ -85,6 +88,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
   const debtRepository = options.dependencies?.debts ?? (database ? createDebtRepository(database) : undefined);
   const safeSpendRepository = options.dependencies?.safeSpend ?? (database ? createSafeSpendRepository(database) : undefined);
   const inboxRepository = options.dependencies?.inbox ?? (database ? createInboxRepository(database) : undefined);
+  const fileImportRepository=options.dependencies?.fileImports??(database?createFileImportRepository(database):undefined);
   app.addHook('onClose', dependencies.close);
   try {
     await app.register(swagger, { openapi: {
@@ -116,6 +120,7 @@ export async function buildApp(config: AppConfig, options: AppOptions = {}) {
     if (debtRepository) debtRoutes(app, debtRepository, dependencies.profiles, createVerifier(config, options.jwks), options.debtClock);
     if (safeSpendRepository) safeSpendRoutes(app,safeSpendRepository,createVerifier(config,options.jwks),options.safeSpendClock);
     if (inboxRepository) inboxRoutes(app,inboxRepository,createVerifier(config,options.jwks));
+    if(fileImportRepository)fileImportRoutes(app,fileImportRepository,createVerifier(config,options.jwks));
     app.get('/api/v1/openapi.json', { schema: {
       operationId: 'getOpenApi', tags: ['Contract'], querystring: EmptyQuery,
       response: { 200: Type.Record(Type.String(), Type.Unknown()), ...ErrorResponses },
