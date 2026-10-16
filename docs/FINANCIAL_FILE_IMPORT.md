@@ -1,5 +1,10 @@
 # MDL12 - Financial File Import
 
+MDL12_STATUS=REAL_GATE_PASS_PENDING_MERGE; REAL_GATE=PASS; MDL12_HUMAN_GATE=PASS;
+MDL12_HUMAN_TESTS=9/9; MIGRATION_0013_DEV=PASS; DRIZZLE_MIGRATIONS=13/13;
+READY_FOR_MDL13=false. The user reported all nine human scenarios PASS on2026-10-16.
+Closure prepares two PRs; merging requires separate explicit authorization.
+
 ## Baseline and boundary
 
 MDL11 is merged: Back `0b039738287b10c94ac3ae1074bbb495852f81bc`, PR10,
@@ -11,7 +16,8 @@ Both local mains fast-forwarded cleanly; ignored env files preserved byte-for-by
 File -> bounded parser -> explicit mapping/format/account -> preview -> selected
 valid rows -> PENDING Inbox proposals -> separate existing MDL11 confirmation ->
 unchanged Finance Core. Import never calls the posting primitive. No MDL13,
-rebranding, external AI/OCR, hosted uploads or paid integrations.
+rebranding, external AI/OCR or paid integrations. The agent created no hosted
+financial fixtures or uploads; human gate results are attributed to the user.
 
 ## Architecture decisions
 
@@ -38,8 +44,36 @@ Migration0013 extends the source CHECK to FILE_CSV/FILE_OFX/FILE_PDF and adds th
 compound identity key required by receipt owner FKs. It preserves MANUAL rows,
 terminal trigger, posting logic and historical0001-0012 SQL. No new ledger.
 JWT.sub ownership, own SELECT RLS, backend-only writes, private schema and restricted
-functions follow MDL11. DEV migration is **not authorized**; local disposable PG17
-only. Production/DEV database, TLS, Auth, JWT/JWKS, certificates and env are untouched.
+functions follow MDL11. Migration0013 was separately authorized and applied only to
+Supabase `beter-life-dev` on2026-10-16, using the official project Drizzle migrator
+and SQL from `d262b26adc4ce843d09474f0ac67a403d025d3ee`. Ledger13/13, zero pending;
+historical0001–0012 SQL and ledger entries remain exact. Deployment and closure do
+not modify existing financial records, Production, TLS/Auth/JWT/JWKS settings,
+certificates or env. User-selected financial confirmations belong to the human gate.
+
+Preflight confirmed PostgreSQL17, certificate/hostname verification,12/12 ledger
+hashes, one pending migration, Inbox compatibility and an exact25-table baseline
+against disposable PG17. Before execution, a consistent snapshot-backed pg_dump17
+of `app` and `drizzle` was encrypted with AES-256-GCM, with its key protected by
+Windows DPAPI CurrentUser and a restricted directory ACL. Manifest/HMAC, decrypted
+archive hash, complete TOC and full pg_restore read passed; no restore was run.
+This integrity check is **not a restoration test**. Managed Supabase Auth/Storage,
+roles and platform configuration are outside this application-scoped archive.
+Keep the ignored `.harness/tmp/mdl12-dev-deployment/backup-verified/` directory;
+`RECOVERY.md` documents scope, recovery, and the same-Windows-profile/machine key
+requirement. Do not clean it as ordinary temporary harness output.
+
+Post-migration DDL matched the expected two-table reference exactly: constraints,
+indexes, RLS, owner-only SELECT policies, denied anon/authenticated writes, guard
+function and triggers. All25 existing tables retained counts and sorted row
+SHA-256 digests; both new tables were empty at the deployment check before the
+human gate, with zero financial records changed by the migration.
+Existing MANUAL and all three FILE sources pass the reviewed Inbox constraint.
+Auth database functions and877 DDL objects outside app/drizzle were unchanged.
+Expected DDL differences and unexpected differences (none) are recorded separately
+in ignored `.harness/tmp/mdl12-dev-deployment/` evidence. No manual alternative DDL
+was executed; canonical LF Git SQL was staged verbatim for the official migrator
+to preserve Drizzle hashes despite Windows checkout line endings.
 
 ## Parsing and normalization
 
@@ -101,14 +135,70 @@ concurrency, forced rollback, preserved MANUAL candidates and unchanged financia
 tables until an explicit ordinary MDL11 confirmation. Reproducible volume target:
 1000-row analysis<5s,50-row preview<2.5s,100-row selection<5s on local PG17;
 these are regression bounds, not hosted-load certification.
-Full Back/Front official suites and exact published HEAD CIs are required. DEV
-checkpoint only after local gates. No COMPLETE, MDL12 merge or MDL13. Hosted gate
-remains pending separate migration authorization. The Front branch includes
-the human gate and synthetic CSV/OFX/PDF examples in docs/FINANCIAL_FILE_IMPORT.md.
+The user reported the hosted human gate9/9 PASS. Closure reruns the full Back/Front
+suites and verifies CI on each actual final branch and PR HEAD. No COMPLETE
+checkpoint, MDL12 merge or MDL13 is authorized. The Front guide preserves the nine
+ordered scenarios and synthetic examples. This closure makes no Supabase DEV
+operations and does not rerun migration0013.
 
-Local verification2026-10-16:292 unit,196 PostgreSQL17 integration, lint,
+Initial implementation verification2026-10-16:292 unit,196 PostgreSQL17 integration, lint,
 typecheck, build (including compiled JavaScript PDF worker smoke), official OpenAPI,
 both generated Zod drift checks, secret scan, production dependency audit and
 harness PASS. Historical0001–0012 SQL and local env files are unchanged.
 The heap restriction is not an OS security sandbox; browser/device accessibility
 and hosted-load certification remain outside these automated checks.
+
+Deployment smoke checks: Back live/ready200, public JWKS200, CORS and missing/invalid
+token401; Auth signature/claim/JWKS regression passed. Fresh anonymous desktop and
+mobile browsers loaded the protected import URL and Auth V2 login without uncaught
+JavaScript errors. The user subsequently reported all nine human scenarios PASS.
+No real-account session or financial posting was exercised automatically.
+
+Supabase security advisors after deployment: no error finding. Existing
+`financial_market_rates` has RLS without client SELECT policies by design (the
+unchanged baseline denies direct client access). Auth reports
+[leaked-password protection disabled](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+This existing Auth setting was preserved; changing it is outside the0013
+authorization. It is not a new migration DDL difference.
+
+
+## Preview expiration evidence and limits
+
+The PostgreSQL integration test [expires raw preview after 24h while keeping
+receipts, replay and recovery without duplication](../tests/integration/import.test.ts#L88)
+advances the injected clock by86400001ms. It checks EXPIRED, empty cells/no draft,
+parsed=NULL, parsed_bytes=0, preserved receipt/candidate identity, replay of the
+same candidate and recovery of the same batch without duplicate proposals. This
+is actual automated database coverage, not a mock of the repository. The existing
+Front integration and Playwright tests cover presentation of an expired preview
+using a controlled HTTP boundary; they do not independently measure the24h clock.
+
+Expiry is logical at24h. Physical cleanup is triggered on subsequent owner access
+(preview/history/mapping) or new analysis; there is no background cleanup scheduler.
+No separate24h wall-clock DEV wait or deletion precisely at the deadline has been
+observed or claimed. That operational observation remains unperformed, separately
+from the user's reported9/9 human gate and the controlled-clock automated PASS.
+No extra hosted tests were run for closure.
+
+## Operational limits and follow-up
+
+- PDF supports only the documented extractable digital layout; scans, arbitrary
+  bank layouts and password-protected files are unsupported. OCR is not implemented.
+- CSV and bank OFX SGML/XML support only the documented encodings, structures and
+  transaction semantics. File import is not complete bank reconciliation and does
+  not reconcile statement totals, balances or all bank transaction classes.
+- The encrypted app+Drizzle backup was decrypted and read successfully; recovery
+  has not been proven by restoring and validating an isolated database. It excludes
+  managed Supabase Auth/Storage/roles and its DPAPI key depends on this Windows
+  profile/machine. A restore exercise remains pending; never call it restore-tested.
+- Leaked-password protection was already disabled at the deployment advisor check.
+  It remains an operational security follow-up, with no Auth setting change here.
+- Browser coverage uses Chromium desktop/mobile emulation and selected widths,
+  themes and keyboard interactions. It does not certify every physical device,
+  Safari/Firefox, assistive technology, screen reader or full WCAG compliance.
+- Load bounds are local regression targets; hosted-load certification and deletion
+  exactly at24h without later owner access are not proven.
+
+Final commit hashes and links to branch and pull-request CI runs belong to the PR
+descriptions and delivery record, after new closure commits are published. Initial
+deployment HEADs are provenance and are not reused as final-head evidence.
