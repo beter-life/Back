@@ -85,6 +85,13 @@
       "when": 1792068749136,
       "tag": "0012_financial_inbox",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792157209519,
+      "tag": "0013_financial_file_import",
+      "breakpoints": true
     }
   ]
 }

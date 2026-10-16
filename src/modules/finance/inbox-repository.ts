@@ -18,14 +18,24 @@ export interface InboxRepository {
   discard(owner: string, id: string, input: InboxDiscard): Promise<InboxItem>;
 }
 function item(row: Row): InboxItem {
-  return { id: row.id, source: 'MANUAL', status: row.status as InboxItem['status'], version: row.version,
+  return { id: row.id, source: row.source as InboxItem['source'], status: row.status as InboxItem['status'], version: row.version,
     description: row.description, type: row.type as InboxItem['type'], currency: row.currency,
     accountId: row.accountId, categoryId: row.categoryId, amountMinor: row.amountMinor === null ? null : String(row.amountMinor),
     occurredAt: row.occurredAt?.toISOString() ?? null, transactionId: row.transactionId,
     processedAt: row.processedAt?.toISOString() ?? null, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() };
 }
 const values = (draft: InboxDraft) => ({ ...draft, amountMinor: draft.amountMinor === null ? null : BigInt(draft.amountMinor), occurredAt: draft.occurredAt === null ? null : new Date(draft.occurredAt) });
-const lockOwner = (tx: FinanceTransaction, owner: string) => tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${owner},11))`);
+export const lockInboxOwner = (tx: FinanceTransaction, owner: string) => tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${owner},11))`);
+const lockOwner=lockInboxOwner;
+// Only trusted adapters call this primitive. Import validates/locks one common
+// account once and has no categories; SQL owner FKs remain active for every row.
+export async function createPendingInboxProposal(tx:FinanceTransaction,owner:string,input:InboxCreate,source:InboxItem['source']='MANUAL',assignmentsValidated=false):Promise<InboxItem> {
+  const draft=normalizeInboxDraft(input),fingerprint=inboxFingerprint(draft);
+  const [previous]=await tx.select().from(candidates).where(and(eq(candidates.authUserId,owner),eq(candidates.idempotencyKey,input.idempotencyKey)));
+  if(previous){if(previous.creationFingerprint!==fingerprint||previous.source!==source)throw new AppError('CONFLICT');return item(previous);}
+  if(!assignmentsValidated)await assignments(tx,owner,draft);
+  const [row]=await tx.insert(candidates).values({...values(draft),authUserId:owner,source,idempotencyKey:input.idempotencyKey,creationFingerprint:fingerprint}).returning();return item(row!);
+}
 async function own(tx: Reader, owner: string, id: string, lock = false): Promise<Row> {
   const query = tx.select().from(candidates).where(and(eq(candidates.id,id),eq(candidates.authUserId,owner)));
   const [row] = await (lock ? query.for('update') : query);
@@ -95,17 +105,9 @@ export function createInboxRepository({ db }: Database): InboxRepository {
       return { items, nextCursor: rows.length>limit && last ? { createdAt: last.createdAt, id:last.id } : null };
     },
     async create(owner,input) {
-      const draft = normalizeInboxDraft(input), fingerprint = inboxFingerprint(draft);
       return db.transaction(async tx => {
         await lockOwner(tx,owner);
-        const [previous] = await tx.select().from(candidates).where(and(eq(candidates.authUserId,owner),eq(candidates.idempotencyKey,input.idempotencyKey)));
-        if (previous) {
-          if (previous.creationFingerprint !== fingerprint) throw new AppError('CONFLICT');
-          return item(previous);
-        }
-        await assignments(tx,owner,draft);
-        const [row] = await tx.insert(candidates).values({ ...values(draft), authUserId:owner, idempotencyKey:input.idempotencyKey, creationFingerprint:fingerprint }).returning();
-        return item(row!);
+        return createPendingInboxProposal(tx,owner,input);
       });
     },
     async review(owner,id) {
