@@ -8,6 +8,7 @@ const Positive = Type.String({ pattern: '^[1-9][0-9]*$', maxLength: 19 });
 const NullableId = Type.Union([Id, Type.Null()]);
 export const InboxStatus = Type.Union([Type.Literal('PENDING'), Type.Literal('CONFIRMED'), Type.Literal('DISCARDED')]);
 export const InboxKind = Type.Union([Type.Literal('INCOME'), Type.Literal('EXPENSE')]);
+export const InboxSource = Type.Union([Type.Literal('MANUAL'),Type.Literal('FILE_CSV'),Type.Literal('FILE_OFX'),Type.Literal('FILE_PDF')]);
 export const InboxDraft = Type.Object({
   description: Type.String({ minLength: 1, maxLength: 500 }),
   type: InboxKind, currency: Currency,
@@ -20,7 +21,7 @@ export const InboxEdit = Type.Object({ ...InboxDraft.properties, expectedVersion
 export const InboxConfirm = Type.Object({ expectedVersion: Type.Integer({ minimum: 1, maximum: 2147483646 }), acknowledgeDuplicates: Type.Boolean() }, strict);
 export const InboxDiscard = Type.Object({ expectedVersion: Type.Integer({ minimum: 1, maximum: 2147483646 }) }, strict);
 export const InboxItem = Type.Object({
-  ...InboxDraft.properties, id: Id, source: Type.Literal('MANUAL'), status: InboxStatus,
+  ...InboxDraft.properties, id: Id, source: InboxSource, status: InboxStatus,
   version: Type.Integer({ minimum: 1 }), transactionId: NullableId,
   createdAt: Instant, updatedAt: Instant, processedAt: Type.Union([Instant, Type.Null()]),
 }, strict);
