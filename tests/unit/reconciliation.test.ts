@@ -1,0 +1,11 @@
+import { describe,expect,it } from 'vitest';
+import { compareEvidence,evidenceKey,ledgerFingerprint,reconciliationRange } from '../../src/modules/finance/reconciliation-domain.js';
+const e={accountId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',currency:'BRL' as const,type:'EXPENSE' as const,amountMinor:'9007199254740993',occurredAt:'2026-10-01T12:00:00Z'};
+describe('reconciliation is metadata, not posting',()=>{
+  it('compares exact bigint amounts without float rounding',()=>{expect(compareEvidence(e,{...e,isCancelled:false})).toMatchObject({compatible:true});expect(compareEvidence(e,{...e,amountMinor:'9007199254740992',isCancelled:false})).toMatchObject({compatible:false,amountDifference:true});});
+  it.each([{accountId:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'},{currency:'USD'},{type:'INCOME'},{isCancelled:true},{occurredAt:'2027-01-01T12:00:00Z'}])('rejects incompatible movement %j',change=>{expect(compareEvidence(e,{...e,isCancelled:false,...change}).compatible).toBe(false);});
+  it('permits an acknowledged date difference, never silently equates dates',()=>{expect(compareEvidence(e,{...e,occurredAt:'2026-10-02T12:00:00Z',isCancelled:false})).toMatchObject({compatible:true,dateDifference:true});});
+  it('uses explicit external identity or exact file/row provenance, never description/amount alone',()=>{const draft={...e,description:'Synthetic statement',categoryId:null};expect(evidenceKey('a',1,draft,'id')).toBe(evidenceKey('b',9,draft,'id'));expect(evidenceKey('a',1,draft,null)).not.toBe(evidenceKey('b',1,draft,null));expect(evidenceKey('a',1,draft,null)).not.toBe(evidenceKey('a',2,draft,null));expect(evidenceKey('a',1,draft,'id')).not.toBe(evidenceKey('a',1,{...draft,currency:'USD'},'id'));});
+  it('detects later financial edits without hashing category or description as financial identity',()=>{expect(ledgerFingerprint(e)).not.toBe(ledgerFingerprint({...e,amountMinor:'1'}));expect(ledgerFingerprint(e)).toBe(ledgerFingerprint({...e,occurredAt:'2026-10-01T09:00:00-03:00'}));});
+  it('bounds periods to 366 days',()=>{expect(()=>reconciliationRange('2026-01-01','2027-01-01')).not.toThrow();for(const [a,b] of [['bad','bad'],['2026-01-01','2026-01-01'],['2026-01-01','2028-01-01']])expect(()=>reconciliationRange(a!,b!)).toThrow();});
+});

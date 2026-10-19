@@ -40,3 +40,10 @@ the caller's SQL transaction. Inbox confirmation uses owner/candidate locks and
 commits the ledger row plus terminal candidate reference atomically. Pending and
 discarded proposals have no reader or writer path into financial read models.
 TypeBox/OpenAPI remain canonical. [State machine, locks and RLS](./FINANCIAL_INBOX.md).
+
+MDL13 adds an orthogonal evidence/reconciliation boundary in `finance/reconciliation-*`.
+Explicit capture reads mapped MDL12 rows without changing imports or Inbox. Three
+private tables retain normalized evidence, immutable source occurrences and
+reversible audit links to existing transactions. It never calls posting, transfer,
+correction or cancellation primitives; financial read models do not consume it.
+[Pre-schema architecture decision](./FINANCIAL_RECONCILIATION.md).

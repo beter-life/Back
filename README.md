@@ -135,4 +135,19 @@ Estimativa conservadora por moeda, contas explicitamente selecionadas, obrigaç�
 Propostas manuais INCOME/EXPENSE, revisão/edição, possíveis duplicidades, confirmação
 atômica/idempotente pelo Finance Core e descarte com histórico. Pendente/descartado
 não altera o ledger. [Arquitetura e validação](docs/FINANCIAL_INBOX.md).
-Migration0012 somente local até autorização para DEV; gate humano PENDING.
+Migration0012 aplicada no DEV; gate humano7/7 e UX aprovados, MDL11 integrado.
+
+## MDL12 — Financial File Import
+
+CSV/OFX/PDF → prévia temporária → propostas pendentes e receipts imutáveis.
+MDL12 COMPLETE: gate humano9/9, PR11/Back e PR13/Front integrados e CIs exatas
+da main aprovadas. Migration0013 DEV já aplicada, ledger13/13; não repetir.
+[Retenção, evidências e limites](docs/FINANCIAL_FILE_IMPORT.md).
+
+## MDL13 — Financial Reconciliation
+
+Captura explícita de evidências mínimas, sugestões, conferência manual e reversão
+auditável, sem escrever no ledger ou read models financeiros. Desenvolvimento em
+branch própria;0014 somente PostgreSQL17 descartável até autorização separada.
+Gate humano PENDING; sem PR final/merge/MDL14.
+[Decisão arquitetural e limites](docs/FINANCIAL_RECONCILIATION.md).

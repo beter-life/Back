@@ -1,9 +1,12 @@
 # MDL12 - Financial File Import
 
-MDL12_STATUS=REAL_GATE_PASS_PENDING_MERGE; REAL_GATE=PASS; MDL12_HUMAN_GATE=PASS;
+MDL12_STATUS=COMPLETE; REAL_GATE=PASS; MDL12_HUMAN_GATE=PASS;
 MDL12_HUMAN_TESTS=9/9; MIGRATION_0013_DEV=PASS; DRIZZLE_MIGRATIONS=13/13;
-READY_FOR_MDL13=false. The user reported all nine human scenarios PASS on2026-10-16.
-Closure prepares two PRs; merging requires separate explicit authorization.
+READY_FOR_MDL13=true. The user reported all nine human scenarios PASS on2026-10-16.
+Promotion verified2026-10-19: Back PR11 merged at2717959 and Front PR13 at64d3bcb;
+exact main CI39243412570 and39243421590 SUCCESS. MDL13 uses separate branches;
+its new migration is local-only until separately authorized. Earlier closure
+statements below describe the historical pre-promotion boundary.
 
 ## Baseline and boundary
 
