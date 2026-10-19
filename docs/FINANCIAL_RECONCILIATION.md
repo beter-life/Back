@@ -87,8 +87,20 @@ Lint, typecheck, build, OpenAPI, generated Front contract drift, secret scan and
 harness PASS. Existing OpenAPI paths/client exports are structurally unchanged.
 Synthetic1000-row capture/page/review limits passed; no hosted financial fixtures
 or writes. Front278 unit/integration tests and eight new browser cases PASS.
-Full Front browser regression and exact published-HEAD CI remain publication
-gates; their final outcome is recorded in the handoff, never inferred from a subset.
+Final full Front browser regression:214 PASS,4 existing skips, zero failures
+(desktop/mobile Chromium with tablet widths, themes and keyboard). Tested source:
+Back6fa33bfb8477cb259f0df24f6e34229957347f12 and
+Frontc1137032c7f37fefa65cbce017eb976598609b37. Final checkpoint commits change
+documentation only; exact published-HEAD CI is checked separately in GitHub Actions.
+
+Validation diagnostics retained locally, never shipped: an initial mixed-activity
+browser run had two login/bootstrap timeouts; both isolated cases passed without
+Auth or timeout changes. A traced diagnostic run was stopped after an old account
+heading selector proved ambiguous with the sidebar and a visual inventory timed
+out under continuous tracing. Only that test selector was scoped to main content;
+the original financial assertions, timeouts, retries and coverage are unchanged.
+The normal frozen-source full suite then passed. Four prior conditional skips
+remain (before-capture screenshots, mobile sidebar-only and tablet-only cases).
 
 ## Contract, UI and reproducible gates
 
