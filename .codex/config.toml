@@ -26,3 +26,7 @@ command = 'node "$(git rev-parse --show-toplevel)/.codex/scripts/compact-hook.mj
 command_windows = "powershell -NoProfile -Command \"& node (Join-Path (git rev-parse --show-toplevel) '.codex\\scripts\\compact-hook.mjs')\""
 timeout = 5
 status_message = "Checking compact command policy"
+
+# BL-TEAM-1: limite inicial, sem execução automática de agentes.
+[agents]
+max_concurrent_threads_per_session = 2

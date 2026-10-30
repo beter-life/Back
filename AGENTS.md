@@ -79,3 +79,11 @@
 - Keep historical rationale and diffs in Git, not PROJECT_STATE.
 - Before compaction or a handoff, leave enough state for another agent to continue without rereading broad documentation.
 - If a checkpoint is blocked, state the concrete dependency and the owner needed to resolve it.
+
+## Beter Life team governance (BL-TEAM-1)
+
+- Before any task, read docs/governance/TEAM_POLICY.md and TEAM_CHECKPOINT.md; compare shared policy and agent definitions with the sibling repository. Relevant divergence means BLOCKED; ask the CEO.
+- The CEO decisions recorded in TEAM_POLICY.md govern E2EE and security gates; historical module PASS does not release Security02–Security05, MDL13 or MDL14. Never send readable financial values or key material to servers, logs, metrics or AI.
+- Ask the CEO before acting on relevant uncertainty; no silence, recommendation, agent consensus or documentary approval authorizes execution.
+- Apply the level/model/effort/delegation policy; no subagents by default, at most two concurrently. Do not execute the new agents during the configuration gate.
+- For this configuration-only gate, keep the team checkpoint in docs/governance/TEAM_CHECKPOINT.md; preserve product PROJECT_STATE.md. No product/security-document/migration/infra changes, external installation or Git publication.
