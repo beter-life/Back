@@ -1,4 +1,209 @@
-# Security05 — revisão adversarial independente vigente
+# Security05.2 — revisão adversarial independente vigente
+
+Data: 2026-11-04. Perfil nominal `dev-seguranca`, após o encerramento do `arquiteto-seguranca`, sem outros subagentes acionados pelo revisor. **DOCUMENTATION_REVIEWED_NOT_APPROVED**. A direção executiva foi refletida; o desenho foi revisado documentalmente. Segurança/refinamento operacional permanecem NOT_PROVEN e ensaios NOT_RUN. O handover candidato tem um contraexemplo de progresso material ainda aberto: não aprovar tecnicamente o protocolo apenas porque o relatório o descreve.
+
+## Autoridade, escopo e conjunto atual
+
+Li integralmente o pedido CEO SECURITY05.2 no anexo `7e5ff776-9542-4479-9337-66fa2ddb001c/Texto colado.txt`; SHA-256 conferido: `E2690B280E8A4A386AD3AD9B5E60F3A6E1D82E0531B33D09741A132CC85E4369`. Ele seleciona quatro testemunhas/q3/HotStuff, até uma bizantina junto com backend+SQL+Auth comprometidos; A1 complementar, sem serialização obrigatória; R35 com S aleatório/Shamir3-de-5/U32B aleatório/HKDF/GCM; quatro domínios reais. Essas escolhas não estão mais pendentes nem são alternativas intercambiáveis. P1/P2/P5, cliente verificável e os limites não substituídos continuam preservados.
+
+Não há autorização de novo commit. Back observado: `codex/security05-protocols@22ee3b0b959832b1293e37eef217d926a40db3e6`, um worktree, os mesmos13 Markdown modificados sem staging e quatro fontes históricas preservadas. Front: `codex/agent-team-design-skills@8c8c4f548023aadce4da1aadb0afe2778db0c455`, um worktree, limpo. Política/checkpoint e oito perfis comuns foram comparados iguais. O commit é o checkpoint preexistente, não criado/repetido pelo revisor. Configuração efetiva completa segue NOT_PROVEN aceito; isolamento fino por papel NOT_ENFORCED.
+
+Revisados os dez documentos atuais, SOURCE_PROVENANCE/GATE_RESULT em preparação e os históricos pertinentes deste relatório. A revisão anterior não cobre automaticamente esta rodada. Consultei a seção4.4 de [Basic HotStuff v6](https://arxiv.org/pdf/1803.05069v6) e a [TUF specification1.0.37](https://theupdateframework.github.io/specification/latest/) para as interfaces novas. As demais primitivas já analisadas permanecem componentes, não prova da composição. Não repeti preços, recuperação remota ou diagnósticos de configuração. Nenhum teste experimental/model-checking foi realizado.
+
+## Correções documentais materiais rechecadas
+
+| ID | Contraexemplo concreto | Tratamento pelo principal e estado |
+| --- | --- | --- |
+| F03 / P1 de integridade criptográfica no lifecycle proposto | M0 contém ambos envelopeIDs e seu digest entra no AAD de ambos. data fica SEALED; authority fica PENDING após crash. Trocar só o IDauthority muda M0/AADdata sem mudar a KEKdata. Reusar data antiga com M0novo falha autenticação; recifrar data com KEK/IV anteriores e AADnovo viola one-shot. | KEY agora reserva M0/TODOSIDs/setID/salt antes da primeira encrypt; M0 é imutável. PENDING de uso incerto ou mudança de M0 abandona o conjunto incompleto inteiro, com novos S/coeficientes/setID/salt/TODOSIDs/M0/KEKs/ShareRecords/envelopes/Mfinal coerentes. SEALED só retransmite bytes sob mesmoM0; ACTIVE só muda por rotação autorizada. T-R-MANIFEST-CRASH e T-R-NONCE-CRASH foram relidos. RESOLVED documentalmente; durabilidade/RNG/crash ainda NOT_PROVEN. |
+| F04 / P1 da fronteira de distribuição | Um binário assinado poderia ser wrapper de webview, JS/WASM/plugin/template remoto fornecido pelo backend comprometido, com ponte para plaintext/U. Assinatura apenas do wrapper não protege todo o contexto financeiro. | E2EE_ARCHITECTURE passou a exigir que TODO código ativo/dependências e pontes no contexto de plaintext/chaves/shares/U integrem artefato/manifest verificado. Backend só fornece dados não executáveis; config não seleciona código fora do conjunto autorizado. T-A3-REMOTE-CODE cobre negativo e positivo. RESOLVED documentalmente; norma não demonstra ausência de RCE, bugs de parser ou código malicioso validamente autorizado. |
+
+F01 e F02 anteriores continuam resolvidos no texto. Nenhuma correção documental material adicional foi solicitada nesta rodada; os bloqueios técnicos abaixo continuam abertos e precisam ser entregues ao CEO, não encobertos por esse encerramento.
+
+## Q-RECONFIG — contraexemplo de progresso da adaptação, OPEN/P1
+
+Considere B bizantina e H1/H2/H3 honestas. Uma transcrição possível de refinamento, sem executar código:
+
+1. Na view v liderada por B, F é um FREEZE autorizado. B obtém prepareQC e precommitQC com B/H1/H2, mas entrega a precommitQC somente a H1. H1 persiste lockedQC e FREEZE_VOTED antes de emitir commit-vote; não existe commitQC/FreezeCert de F. H2 conhece prepareQC de F, mas ainda não está locked em F; H3 não está locked em F.
+2. Views honestas intermediárias podem expirar sem decisão por atrasos anteriores ao sincronismo. Em futura view cujo líder volta a ser B, B propõe ramo normal G incompatível com F, usando justificação admissível de ancestral anterior. B pode ignorar prepareQC maior que conhece; H2/H3 sem lock em F não são obrigadas pelo safeNode isolado a recusar G. Não se pressupõem líderes B consecutivos contra round-robin.
+3. B/H2/H3 podem completar o núcleo para G. F não foi decidido, portanto não há dois commits conflitantes do HotStuff. Mas H1 permanece irreversivelmente congelada para F pela adaptação e não pode votar G ou sua continuação. Quando B passa a reter votos, restam apenas H2/H3, insuficientes para q3, mesmo com rede recuperada.
+
+O problema é a interação de freezeVoted antes da decisão com locks reversíveis conforme o núcleo: uma restrição terminal adicional retira uma honesta do progresso. A transcrição é argumento analítico localizado, não teste nem prova de impossibilidade de toda reconfiguração. O texto atual reconhece essa tensão. Retransmitir F não resolve quando F deixou de ser ramo final admissível; timeout não autoriza descongelamento, reset de época ou novo successor sem prova. FREEZE–INSTALL–ACTIVATE permanece adaptação OPEN/BLOCKED para aprovação técnica até refinamento/protocolo publicado compatível e prova de safety E liveness, ou deliberação CEO sobre a parte dependente.
+
+## Invariantes do consenso — contraexemplos por propriedade
+
+As conclusões abaixo distinguem aritmética/argumento analítico, hipótese de confiança e lacuna de refinamento. Todas as eficácias empíricas são NOT_PROVEN. Não se atribui a witness capacidade de validar o valor oculto.
+
+| Invariante | Contraexemplo concreto buscado | Parecer/obrigação atual |
+| --- | --- | --- |
+| Q-I1 contexto/autorização | Voto de fase/view/config/canal errados, signer duplicado, device revogado autenticado por lookup antigo do backend. | QC tipada, roster e autorização no estado decidido devem rejeitar. Autorização privada compatível comP2 e codec/guardas completas ainda precisam de refinamento; JWT não substitui autoridade. |
+| Q-I2 efeito zero ou um | Comando reencifrado/repetido após apagar cache; mesma identidade com outro payload; resposta perdida e retry concorrente. | Dedupe é semântico no histórico completo cliente, não hash de ciphertext. Zero para inválido/não confirmado não é falha de exactly-once; não prometer progresso de toda intenção. Persistência/receipts e vetores independentes pendentes. |
+| Q-I3 finais não conflitantes | Aplicar apenas cardinalidade q3, aceitar prepareQC como decide, ou aceitar nó não descendente de justifyQC porque safeNode passou. | F02 está explícito; interseção mínima2 com f1 é fato analítico. Segurança entre views exige TODO núcleo/guardas/locks e hipóteses publicadas; persistência/handovers Beter Life não herdam prova automaticamente. |
+| Q-I4 não esquecer voto/lock | Restaurar chave+último decide, perdendo lock/voto ainda não decidido; clone com mesma identidade assina outro ramo. | Q-RECOVER permanece OPEN/P1. Log/WAL íntegro pode ser reconstruído e verificado; backup velho não é equivalente. Nó permanece RECOVERING sem voto até estado suficiente/fencing ou substituição segura; recuperação de chave não o torna “honesto novo”. |
+| Q-I5 completude/semântica | Backend omite cancelamento/página/dependência/bytes após fornecer rootN válida; cliente soma prefixo parcial ou trata evento assinado inválido como financeiro. | Materializar prefixo completo/snapshot verificado+suffix e executar regras determinísticas cliente; bytes retidos bloqueiam claim atual. Efeito zero de evento inválido preserva envelope na prova. Aceitação econômica e privacidade de dependências não foram provadas. |
+| Q-I6 leitura linearizada | Replay de QC antiga com hora nova; nonce novo assinado junto de head velho de witness isolada; barreira executada mas dados ausentes. | Exigir nonce na barreira decidida em config ativa, lineage e dados completos. A leitura é as-of o ponto, não verdade bancária nem frescor eterno. Nonce sozinho não prova atualidade e dados incompletos não viram saldo atual. |
+| Q-I7 continuidade/config/device | Freeze parcial descrito acima; dois sucessores; ACK usado como decide; aposentado/clone volta com config antiga; cliente recebe kit antigo autêntico. | Q-RECONFIG e Q-BOOT/FRESH continuam OPEN/P1. Autoridade de config e seus thresholds/custódia não estão escolhidos; InstallCert não finaliza. Orçamento de corrupção de chaves históricas/aposentadas e bootstrap atual deve ser explícito, sem confiar só em assinaturas antigas. |
+| Q-I8 witness versus valor | Três assinaturas ordenam evento de valor/moeda inválidos ou operação indevida; aplicação apresenta QC como validação de finanças/intenção humana. | Witness só atesta bytes/ordem/contexto técnico. Cliente correto verifica semântica completa; assinatura não prova intenção nem benignidade do frontend. Motor, paridade e distribuição continuam pré-condições não demonstradas. |
+
+**Q-PACE OPEN:** há uma referência publicada específica para backoff e líder, não apenas um nome. Entretanto, “progresso se views se sobrepõem” não prova que o refinamento real fornece essa sobreposição. Exemplo: H3 retorna muito atrasada enquanto B retém votos e H1/H2 estão em view alta; NEW_VIEW(from,to=from+1) e coleção de três mensagens da view pertinente não especificam catch-up/salto certificado nem obtenção das mensagens ausentes. É lacuna de integração, não prova de livelock universal do paper. Definir avanço/catch-up sem apagar locks, transições após decide, relógios/timers, limites/overflow e condições de progresso pós-GST; atingir limite e congelar preserva fail-closed, mas não demonstra liveness. Uma bizantina withholding mais uma honesta indisponível deixam somente dois votos.
+
+**A1/Q-BOOT:** A1 é apenas piso/comparação. Backup assinado antigo ou clone pode esconder regressão do detector; timestamp maior não decide entre branches. A1 offline isolada não é trava obrigatória do consenso; novas referências podem vir de canal externo/dispositivo autorizado com prova atual sustentada. Perda de todos mínimos recentes, locks ou confiança na configuração ativa mantém claim atual bloqueado. Chaves de memberships aposentados posteriormente roubadas podem sustentar histórias longas falsas fora de um orçamento histórico explicitado: não presumir que f1 das ativas resolve isso. Definir ameaça ao longo das épocas, atualização/aposentadoria das chaves e mínimo externo suficiente, sem criar autoridade serializadora ou genesis de emergência.
+
+## R35 — cumulatividade, autenticidade e estado
+
+U aleatório32B está aprovado pelo CEO; não é mais escolha pendente nem senha humana. O perfil S/Shamir/HKDF/GCM e domínio literal v1 permanecem, com lifecycle corrigido por F03. Não há demonstração formal/auditoria da composição ou ensaio de custódia.
+
+| Invariante/condição | Contraexemplo concreto | Resultado limitado e obrigação |
+| --- | --- | --- |
+| R-I1 menos de3 shares | Duas shares, coeficientes enviesados/reutilizados, hashes de shares e tags do kit como verificadores de palpites. | Segredo informacional de Shamir vale só no modelo isolado/uniforme; não para toda composição com verificadores auxiliares. A ressalva atual é correta; biblioteca/interop e análise computacional completas pendentes. |
+| R-I2 três partes semU | Custódios obtêm S e kit; U fraco, no mesmo backup ou recuperável por Auth/suporte/mesmos custódios elimina a condição independente. | Perfil exige U forte separado, inclusive fora do dispositivo que pode ser perdido. HKDF/salt/rate-limit não amplificam entropia. Não há bound256bits do sistema só porqueU tem32B; tags/assinaturas/ataque offline exigem análise própria. |
+| R-I3 U sem três partes | U roubado com duas shares e verificadores; índice duplicado contado como terceira parte; mistura de setIDs/épocas. | Rejeitar formato/índice/contexto/assinaturas inválidos. Dependência de S não é prova informacional do kit completo nem impossibilidade de toda busca computacional. Futuras tentativas negativas finitas não demonstram segurança universal. |
+| R-I4 três partes válidas+U | Share maliciosa, root de kit substituída pelo backend, factor ausente após perda do dispositivo, tag correta de kit antigo. | Kit externo pré-autenticado e contexto devem rejeitar adulteração; positivo requer cliente limpo, todas10 combinações e oráculo independente. Recuperar roots só entra KEYS_RECOVERED_NOT_CURRENT até consenso/lineage/autoridade atuais; Auth não substitui fator nem admite device sozinho. |
+| One-shot/backup/rotação | M0 parcialmente regenerado (F03); clone/RNG/registro PENDING retrocedido; antigas3shares+U+envelopes ainda abrem root rewrapped. | Agora abandonar conjunto incompleto inteiro e nunca reutilizar KEK/IV com AAD modificado; tombstones/geração confiável ainda não demonstrados. ACTIVE só por rotação autorizada completa. Rewrap não revoga conhecimento; futuro requer roots novas quando necessário. Perda de todas cópiasU pode ser definitiva, sem bypass. |
+
+Custódio inválido não é automaticamente tolerado por Shamir: obter três partes válidas remanescentes exige disponibilidade real. Nenhum servidor é custodiante privilegiado. Proteção de memória/clipboard/crash reports/backups e o caminho físico deU são obrigações operacionais; a UX descrita não demonstra que usuários conseguem mantê-lo separado e recuperável.
+
+## A3 e O36 — fronteiras e contraexemplos
+
+| Parte | Contraexemplo concreto | Parecer atual |
+| --- | --- | --- |
+| A3-BOOT | Binário/root/fingerprint vêm só do backend comprometido; instalador malicioso pedeU/shares e confirma sua própria assinatura. | É bootstrap circular. Canal externo já autenticado/updater íntegro e evidência por plataforma são necessários; A3-BOOT permanece OPEN/P1. F04 fecha a dependência explícita de código remoto, não prova plataforma/ausência deRCE. |
+| A3-STATE/tempo | Restore de mínimos e relógio permite aceitar metadata assinada velha; mirror retém revogação/update; app usa target/plataforma errada. | TUF1.0.37 fundamenta cadeia/roles/versions/hashes/expiry, não armazenamento/clock anti-rollback da plataforma. Root antiga só verifica a cadeia conforme spec; não concede autorização eterna de target. Estado/tempo/rotina offline e reprovisionamento continuam abertos. |
+| A3 compromisso de release | Threshold de targets/root comprometido assina pacote malicioso legítimo; CI ou dependência fora do conjunto verificado recebe plaintext. | Assinatura não prova benignidade. F04 exige conjunto ativo/dependências cobertos; chaves acima do orçamento continuam limite, com incidente/reprovisionamento/rotação de devices/roots. TUF não desfaz exposição anterior. Root/targets2de3 e prazos48h/7d/30d/365d são propostas pendentes, não aprovadas pelo revisor. |
+| O36 independência | Quatro fornecedores usam mesmoIdP/admin/CI/cofre/backup; duas instâncias de um domínio votam como duas identidades; aposentado restaura lock velho. | Um compromisso pode ultrapassarf1. Auditoria de acesso transitivo/vendor/incidentes/custódios e fencing exigida; quatro VMs não bastam. Sobreposição com5shares/U/distribuição precisa de análise, não contagem automática de operadores. |
+| O36 disponibilidade/DR | Uma bizantina withholding+uma honesta down deixam2; freeze parcial retira honesta adicional; chave+último commit restaurados não recuperam pendências. | Tabelas atuais não prometemSLA, e handover/recovery insuficientes bloqueiam retomada. Adicionar standby não corrige locks/fencing nem cria novo voto. Exercícios/auditoria/monitoramento e reconfiguração são futuros NOT_RUN. |
+| O36 custos | USD22,54 ou45,08compute são tratados como total contratável, ignorando trabalho humano, custódia, storage, auditoria/distribuição e termos da quarta oferta. | Fórmulas atuais separam inicial/mensal/eventos e incógnitas; quarta oferta anunciada “a partir de”, não disponibilidade/contrato confirmados. Não revalidei preços. Custo total/SLA/operadores/capacidade continuam NOT_PROVEN e bloqueiam lançamento/orçamento; não provaram inviabilidade universal nem viabilidade. |
+
+P2 ainda precisa autorizar inventário de canal/device/N/roster/compromissos/path/tempo e suas inferências. Sem conciliar verificação e vínculos privados cifrados, a integração continua bloqueada. Open Finance/importações/IA que exijam plaintext em servidor incompatível permanecem BLOCKED; nenhuma dedução sobre internals do Pierre foi feita.
+
+## Conclusão, prioridades e próximo gate
+
+F03/F04 foram resolvidos na especificação e rechecados, não experimentalmente. Q-RECONFIG permanece OPEN/P1 pelo contraexemplo acima; Q-PACE, Q-RECOVER, Q-BOOT/FRESH, A3-BOOT/STATE, privacidadeP2 e composição/custódia operacional R35 continuam dependências materiais abertas. A seleção executiva resolveu a escolha de direção, não essas propriedades. Não mudar4/q3, tornar A1 serializadora, enfraquecerU ou reiniciar estado para fechar achados.
+
+Antes de pedir execução: resolver ou submeter ao CEO a adaptação de handover com prova de segurança E progresso; fechar avanço/catch-up/relógios, restore de locks e orçamento de chaves históricas; especificar autoridades/config e parâmetros de update aprovados; escolher implementações interoperáveis auditáveis e demonstrar bootstrap/P2/lifecycle de recuperação; obter operadores/cotações/total/SLA e plano de auditoria. Os testes T-* precisam de traces/esperados/detectores independentes e autorização futura específica. Não iniciar ensaios para converter lacuna documental em aprovação tácita.
+
+Os originais técnicos Security02–Security04, detalhes financeiros e vetores ainda ausentes continuam NOT_PROVEN; esta revisão não reconstitui experimentos históricos nem paridade integral. MDL13/MDL14 permanecem BLOCKED e Security06 não autorizado. Recomendo próximo gate de resolução documental localizada dos bloqueios e decisões residuais do CEO; esta rodada se encerra como DOCUMENTATION_REVIEWED_NOT_APPROVED, aguardando o CEO.
+
+## Conjunto técnico rechecado nesta rodada
+
+SHA-256 após as correções F03/F04, antes dos estados editoriais finais em README/PRODUCT/E2EE/GATE_RESULT pelo principal. Mudança técnica material posterior exige nova rechecagem. SOURCE_PROVENANCE/GATE_RESULT foram lidos em preparação e não são prova independente de segurança.
+
+| Documento | SHA-256 |
+| --- | --- |
+| SYNC_AND_INTEGRITY.md | 97E6CD1D79F13E28AB939BA18F1C44B4CA2D2823AF91880E5B7BA1575AF25742 |
+| KEY_MANAGEMENT_AND_RECOVERY.md | 4A6AB080ED9D8343A928F4481B06AF45DDFEBF0F6C8161BC4DBEED614D329634 |
+| E2EE_ARCHITECTURE.md | 00FF99056BAE0354711CDAC68A099FEF53BE3EA53CE339C69728B5051F05858B |
+| SECURITY_GATE_CRITERIA.md | DE5F26C013CD6F0B58D173623410237F2191F7438CD6C75F27385860B8FBADC3 |
+| CLIENT_FINANCIAL_ENGINE.md | DD8B1DFA2FE1E2454B513110BF24F78EB02D2E29D1075FC06C7BB51A35B23430 |
+| FINANCIAL_PARITY_MATRIX.md | B5D8BE146E9ECD086C33BA1CFB14CA07208428DCB2458E7C63EA2E77CA5BAB90 |
+| THREAT_MODEL.md | EF8CC218BAD08DD946BC3EAC6E998E2ED45030EA41CF850B37205194F8F7E909 |
+| MIGRATION_IMPACT.md | FCA9F9D3777C43A1DCEFDC1370C6CB993544C62CDD29FFF1614E486E3994B131 |
+
+---
+
+# Histórico — revisão Security05.1 anterior
+
+O parecer abaixo e seus hashes correspondem ao conjunto05.1. Direção ainda não selecionada entreQ23-A/B eU antes pendente são estados históricos superados por05.2; F02 continua resolvido. O histórico não cobre automaticamente esta rodada.
+
+Data: 2026-11-04. Perfil explícito `dev-seguranca`, em sequência após o encerramento do `arquiteto-seguranca`. Esta rodada revisa a especificação nova Q23-A/Q23-B/R35-P/O36, não reutiliza automaticamente o parecer anterior. O revisor alterou somente este relatório existente, preservando os registros anteriores abaixo; não criou subagentes nem executou implementação, PoC ou ensaio experimental.
+
+**Parecer: DOCUMENTATION_REVIEWED_NOT_APPROVED.** Há candidatos concretos e melhor rastreabilidade; não há prova formal do refinamento nem comprovação empírica da composição. Q23, R35 e O36 não ficam fechados por terem recebido especificação. A aceitação da hipótese adicional de A1, a alternativa de quatro domínios, o fator forte de posse e os detalhes operacionais permanecem dependentes de decisão/evidência. Nenhuma política executiva foi alterada pelo revisor. Security05 não foi aprovado; implementação e Security06 não foram autorizados.
+
+## Autoridade, conjunto e método atuais
+
+Li o pedido direto integral do CEO “BETER LIFE — SECURITY05.1 / Preservação documental e especificação dos protocolos críticos”, retransmitido pelo principal nesta delegação; não existe anexo novo. O pedido autoriza exatamente um commit local inicial dos 17 documentos sem alteração e depois especificação/revisão documental, vedando commit adicional e execução experimental. A fonte primária das políticas P2–P6 anteriores permanece o pedido identificado em SOURCE_PROVENANCE.
+
+Git observado: Back `codex/security05-protocols`, HEAD `22ee3b0b959832b1293e37eef217d926a40db3e6`, parent `ceea9e7e95527fa8039283135fc477c84c4ad63b`, exatamente um commit desde o HEAD anterior, um worktree. As modificações atuais são documentação posterior ao checkpoint. Front `codex/agent-team-design-skills`, HEAD `8c8c4f548023aadce4da1aadb0afe2778db0c455`, limpo. Os mesmos 17 arquivos permanecem; política e oito perfis foram comparados iguais. Não repeti a fase1 nem alego ter observado pessoalmente a ordem temporal do staging: sua preservação byte a byte está registrada pelo principal e o commit local é consultável.
+
+Revisados os dez documentos planejados atuais e os registros SOURCE_PROVENANCE/GATE_RESULT em preparação, com foco nas seções Security05.1. Os quatro snapshots financeiros são históricos preservados; Security02–Security04 originais continuam ausentes. Configuração integral permanece NOT_PROVEN aceito; isolamento fino por papel NOT_ENFORCED. Leituras locais e consultas de fontes primárias não são testes do produto/protocolo.
+
+Conferi por leitura [Basic HotStuff v6, Algorithm2](https://arxiv.org/pdf/1803.05069v6), [Shamir 1979](https://web.mit.edu/6.857/OldStuff/Fall03/ref/Shamir-HowToShareASecret.pdf), [RFC5869](https://www.rfc-editor.org/rfc/rfc5869) e [NIST SP800-38D](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf) nos aspectos relevantes. Essas publicações fundamentam componentes/hipóteses, sem auditar a composição Beter Life. Não pesquisei novamente preços ou Pierre; os preços públicos de compute são fatos de leitura atribuídos ao principal, não cotações ou custos reais certificados pelo revisor.
+
+## Achado de refinamento corrigido nesta revisão
+
+| ID / prioridade | Contraexemplo e consequência | Tratamento e rechecagem |
+| --- | --- | --- |
+| F02 / P1 para segurança de um refinamento que omitisse a guarda | O resumo inicial de Q23-B mencionava safeNode e comportamento correto do líder, sem explicitar a réplica conferindo descendência da justificativa. Líder malicioso poderia anexar QC válida de view superior de outro ramo a nó não descendente dela; safeNode isolada pode permitir superar o lock pela view. Seguir apenas esse resumo não satisfaria a guarda do Algorithm2, linhas8–10. Não é falha do paper nem execução vulnerável observada. | Principal explicitou na RÉPLICA validação da QC tipada/contextual, quórum/signaturas, descendência m.node→m.justify.node, safeNode e demais precondições/persistência antes do voto. T-Q-B-JUSTIFY ganhou negativo correspondente e positivo ancestral válido. Ambos os trechos foram relidos. RESOLVED documentalmente; execução/formalização NOT_PROVEN. |
+
+Não solicitei outra correção material imediata da proposta. As obrigações abertas abaixo continuam bloqueantes para aprovação técnica, mesmo com F02 resolvido.
+
+## Matriz de contraexemplos — invariantes Q-I1 a Q-I8
+
+Classificação: **A** = fato/argumento analítico limitado às hipóteses; **H** = hipótese adicional ou decisão ainda não aceita; **NF** = refinamento/formalização aberto; **NP** = eficácia empírica NOT_PROVEN. Um ataque que viola uma hipótese explícita mostra seu limite; não é falsificação do lema dentro da hipótese. Nenhum trace foi executado ou model-checked.
+
+| Invariante declarado | Contraexemplo concreto buscado | Resultado adversarial / obrigação de fechamento |
+| --- | --- | --- |
+| Q-I1 contexto/canal/época/dispositivo | Reusar COMMAND de canalA no B, contar voto de outra época/fase ou consultar autorização antiga após revogação. | Binding criptográfico/contexto e registro atual devem rejeitar. Encoding/domínios foram propostos; regras completas de validação de evento/dispositivo e refinamento ainda NF/NP. Não confiar no lookup de chave fornecido só por Auth/backend. |
+| Q-I2 um efeito lógico por comando | Reencifrar comando já aceito após apagar cache “seen”; reutilizar commandID com payload diferente; resposta perdida seguida de retry concorrente. | Dedupe exige identidade/conteúdo canônico e histórico reconstruído, não hash de ciphertext. Formalizar zero para inválido/não confirmado e um para confirmado; não interpretar exactly-once como progresso de todo comando enviado. Sem log confiável, fail-closed. NF/NP; vetor deve medir efeito financeiro, não somente quantidade de envelopes. |
+| Q-I3 nenhum checkpoint final incompatível | 2-de-3 simples: {B,H1} certifica X e {B,H2} certifica Y. Em A, clonar A1 ou perder RESERVED/high-watermark permite assinar dois digests. Em B, tomar prepareQC por decide ou omitir a guarda de justificativa introduz refinamento inseguro. | Contagem simples está refutada analiticamente. A-S segue apenas da A1 única, durável, não equivocante e exigida em todo FINAL: A/H, não solução dessas premissas. B precisa do algoritmo/locks/guardas completos, não só interseção3-de-4. F02 corrigido; integração/persistência/reconfiguração NF/NP. |
+| Q-I4 restore não reduz estado | A1 reserva X, crash, backup pré-reserva volta com mesma chave e reserva Y. Réplica B volta de backup antigo com lockedQC/votos perdidos e assina ramo conflitante como se fosse honesta nova. | Ambos invalidam o orçamento de honestidade/persistência; não permitir reentrada/reset silencioso. Fencing, proteção monotônica e protocolo de recuperação/handover devem demonstrar preservação ou congelar. RESERVED é irreversível para outro digest; timeout não é abort seguro. Mecanismo real NF/NP. |
+| Q-I5 projeção completa e versão/cutoff comum | Após rootN/barrier válida, backend omite envelope de cancelamento ou dependência em uma página; cliente aceita snapshot sem proveniência ou mistura versões. | Inclusão de uma página não prova completude. Cliente deve obter prefixo0..N−1 ou snapshot verificado+suffix integral e executar semântica independente. Bytes podem ser retidos: safety exige bloqueio, liveness depende de disponibilidade ainda não demonstrada. A de binding do compromisso sob primitivas; motor/snapshot/privacy NF/NP. |
+| Q-I6 atualidade no ponto da barreira | Servidor assina nonce novo junto de head antigo; A1 restaurada responde novo nonce mas estado retrocedido; réplica isolada devolve “latest” em cache. | Nonce sozinho só impede reutilizar resposta antiga. A exige leitura linearizada de A1 não retrocedida; B exige barreira ordenada/decidida, vínculo a head e consistência mínima. Resultado é as-of nesse ponto, não inexistência de comandos posteriores. Perda de toda referência não pode virar confiança no genesis. H/NF/NP. |
+| Q-I7 novos clientes/reconfiguração sem downgrade | Cliente novo recebe genesis/kit antigo autêntico e membership velho; administrador substitui raiz via Auth; nó de reposição inicia época sem handover. | Origem independente autentica raiz E mínimo recente; assinatura antiga não comprova estado atual. Membership fixo não resolve substituição operacional; RECONFIG_FREEZE é limitação correta. Handover, rotação e retomada após perda de âncoras NF/NP e BLOCKED. |
+| Q-I8 witness não valida finanças ocultas | Evento assinado/ordenado contém valor inválido, moeda incompatível ou retirada impossível; cliente trata QC como “financeiramente válido”. | Witness atesta bytes/ordem/autorização técnica, não valores. Cliente precisa rejeitar semanticamente, sem aceitar subset como saldo correto. Como processar evento inválido sem travar todo histórico exige refinamento do motor; nenhuma garantia financeira foi demonstrada por HotStuff/AEAD. NF/NP. |
+
+### Safety e liveness dos candidatos, separadamente
+
+**Q23-A:** a unicidade de FINAL é um lema condicional útil, mas não prova fencing/monotonicidade. A1 ativa em TODA finalização e leitura é uma nova autoridade confiável e dependência de disponibilidade, ainda sujeita ao CEO; não é o arquivo pessoal opcional da proposta antiga. Se A1 persistir RESERVED para digest cujos bytes forem perdidos/retidos, não pode trocar digest para destravar. Progresso exige reobter aqueles bytes e votos ou protocolo de recuperação comprovado; essa dependência não desaparece por restart. Uma witness withholding mais outra honesta fora do ar impede q2. Não há promessa de liveness sob partição ou recuperação total de A1.
+
+**Q23-B:** 3-de-4 tem interseção mínima2 e ao menos uma honesta sob f1: fato de conjuntos, não consenso sozinho. Basic HotStuff usa fases e locks; o refinamento deve preservar inclusive a guarda da réplica rechecadas em F02. Safety assume réplicas corretas sem rollback de estado; uma réplica com chave válida e locks apagados não pode simplesmente ser renomeada “honesta recuperada”. Liveness depende de eventual sincronismo/pacemaker e réplicas/dados disponíveis; pacemaker e membership dinâmico permanecem abertos. Quarto domínio é alteração P3/P6 a deliberar, não escolhida pelo revisor. A1 independente/A3 não foram dispensadas. O paper não prova privacidade P2, crash/restore, read barrier Beter Life ou atualização dos clientes.
+
+## Matriz de contraexemplos — R35-P e condições criptográficas
+
+O candidato agora separa S intermediário e U uniforme forte de posse, ambos32B, e roots distintas. O perfil de campo primo, índices/encoding e a derivação/wrapping foram especificados; biblioteca auditável, cerimônias/UX, quotas e prova de composição ainda faltam. Não encontrei razão para rejeitar um IV0^96 apenas por ser fixo quando cada KEK realmente é usada uma só vez; é precisamente a premissa de chave/IV único que precisa sobreviver a crash/clone/restore. NIST trata a unicidade do par chave/IV; não fornece certificado para este ciclo de geração.
+
+| Invariante/condição | Contraexemplo concreto buscado | Resultado / obrigação |
+| --- | --- | --- |
+| R-I1 privacidade do sharing ideal com <3 | Duas shares conhecidas e manifesto com hashes/assinaturas/tags oferecem verificadores para palpites de S. Coeficientes obtidos por módulo enviesado ou reutilizados entre conjuntos também quebram o modelo ideal assumido. | A privacidade informacional refere-se somente ao Shamir isolado com coeficientes uniformes/canal correto. O kit completo é computacional; texto atual faz essa ressalva. Campo/primalidade/interpolação e geração sem viés precisam de implementação auditável/vetores; composição NP. |
+| R-I2 três partes não bastam sem usuário | Três custódios obtêm S e tentam uma senha curta de U offline contra tag; ou U está no mesmo backup ou pode ser recuperado por Auth/custódios. | Esses perfis violam a independência/entropia e são rejeitados explicitamente. U uniforme32B independente é hipótese candidata, não senha memorizável nem garantia256bits do sistema. Tags/assinaturas e composição impõem limites próprios. Aprovação de fator de posse/UX e evidência de separação pendentes; H/NF/NP. |
+| R-I3 U sem três partes não recupera | U roubado com duas shares e verificadores do kit permite busca computacional de S; índice duplicado contado como terceira share permitiria reconstrução falsa. | Rejeitar duplicação/codificação/campo/época errados e não anunciar segredo perfeito de todo kit. A combinação deve depender dos dois insumos sob hipóteses computacionais, sem fallback de servidor. Testes negativos finitos não provam resistência a todas as buscas. A limitado/NF/NP. |
+| R-I4 três shares válidas+U correto recuperam | Misturar share de outra época/setID/owner; custodiante fornece share falsa; kit cuja public root é substituída pelo backend após perda do dispositivo. | Manifesto externo pré-autenticado, signatures/hashes, contexto HKDF/AAD e pub da autoridade devem rejeitar antes de ativar. Verificação usa public root já fixada, não a private key perdida; M0 sem hash de ciphertext evita ciclo. Interpolação válida é A; todas dez combinações, interop, cerimônia limpa e bootstrap são NOT_RUN/NP. |
+| One-shot por KEK e contexto | Clone de RNG/backup repete S/U/salt/envelopeID, mas root ou AAD muda; retry volta a encrypt antes de persistir bytes; propósitos ou setIDs são confundidos. | Mesmo KEK/IV com input diferente viola premissa GCM. Perfil exige retransmissão de bytes, nova geração/época e congelamento se unicidade incerta; persistência/crash ordering e quotas de abertura ainda NF/NP. AAD/info devem distinguir finalidade/owner/época/envelope e ser canônicos, não JSON reserializado. |
+| Rotação, perda e bootstrap | Três shares antigas+U antigo+envelopes antigos continuam abrindo a root rewrapped; rootAuthority antiga é reutilizada como autoridade atual após revogação; todas cópias de U são perdidas. | Rewrap não revoga conhecimento; acesso futuro exige roots/época e continuidade novas quando necessário. Kit pode recuperar chaves históricas, não high-watermark/frescor nem autoridade atual. Perda total pode ser definitiva. Protocolos de rotação/atualidade permanecem BLOCKED/NF/NP; nenhum bypass por recovery de U. |
+
+HKDF não amplia entropia, e salt público não substitui o fator. O texto atual não vende o IKM64B como segurança512bits nem a busca genérica por U como bound de todo o sistema. M0/Mfinal e verificadores auxiliares tornam necessária uma análise computacional completa; citar Shamir/HKDF/GCM não a fornece. A escolha de posse forte32B precisa do CEO antes de tratar o candidato como perfil de produto.
+
+## Contraexemplos operacionais O36
+
+| Propriedade proposta | Contraexemplo concreto | Classificação / condição |
+| --- | --- | --- |
+| Um domínio realmente independente por voto | Três fornecedores distintos usam o mesmo administrador/IdP/CI/cofre; um comprometimento assina com três chaves. Duas VMs no mesmo domínio votam como identidades independentes. | Viola o orçamento de falha, não é proteção adicional. Mapear acesso transitivo/vendor/custódia/distribuição e fencing; NP, operadores não contratados. Três witnesses+cinco shares não aprovam oito operadores nem overlap. |
+| Continuidade após falha | Nó morto retorna de backup com chave e lock antigo; incidente remove nó sem handover; recuperação de chave é tratada como recuperação de estado atual. | Não pode retomar assinatura/confirmar apenas porque o processo voltou. Q-I4/Q-I7 e reconfiguração aberta são bloqueios reais; auditoria, monitoramento e procedimento de recuperação independente ainda NOT_RUN. |
+| Disponibilidade e custo sustentável | Uma maliciosa withholding e uma honesta indisponível deixam votos insuficientes em A e B; A1 indisponível bloqueia A mesmo com witnesses. Orçamento usa USD18 como custo total e ignora operadores, âncora, backup, distribuição e auditoria. | Tabelas atuais reconhecem esses casos e rotulam USD18/36/18+V4 como compute ilustrativo, sem SLA/capacidade ou gastos reais. Soma aritmética é verificável; sizing, extras, custos humanos, SLA e sustentabilidade NP. Não foi demonstrada inviabilidade universal, nem viabilidade de produção. |
+
+O plano distingue os preços públicos atribuídos ao principal de hipóteses e itens não cotados. Nenhum recurso foi comprado/provisionado; custos de execução dos agentes/ferramentas não foram apurados. Ausência de total aprovado ou de operadores independentes impede lançamento dependente, sem autorizar baixar a política.
+
+## Condições de fechamento e decisões do CEO
+
+1. CEO deliberar hipótese adicional de A1 ativa não-bizantina/fenced ou alteração para quatro domínios/q3, explicitando custo e disponibilidade; não escolher pelo fallback mais disponível.
+2. Fechar refinamento por candidato: guardas, persistência/crash/restore, catch-up/bytes, READ_BARRIER linearizada, pacemaker, handover/novos clientes, rotação e congelamento sem referências. Análise independente deve cobrir todos Q-I e distinguir contraexemplo sob premissas de violação de premissa.
+3. Deliberar U de posse forte e UX/custódios; escolher implementação auditável compatível com o perfil, fechar geração one-shot/quotas, autenticação do kit e rotação, analisar segurança da composição com os verificadores auxiliares e colusões cruzadas. Não reintroduzir fator fraco ou escrow oculto para facilitar recuperação.
+4. Resolver privacidade P2 de canal/N/signers/ids/proofs/links, distribuição A3, regras/vetores financeiros faltantes, operadores concretos, custos totais/SLA e auditoria. Witnesses não validam valor privado e hashes não autorizam publicar o grafo.
+5. Somente um gate posterior especificamente autorizado poderá executar provas experimentais com modelos/vetores/oráculos independentes. Todos os testes T-* continuam NOT_RUN; formalização/refinamento e eficácia operacional NOT_PROVEN. Testes não reconstituem os relatórios Security02–Security04 ausentes.
+
+F01 anterior permanece resolvido. Q23 foi refinado em alternativas mas não fechado; R35-P resolve parte da lacuna de especificação, não a aprovação da composição; O36 tem plano/cenários sem operação validada. Recomendo próximo gate de deliberação e fechamento documental, não implementação/PoC/Security06. MDL13/MDL14 continuam BLOCKED. Encerrar esta rodada e aguardar CEO.
+
+## Identidade da proposta Security05.1 revisada
+
+SHA-256 após F02 e T-Q-B-JUSTIFY, antes dos estados editoriais finais pelo principal. Alterações posteriores somente de status/encerramento em README/PRODUCT/E2EE/GATE_RESULT não são prova experimental; mudança técnica material exige rechecagem. SOURCE_PROVENANCE/GATE_RESULT são registros do principal em preparação, não evidência independente do revisor sobre todos os eventos anteriores.
+
+| Documento | SHA-256 |
+| --- | --- |
+| CLIENT_FINANCIAL_ENGINE.md | 4AB89D359834CD1510488817746E08D6B474606468EAFAC09C3CA4CDA15F9917 |
+| E2EE_ARCHITECTURE.md | 71C613661B670688E220DBEA4E6CBD28F0D59811130EF1D81C2E102045711492 |
+| FINANCIAL_PARITY_MATRIX.md | 0F704EC619761032F4A49B95CE225526624DFF051B62CCFA2835F02C3201F515 |
+| KEY_MANAGEMENT_AND_RECOVERY.md | FAFB80381A016114A736DF19AAEB267925D058ACFC81005A578DA7CD616D8B69 |
+| MIGRATION_IMPACT.md | F99E4CFF5347D28BB080D8107E7190F6182FE15EBBF9F1D24FBC010F61833B62 |
+| PRODUCT_DECISION.md | B688226CB96293A428918AFED402E1CAEEDC47A4C3D5E2955709FD147CEC2131 |
+| README.md | 5DD71BB697BB4260A545220A5932D4D3B9D03CAEF4A994791646260663809155 |
+| SECURITY_GATE_CRITERIA.md | 78DD2F47FDD17099BB0239EE8B1B2F2A7CF9EC9AA53B80730998ADED75E2FAE8 |
+| SYNC_AND_INTEGRITY.md | EC2E054EA834C1E5DCE1E88A5C5D5D0285AF8742EA50029ECEC50E05F61B24FF |
+| THREAT_MODEL.md | 4DF30DC14F5142512D5E95EF7D915556BE8366DD706A574E5476E56583E3E82A |
+
+---
+
+# Histórico — revisão da consolidação executiva anterior
+
+O parecer abaixo pertence ao conjunto anterior a Security05.1. Seus hashes, estados e descrições de lacunas não cobrem automaticamente os novos candidatos. Está preservado como histórico; a revisão vigente é a seção Security05.1 acima.
 
 Data: 2026-11-04. Rodada vigente: consolidação das decisões executivas P2–P6. Perfil selecionado explicitamente: `dev-seguranca`, depois de o `arquiteto-seguranca` concluir e encerrar a consolidação. O revisor não produziu a proposta, não alterou sua arquitetura e não criou subagentes. A separação de autoria/papel é observada; isolamento técnico de ferramentas/domínios por TOML continua NOT_ENFORCED.
 

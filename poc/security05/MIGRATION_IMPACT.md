@@ -1,47 +1,77 @@
-# Security05 — impacto de migração e operação
+# Security05.2 — operação em quatro domínios, custos e migração
 
-Somente plano de impacto sob políticas executivas P2–P6 aprovadas. Nenhum código, SQL, migration, mudança hospedada, dependência ou estratégia técnica de release foi implementado/aprovado. Migration0014 e MDL13/14 continuam bloqueados. Política aprovada não resolve viabilidade técnica/financeira.
+Estado: REVISION_PENDING_INDEPENDENT_REVIEW. Direção executiva O36: quatro testemunhas/domínios realmente independentes, consenso3-de-4; números de custo abaixo não aprovam orçamento/SLA/produção. Código, banco, infraestrutura, dependências, migrations, commits adicionais e recursos contratados não fazem parte deste gate.
 
-## Inventário por fronteira
+## Domínios, funções e orçamento de comprometimento
 
-| Área | Mudança candidata para E2EE | Dependência / risco |
+D1..D4 correspondem a quatro operadores/domínios com chaves de testemunha, credenciais administrativas, contas de infraestrutura, logging/backup, caminhos de deployment e incident response separados. Quatro VMs geridas pelo mesmo root/IdP/operador não são quatro domínios; provedores distintos com CI/cofre/admin comum também não. Identificar acesso transitivo e quem pode restaurar/clonar/assinar, não só titular da fatura.
+
+| Função | Custódia/estado candidato | Risco e evidência exigida |
 | --- | --- | --- |
-| API/contratos | Trocar payload financeiro legível e summaries privados por transporte opaco/provas; cálculo/validação cliente | Inventário de todos endpoints/consumidores; novo contrato e compatibilidade versionados em gate separado |
-| Banco | Persistir envelopes e estado técnico mínimo; manter owner/RLS/grants para acesso comum | Admin pode alterar bytes; não delegar semântica oculta ao SQL; DDL não proposto neste gate |
-| Inbox/import/reconciliation | Parser, mapping, hints, matching e normalização no cliente; persistência cifrada/receipts privados | Preservar lifecycle e limites da matriz; runtime Node não porta automaticamente para navegador |
-| Cache/PWA | Estado local cifrado, projeções verificáveis, limpeza por owner/logout e política de desbloqueio | XSS/SO/distribuição comprometidos; sincronização de apagamento e backups não garantem erasure global |
-| Logs/metrics/support | Instrumentação sem conteúdo/chaves, suporte por diagnóstico mínimo opt-in futuro | P2 precisa listar campos, retenção e acessos; sem dump real para IA |
-| Auth | Preservar sessão/JWT/ownership de serviço; separar E2EE bootstrap/recovery | Reset Auth nunca libera conteúdo ou substitui dispositivo por si só |
-| Backup/restore | Cópias cifradas sem material privado operacional; restauração verificável com referência atual independente | Archive legível não é exercício de restore; backup de app não inclui automaticamente Auth/Storage/roles |
-| Dados públicos de mercado | Transporte cacheado de taxas públicas/proveniência, cálculo privado cliente | Sem enviar saldos a API de taxas; CURRENT/STALE/UNAVAILABLE e versão da regra |
-| Dispositivos/update | P3 exige cliente instalado, assinado e verificável com distribuição/update protegidos independentemente do backend | Requisito aprovado; bootstrap, anti-downgrade, resposta a incidente e protocolo normativo ainda não demonstrados |
+| W1..W4 / D1..D4 | Uma identidade/voto lógico por domínio; keys, config/época, views, votos/locks e freeze duráveis | Matriz de acessos prova isolamento; um comprometimento operacional não pode controlar duas testemunhas dentro de f1; vendor/root/IdP/CI compartilhado é risco correlacionado explícito |
+| Standby no mesmo domínio | Replica bytes/estado de voto sob mesmo controle; somente um signatário ativo por identidade | Failover com fencing e monotonicidade, sem contar duas VMs como votos; backup recente não garante locks pendentes |
+| A1 complementar | Piso independente sob usuário, comparação autenticada entre devices/kit externo | Não servidor serializador ou serviço online obrigatório; cópia velha/clonada pode ocultar detecção e não ignora consenso |
+| A3 distribuição | Raízes de updater/release e aprovação separadas do backend/CI; thresholds TUF propostos | Assinadores/operadores concretos e sobreposição com D1..D4 precisam de audit; f1 de consenso não aprova orçamento de falha de release |
+| Cinco partes R35 e U | ShareRecords offline/kit autenticado; U32B em posse independente, cópia que sobreviva ao dispositivo | Nove funções não são nove entidades independentes provadas nem overlap autorizado; mapear domínio de backup/IdP e colusão cruzada |
+| Backend/Auth/DB | Serviço/transporte/bytes opacos, nenhuma DEK/S/U/root privada/recovery | Comprometimento conjunto desses componentes mais uma witness está no modelo; nenhuma conta deles administra testemunhas ou distribuição |
 
-## Legado: limites irremovíveis
+Hipótese de segurança: no máximo uma das quatro testemunhas bizantina sob comprometimento simultâneo backend+SQL+Auth. Compromisso de fornecedor/administrador comum que dê duas chaves sai desse orçamento e reprova a justificativa de independência, sem ser “duas falhas improváveis”. Controles de hardware e cofre não provam separação humana/organizacional por si só.
 
-Recifrar não apaga exposição anterior em WAL, backups, logs, memória, exportações ou acesso administrativo. Revogar/rotacionar não retira conhecimento já obtido. Não prometer confidencialidade retroativa nem assinatura original de eventos que nunca foram autorizados criptograficamente.
+## Disponibilidade, restart e desastre
 
-Alternativas para baseline inicial: manifesto de histórico/snapshot revisado pelo usuário com proveniência e limites explícitos; reconstrução assistida por fontes financeiras externas; ou abertura nova com referência ao histórico legado separado. São alternativas, não escolha de produto. Não descartar funções/histórico ou inventar cobertura bancária para facilitar a migração. Perdas, cortes e política de dados exigem CEO.
+| Cenário | Condição de progresso do consenso4/q3 | Conduta financeira |
+| --- | --- | --- |
+| Quatro íntegras/ativas | Líder/view e rede satisfazem hipóteses do BasicHotStuff/pacemaker | Cliente ainda precisa de dados/provas/semântica, não só QC |
+| Uma falha ou uma bizantina retendo voto | Três honestas responsivas com estado/bytes íntegros podem progredir após condições pós-GST | Sem promessa de tempo/SLA a partir dessa contagem |
+| Uma bizantina withholding + outra honesta indisponível | Apenas duas respostas úteis, sem quorum3 | Fail-closed; histórico local verificado/datado e rascunho conforme P5, sem saldo atual/confirmar/STS válido |
+| Partição, dados omitidos ou quorum não verificável | Liveness não prometida | Não contar respostas de cache ou aceitar assinatura isolada |
+| Reinício com log íntegro | Repor todos votos/locks/prepareQC/view/config/freeze e identidade exclusiva antes de votar | Catch-up com provas, nunca resetAuth ou limpeza de cache |
+| Backup velho/perda de log/clone | Último decide não restaura necessariamente locks/votos pendentes | Nó RECOVERING sem voto até prova suficiente ou substituição segura; total perda/locks impede reset |
+| A1 fora do ar | A1 não é coordenador; cliente existente pode usar consenso/provas suficientes e mínimo confiável | Novo cliente/perda total de mínimos precisa de bootstrap/lineage atual sustentados; sem eles congela claim atual |
+| Perda de partes/U/release íntegro | R35/A3 têm dependências próprias, mesmo com quorum disponível | Dados/chaves não devem ser expostos a binário não verificável ou recuperados por bypass |
 
-Um manifesto deverá declarar fonte, escopo, regras/cutoff/timezone/moeda, lacunas, hashes de conteúdo autenticado e ato atual de aceitação da baseline. Essa assinatura confirma aceitação atual com limites, não intenção original de cada evento. Sua validação precisa de referência independente e recuperação testável.
+Troca de operador/identidade exige transição segura; FREEZE–INSTALL–ACTIVATE em SYNC é candidato ainda aberto, com autorização cripto de config, terminal antigo, instalação e ACTIVATE nova. E-mail/Auth não basta. Se líder retiver certificado, a proposta permite retransmitir/coletar a MESMA transição, sem voltar ao normal por timeout. Porém freeze individual antes de decisão pode prender uma honesta se outra view decidir ramo incompatível com o freeze nãofinalizado; isso ameaça progresso mesmo com rede recuperada e não foi resolvido por persistência. Q-RECONFIG continua bloqueio material de safety/liveness; não operacionalizar esse candidato como procedimento de produção. Sem estado/provas suficientes, congelar e submeter ao CEO, não abort/reset de emergência por conveniência.
 
-## Sequência futura proposta, não autorizada
+Monitoramento técnico: latência de mensagens/QC e health, divergência de heads/epochs, erros de assinatura, espaço/durabilidade do log, integridade de backup e exclusividade de signatário. Nada de montante, descrição, payload privado, root ou fator em métricas/traces. Mesmo canal/N/tempo/signers precisam de minimização P2, retenção e autorização específicas. Métrica “saldo correto” fornecida pelo servidor não prova finanças.
 
-1. Consolidar políticas P2–P6 já aprovadas, completar detalhes/fontes/regras/vetores e tratar Q23/R35; fechar protocolos e revisão adversarial antes de aprovação técnica.
-2. Obter autorização de gate isolado para viabilidade, com dados sintéticos e sem DEV.
-3. Comparar motor e consumidores, inventariar plaintext e provar modelo operacional dentro das premissas.
-4. Planejar migração/recovery/rollback operacional separado, com autorização e aceite da baseline/legado.
-5. Somente após gates específicos, propor mudança de produto/DDL/release ao CEO.
+Incidente: detectar → congelar scope/claim atual afetado → preservar evidência técnica sem segredo → classificar orçamento de falhas → revogar/rotacionar conforme autoridade válida → reconfigurar somente com continuidade provada → restaurar isoladamente e comparar estado recente independente → revisão/CEO antes de retomada. Se reconfiguração/restore seguro não é demonstrável, etapa fica BLOCKED; não trocar genesis ou raiz silenciosamente. Root de release comprometida pode exigir reprovisionamento externo, não só nova assinatura da mesma origem.
 
-Rollback da aplicação nunca pode reativar caminho plaintext ou diminuir época/estado financeiro já aceito. Uma migração parcialmente realizada precisa de desenho de interrupção e retomada sem dual-write financeiro em claro. Compatibilidade hospedada, desempenho, custos, restauração e fiscalização técnica de E2EE permanecem NOT_PROVEN. Nenhuma etapa é disparada ao concluir a documentação.
+Auditoria externa pré-produção e reavaliação após mudanças críticas cobrem protocolo, refinamento/crash, independência de operadores, release/updater, custódia, backup/DR e ensaios com oráculos independentes. Exercises periódicos de perda de dispositivo/domínio/custódio e recovery, com cadência/escopo ainda a aprovar; documentação não prova exercício.
 
-## Impacto executivo na arquitetura atual e na UX
+## Custos: fatos públicos, cenários e incógnitas
 
-O frontend web dinâmico atual não é automaticamente cliente confiável para plaintext; P3 implica novo planejamento documental de instalação, assinatura, verificação inicial/update independente, suporte e recuperação de dispositivos. Isso pode aumentar fricção em onboarding, troca/perda de dispositivo, acessibilidade e uso desktop/mobile; expectativa de UX moderna semelhante ao Pierre não autoriza presumir seus mecanismos internos ou aceitar origem maliciosa.
+Referências consultadas pelo principal em2026-11-04: [DigitalOcean](https://www.digitalocean.com/pricing/droplets) Basic Regular1GiB/1vCPU/25GiB/1000GiB transfer USD6/mês; [Akamai](https://www.akamai.com/cloud/pricing/cpu) Nanode1GB/1CPU/25GB/1TB USD5/mês; [AWS Lightsail](https://aws.amazon.com/lightsail/pricing/) LinuxIPv4 1GB/2vCPU/40GB/2TB USD7/mês. Quarta referência: [OVHcloud US VPS](https://us.ovhcloud.com/vps/), VPS-1 da linha anunciada **VPS2027**, **a partir de USD4,54/mês**,2vCores/4GB/40GBNVMe e backup diário anterior24h. Disponibilidade atual, região, período, tributos, renovação e condições contratáveis da quarta oferta não foram confirmados. São preços públicos ilustrativos, não contratos ou operadores escolhidos.
 
-P3/P6 exigem três testemunhas sob operadores/domínios independentes mais referência do usuário e distribuição protegida. P4 adiciona cinco partes de recuperação3-de-5 mais fator independente; isso não aprova oito operadores distintos nem sua sobreposição. Custos de coordenação, chaves/admin/infra/incidentes, latência, onboarding e exercícios precisam de inventário e estimativas reais. Auditoria independente antes de produção, reavaliação após mudanças críticas, monitoramento/recovery/incident response são requisitos aprovados; fornecedores, orçamento e SLA continuam pendentes, sem contratação.
+| Cenário atual4domínios | Compute mensal de referência | Limites |
+| --- | --- | --- |
+| B4:1VM/domínio | 6+5+7+4,54=USD22,54/mês | Quarta parcela é preço anunciado “a partir de”; sizing não medido, configs não equivalentes, termos/cotas pendentes |
+| H4:2VM/domínio | 2*22,54=USD45,08/mês | Mesmo4votos; standby não cria independência e requer fencing/replicação de estados pendentes |
+| Capacidade/termos reais distintos | soma dos quatro preços cotados e aceitos para capacidade efetivamente necessária | Referência pública pode não ser contratável nessa região/prazo ou suficiente para log/DR |
 
-P5 permite snapshots locais previamente verificados/datados/desatualizados e rascunhos cifrados, não lançamentos confirmados sem referência/prova/quórum. UX deve mostrar explicitamente bloqueio de confirmação, saldo atual e Safe to Spend válido, sem contabilizar rascunhos nos relatórios confirmados. Recuperar disponibilidade não basta: retomada verifica todo estado/protocolo.
+Os antigos cenários3domínios/USD18/USD36 não são direção operacional atual nem alternativa para economizar sem CEO; só histórico no Git/revisão. Não comparar máquinas só por nome ou assumir1GB comporta testemunha. Backup automático de fornecedor não prova restore de lock/freeze seguro e pode ser caminho de rollback.
 
-P2 cifra conteúdo e relações; preservar índices ou links legados legíveis não é caminho de compatibilidade autorizado. Open Finance, importações e IA que exigirem plaintext em servidor/terceiro incompatível ficam BLOCKED; estudar processamento cliente é permitido documentalmente, implementação/integradores exigem aprovação específica. A migração não pode enviar dados privados a serviço externo para atingir paridade.
+Definir variáveis monetárias em USD somente quando cotadas nessa moeda; despesas em outra moeda ficam separadas até câmbio/tributação aprovados. `?` significa não obtido, nunca zero. Separar mensal recorrente, custo inicial e auditorias/eventos:
 
-Q23 pode impedir aprovar finalização por contagem2-de-3 e R35 impede aprovar recuperação só pelo rótulo3-de-5+fator. Potencial inviabilidade de safety/liveness, usabilidade ou sustentabilidade deve bloquear aprovação/lançamento dependente e ser apresentada ao CEO. Não reduzir meta, retirar fator, trocar quórum ou contratar serviço silenciosamente para viabilizar produto. Segurança máxima é política; possibilidade técnica e operacional permanece a demonstrar.
+| Categoria | B4 mensal / H4 mensal | Implantação inicial | Periódico/por evento | Evidência pendente |
+| --- | --- | --- | --- | --- |
+| Infraestrutura compute/rede | referência22,54 /45,08 + tráfego extra real | setupInfra_B/H=? | recuperação/migraçãoInfra=? | Capacidade, regiões, termos, IP/tráfego e cotações |
+| Operação humana | soma(horas_i * tarifa_i),i1..4, todos? | onboarding/treinamento4operadores=? | plantão/incidente/substituição=? | Operadores independentes e propostas comerciais, nenhum rate/hora inventado |
+| Armazenamento/backups | logStorage+backupStorage+egress=?, por4domínios | bootstrap/log/backup/fencing=? | restore isolado/retenção=? | Volume/crescimento, controles anti-rollback e ensaio |
+| Custódia/chaves | hardware/cofre/manutenção+partes/U=? | aquisição+cerimônia+entrega partes/U=? | rotação/recovery/perda=? | Custódios/suportes/overlap e custos reais |
+| Auditorias | mensal somente se contrato cotado, atualmente? | auditoria pré-produção=? | reauditoria crítica/periódica=? | Escopo, auditor externo e orçamento |
+| Monitoramento | monitoramento técnico+armazenamento sanitizado=? | configuração independente=? | incident response/exercise=? | Vendor/credenciais/retention/plantão |
+| Distribuição confiável | assinatura/repos/espelhos/infra updater=? | trust bootstrap/root/release/pipeline=? | revogação/reprovisionamento=? | Plataformas, threshold/custódios e cotações |
+
+Fórmulas por cenário s: **M_s = Compute_s + Traf_s + OperHum_s + StoreBackup_s + Cust_s + AuditRec_s + Monitor_s + Distrib_s**; **I_s = SetupInfra_s + Onboarding_s + InitBackup_s + InitCust_s + AuditPreProd_s + InitMonitor_s + InitDistrib_s**; **E_s = Restore_s + Incident_s + Rotate_s + ReauditCritical_s + Reprovision_s**, por eventos efetivos. Horizonte H meses: **T_s(H)=I_s + H*M_s + soma(eventos E_s)**, acrescido de tributos/câmbio somente com premissas aprovadas. Essas fórmulas são estimativa estruturada completa por categoria, não total quantitativo contratável; a maioria das parcelas é desconhecida.
+
+Nenhum recurso contratado/provisionado/comprado; custo de execução dos agentes/ferramentas não apurado. Total numérico de produção, SLA e sustentabilidade: NOT_PROVEN. Cotações e orçamento aprovado são bloqueios específicos de lançamento, sem preencher incógnitas com zero ou converter compute mínimo em custo total.
+
+## Migração do produto atual e UX
+
+Backend/API/SQL monetários, parser/mapping/hints/matcher privados e summaries terão de ser redesenhados para cliente instalado e envelopes opacos em gate futuro. RLS/grants/ownership continuam controle comum de acesso, não proteção absoluta contra admin. Preservar regras econômicas e provenance de Inbox/import/reconciliation, sem copiar DTO plaintext ou grafo privado para indices públicos. Sem code/DDL/migration neste gate.
+
+A3 acrescenta instalador confiável, atualização verificada e incidentes de release; R35 acrescenta kit, três partes e U separado sobrevivente ao dispositivo. Quorum distribuído pode acrescentar latência e períodos sem confirmação. Mostrar motivos/estado e data de verificação; não simular sucesso financeiro para parecer fluido. Expectativa Pierre é referência de experiência, não fonte de mecanismos internos. Open Finance/IA/importação com plaintext em servidor/terceiro incompatível fica BLOCKED; estudar processamento local não autoriza implementar integração.
+
+Recifrar não apaga exposição anterior em WAL/backups/logs/memória/exportações nem retira conhecimento de dispositivos antigos. Snapshot/manifest inicial aceito hoje precisa declarar fonte/escopo/cutoff/moeda/versões/lacunas; não significa assinatura original de cada evento. Migração/rollback operacional não pode reabrir plaintext nem reduzir epoch de dados/config/update. Legado, downtime e retomada exigem gate separado.
+
+Se não houver safety demonstrável entre epochs/restore, distribuição confiável, fatores/custódia viáveis ou custo total sustentável/operadores independentes, bloquear lançamento dependente e submeter ao CEO. A política não pode ser reduzida para caber no orçamento ou UX. Próximo trabalho recomendado é fechar as adaptações e parâmetros documentais antes de pedir ensaio isolado explicitamente autorizado; não iniciar Security06.

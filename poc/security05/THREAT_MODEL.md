@@ -1,12 +1,10 @@
-# Security05 — ameaças e rastreabilidade
+# Security05.2 — ameaças, invariantes e contraexemplos
 
-Proposta técnica sob políticas P2–P6 aprovadas, ainda sem comprovação dos protocolos. H7/H8/H9 designam seções 7/8/9 do handoff mestre de 2026-10-29, fonte secundária. Todos os resultados empíricos ali relatados são NOT_PROVEN neste gate; nenhuma contagem foi revalidada. Defesas abaixo são propostas, e futuras verificações são NOT_RUN. Ver [proveniência](SOURCE_PROVENANCE.md) e [política vigente](PRODUCT_DECISION.md).
+Estado: REVISION_PENDING_INDEPENDENT_REVIEW. Segurança NOT_PROVEN, ensaios NOT_RUN. Decisões atuais:4testemunhas/q3/HotStuff; A1 complementar; R35 S+Shamir3/5+U32B+HKDF/GCM; O36 quatro domínios. Alternativas3domínios/A1 ativa/U pendente são históricas e superadas no escopo da decisão; não permanecem fallback.
 
-## Ativos e adversários
+Ativos: conteúdo/valores/relacionamentos financeiros, DEKs/roots/S/U/custódia, histórico/autorização/devices, votos/locks/config/lineage e mínimos independentes, software/updates e disponibilidade. Alvo: comprometimento simultâneo backend+SQL+Auth+uma testemunha bizantina entre4domínios. Distribuição/OS/dispositivo acima dos pressupostos, colusão maior, perda total de referências e metadados são limites, não aceitação de dados maliciosos sem aviso.
 
-Ativos: conteúdo e resultados privados, DEKs/autoridade/recuperação, intenção e histórico financeiro, registro de dispositivos, referência atual, software e regras financeiras, evidência/receipts, disponibilidade e privacidade de uso.
-
-Modelo executivo P3: resistir ao comprometimento conjunto de backend, admin SQL, credenciais Auth e até uma testemunha entre três domínios/operadores independentes, quórum alvo dois, combinados a referência independente do usuário e cliente instalado/assinado/verificável. Esse é objetivo aprovado, não garantia demonstrada. Dispositivo/SO, assinatura de distribuição comprometida, colusão de duas ou mais testemunhas, perda de todas as referências e indisponibilidade são limites explícitos sem resistência absoluta prometida. Custódios, operadores de testemunhas e distribuição precisam de análise de colusão cruzada; não presumir oito entidades independentes. Volume, tamanho, tempo, padrões de acesso e identificadores opacos ainda vazam informação; P2 exige cifrar conteúdo e relações privadas e não autoriza índices/exposição adicional.
+H7/H8/H9 referem ao handoff mestre §§7–9, fonte secundária; relatos/contagens originais ausentes continuam NOT_PROVEN. Fontes primitivas/protocolo não reconstituem esses experimentos. A matriz histórica abaixo mantém rastreabilidade, sem chamar defesa proposta prova.
 
 ## Matriz problema → defesa → prova futura
 
@@ -33,14 +31,33 @@ Modelo executivo P3: resistir ao comprometimento conjunto de backend, admin SQL,
 | H19 Legado sem intenção original assinada | H9; ausente / NOT_PROVEN | Manifesto inicial explícito com proveniência: contenção de afirmações | Adulterar import legado e comparar revisão independente; jamais apresentar assinatura nova como autorização original |
 | H20 Disponibilidade/custo/custódia/colusão historicamente indefinidos | H9; ausente / NOT_PROVEN | Políticas P2–P6 agora aprovadas; protocolos/custos/operadores não demonstrados | Provar domínios reais e sustentabilidade em gate futuro; auditoria independente pré-produção/pós-mudanças, recovery e incidentes; nenhuma disponibilidade ou SLA presumido |
 
-## Problemas atuais de desenho, distintos dos relatos históricos
 
-| ID / conclusão analítica | Origem e grau de comprovação | Defesa ainda candidata / bloqueio | Verificação futura necessária |
-| --- | --- | --- | --- |
-| Q23 — duas certidões 2-de-3 incompatíveis são possíveis por contagem isolada | Contraexemplo documental em SYNC_AND_INTEGRITY, não teste; refuta somente suficiência da contagem | Aceitação por contagem BLOCKED; demonstrar protocolo A2+A1+A3 sem mudar meta executiva | Safety/liveness sob B maliciosa+H1/H2 honestas, partições/withholding, ordem/reconfiguração, clientes novos e perda de âncora; nenhum honesto precisa equivocar para o contraexemplo |
-| R35 — sharing 3-de-5 isolado não exige usuário | Análise de composição em KEY_MANAGEMENT_AND_RECOVERY, não ensaio | Recuperação normativa BLOCKED até composição criptográfica 3shares E fator independente | Três custódios sem fator, baixa entropia/força bruta offline, fator em backup comum, recuperação do fator por Auth/custódios e rotação; nenhum bypass |
-| O36 — custo/UX podem inviabilizar operação | Risco identificado, inviabilidade NOT_PROVEN | Lançamento dependente BLOCKED se independência/sustentabilidade não demonstráveis; não reduzir modelo | Custo total/operadores/SLA aprovados, acessibilidade/onboarding/recuperação e incidentes de três testemunhas+cinco partes+cliente instalado; sem inventar orçamento |
+## Invariantes atuais e adversário a procurar na revisão
 
-## Riscos residuais explícitos
+| ID / propriedade requerida | Defesa/perfil candidato atual | Contraexemplo concreto a buscar / limite ainda aberto |
+| --- | --- | --- |
+| Q-I1 contexto/autorização | CONFIG e QC tipadas, canal/época/configHash/phase/view/node assinados; device root separado de Auth | Trocar roster por login, misturar signer duplicado/phase/epoch, comando de outro owner, certificado device revogado; privacy de registry ainda P2OPEN |
+| Q-I2 efeito0ou1 por comando | Identidade/conteúdo financeiro canônico no histórico cliente, não hash do ciphertext/seen-cache | Reencifrar retry, apagar cache, fork/restaurar receipts; exatamente uma vez não promete progresso de comando inválido/não confirmado |
+| Q-I3 finais não conflitantes | BasicHotStuffv6 com4/q3, locks e guardas completas F02; sem QC2/prepareQC como decide | QC de view maior em ramo não descendente, phase errada, timeout que apaga lock, threshold isolado chamado consensus; interseção honesta sozinha não fecha views |
+| Q-I4 persistência/crash | Persist-before-send de todos votos/locks/prepareQC/view/freeze e identidade fenced | Backup velho com chave/último decide íntegro perdeu lock não decidido; clone vota duas vezes; recovery precisa restabelecer todo estado pendente ou não votar, Q-RECOVER aberto |
+| Q-I5 completude/semântica | Prefixo0..N−1/provas + todas dependências privadas e versão/cutoff no motor | Omitir página/cancelamento/sufixo e ainda somar saldo; testemunha assina ciphertext cuja transação é financeiramente inválida; cliente correto deve rejeitar/sem claim parcial |
+| Q-I6 atualidade/barrier | Nonce único em entrada decidida, lineage atual e dados completos no ponto de execução | Replay antigaQC com hora nova, latest de witness/backend isolado, kit velho sem mínimo independente; atualidade as-of não garante saldo bancário externo |
+| Q-I7 continuidade de epoch/devices | Candidato FREEZE_VOTED → FreezeCert antigo → InstallCertnovo → ACTIVATE decidida; raiz config/owner autorizada | Freeze individual antes de decide pode prender honesta no ramo F enquanto outra view decide ramo incompatível ainda permitido pelo núcleo; com1byzantinawithholding perde progresso. RetençãoQC, abort por timeout ou ACK sem freeze também são alvos; Q-RECONFIG aberto, não theorem HotStuff |
+| Q-I8 limite de witness | Atesta apenas bytes/ordem/contexto técnico | Usar3signaturas para dizer valor oculto correto, intenção humana ou integridade de frontend; semântica permanece cliente |
+| A1 complemento | Piso independente, extensão provada/comparação; não serializa nem sobrepõe consenso | Clone/replay de piso oculta detecção; maior timestamp não escolhe branch; ausênciaA1 isolada não trava consenso, perda total de referências atuais exige bootstrap sustentado |
+| R-I1..R-I4 composição | S compartilhado no campo especificado, U32B separado, HKDF conjunto, AEAD/kit root externo | Três shares semU, U sem3, share inválida, rootkit substituída por backend, U no mesmo backup ou só no device perdido; verificadores auxiliares impedem alegar segredo informacional global |
+| R-NONCE/ROTATION | One-shot por KEK/purpose/envelope, reserva durável e retry bytes idênticos; novo material/época | Crash após encrypt antes de persistir, RNG restaurado, rewrap da mesma root prometendo revogar conhecimento; kitvelho recupera roots mas não estado atual |
+| A3-BOOT/STATE | TUF publicado como base, root externo, thresholds/expiries propostos, metadata minima persistidas e artefato verificado | Root inicial entregue só pela origem, assinatura antiga aceita após downgrade, relógio/backupretrocedido, target malicioso validamente assinado por limiar comprometido; TUF não prova benignidade |
+| O36 domínios/DR |4operadores/keys/admin/infra/incidentes separados, audit e fórmulas de custo |4VMs mesmoIdP/root/CI/vendor, failoverduplo, restore sócommit, gastos humanos/auditoria tomados zero; capacidade/totalSLA ainda não comprovados |
 
-E2EE não impede negação de serviço, destruição de ciphertext ou conhecimento já obtido por dispositivo autorizado. Assinatura não prova intenção humana; AEAD não prova frescor; RLS não contém todos os administradores; réplica sob mesmo operador não é independência. P3/P4/P5/P6 estão aprovadas como políticas, mas Q23/R35 e parâmetros abertos impedem aprovação de protocolos e promessa de tolerância a falhas. Recuperar originais pode alterar a caracterização histórica; não muda automaticamente P1 nem aprova defesa proposta. Novas integrações que exijam plaintext em servidor/terceiro incompatível ficam BLOCKED, não uma exceção implícita de produto.
+## Bloqueios materiais localizados
+
+Q-PACE integra a construção publicada de temporizadores/views com runtime/limites/recovery ainda sem prova; Q-RECOVER não autoriza assinatura após perder votos/locks só porque último commit foi restaurado; Q-RECONFIG é adaptação com freeze parcial/retenção de certificados/reconfiguração entre epochs ainda não formalizada; Q-BOOT/FRESH cobre novo cliente ou desastre sem mínimos/lineage atuais suficientes. São propriedades distintas; recuperar chave, dados ou3assinaturas não resolve todas.
+
+R35-COMP/OPS tem perfil concreto e argumentos condicionais, não composição auditada ou custódia real. U32B já escolhido pelo CEO; senha humana não é alternativa selecionada. A3-BOOT/STATE e parâmetros de configuração/update/tempo e P2 precisam de decisões/evidência adicionais; O36 tem compute público e fórmula de total sem cotações humanas/operacionais suficientes. Não classificar o gate inteiro impossível por lacuna localizada, nem fechar achado material pela palavra “documentado”.
+
+## Riscos residuais e regra de aceitação
+
+Admin pode escrever/apagar SQL/bytes e negar serviço; objetivo é rejeitar aceitação financeira ilegítima no cliente, não impedir toda escrita física. Assinatura não prova intenção/semântica; AEAD não prova frescor; RLS não contém todo admin; cópia cifrada não prova backup restaurável ou anti-rollback. Conhecimento já obtido por device/roots antigos não é apagado por rotação posterior.
+
+P5 rege fail-closed sem proof/estado/quorum e proíbe saldo atual/STS válido de dados incompletos; leitura local verificada é histórica/datada, rascunho não confirmado não entra em saldo/relatório. A1 não se torna FINALizador durante desastre. Nenhuma redução silenciosa de4/q3 ou do requisito3shares+U, e nenhuma integração com plaintext em servidor/terceiro incompatível. Contradições materiais vão ao CEO; revisão não é segurança PASS.

@@ -1,71 +1,71 @@
-# Security05 — consolidação de políticas e redesenho condicionado
+# Security05.2 — fechamento documental dos protocolos
 
-Data: 2026-11-04. Estado desta consolidação: **DOCUMENTATION_REVIEWED_NOT_APPROVED**. A política executiva P2–P6 está aprovada; o desenho foi revisado documentalmente pelo dev-seguranca, mas Q23/R35 permanecem bloqueios técnicos P1 abertos. Desenho técnico, implementação e segurança demonstrada não estão aprovados.
+Data:2026-11-04. Estado desta proposta: **REVISION_PENDING_INDEPENDENT_REVIEW**. Teto de encerramento **DOCUMENTATION_REVIEWED_NOT_APPROVED**. Direção executiva aprovada, desenho proposto, desenho efetivamente revisado e segurança demonstrada são camadas distintas; esta rodada ainda não recebeu parecer independente, e segurança continua NOT_PROVEN.
 
-## Autoridade e escopo atuais
+## Autoridade e preservação
 
-Fonte primária: pedido executivo “Decisões executivas P2–P6: política de segurança máxima”, no anexo `Texto colado.txt`, identificado em [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md). Autoriza somente atualizar/revisar os 17 documentos existentes neste diretório. As pendências anteriores de política P2–P6 foram substituídas por essa decisão, sem reescrever evidências históricas ou aprovar detalhes técnicos.
+Pedido primário vigente: “BETER LIFE — SECURITY05.2 / Fechamento documental dos protocolos de segurança”, anexo Texto colado.txt identificado em SOURCE_PROVENANCE. Autoriza exclusivamente atualizar/revisar documentos existentes em Back/poc/security05. Preservar os13 Markdown modificados não preparados, as4fontes históricas e os17arquivos existentes. Não mudar código/config/políticas/PROJECT_STATE/DB/infra/dependências nem executar PoC/teste experimental/migration/commit/push/merge/deploy. Security06 não autorizado; MDL13/MDL14 bloqueados.
 
-Preservar todos os arquivos, cópias históricas e fontes. Nenhum código funcional, configuração, política compartilhada, PROJECT_STATE, banco/infraestrutura, dependência ou migration pode mudar. Sem PoC, testes experimentais, instalação, commit/push/merge/deploy, aprovação Security05, Security06 ou liberação MDL13/MDL14. O nome `poc/` é localização documental; não foi criado experimento executável.
+Back permanece codex/security05-protocols@22ee3b0b959832b1293e37eef217d926a40db3e6, commit LOCAL de preservação feito no gate anterior, parent ceea9e7e95527fa8039283135fc477c84c4ad63b. Security05.2 não autoriza novo commit ou reset/checkout/rebase/limpeza. Front permanece codex/agent-team-design-skills@8c8c4f548023aadce4da1aadb0afe2778db0c455 limpo.
 
-P1=E2EE: conteúdo/valores financeiros cifrados, cálculos em cliente confiável; servidor sem plaintext financeiro ou chaves de descriptografia/recuperação; Auth não concede autoridade criptográfica. Sem segredos/conteúdo privado em logs, métricas ou IA.
+## Direção executiva atual
 
-## Estado executivo versus técnico
-
-| Política | Estado exato | Consequência documental |
+| Requisito | Escolha vigente | Limites de aprovação |
 | --- | --- | --- |
-| P2 | POLICY_APPROVED_TECHNICAL_DETAILS_PENDING | Conteúdo/relações cifrados; mínimo transporte/Auth inventariado; nenhum índice/metadata financeiro adicional exposto sem CEO |
-| P3 | THREAT_POLICY_APPROVED_PROTOCOL_NOT_PROVEN | Objetivo A2+A1+A3, três domínios/testemunhas, quórum dois, ameaça conjunta backend+SQL+Auth+uma testemunha; plaintext em cliente instalado/assinado/verificável independente |
-| P4 | RECOVERY_POLICY_APPROVED_PROTOCOL_NOT_PROVEN | Offline3-de-5 E fator independente do usuário, sem colusão de três recuperar sozinha; Auth separado, sem backdoor |
-| P5 | FAIL_CLOSED_POLICY_APPROVED | Sem atualidade/prova/quórum: sem confirmação/saldo atual/STS válido; somente snapshot local verificado datado/desatualizado e rascunho cifrado não confirmado |
-| P6 | OPERATIONAL_POLICY_APPROVED_COSTS_AND_OPERATORS_PENDING | Três operadores/domínios independentes, auditoria, incidentes/monitoramento/recovery; custos/SLA a obter/aprovar, bloqueio de lançamento se inviável |
+| P1/P2 | E2EE e cálculo cliente; conteúdo/vínculos privados cifrados; metadados mínimos inventariados, sem novos índices/exposição financeira implícitos | Proposta técnica não comprova conformidade de produto atual |
+| Q23/P3 | Quatro testemunhas independentes, quorum3, HotStuff auditável, até1bizantina junto com backend+SQL+Auth comprometidos |3assinaturas não são protocolo completo; refinamento/restore/pacemaker/handover ainda abertos |
+| A1 | Referência independente complementar, comparação/piso/bootstrap | Não serializa, não emite FINAL obrigatório, não ignora consenso; perda/clonagem/ausência total de mínimos ainda têm limites |
+| R35/P4 | S aleatório, Shamir3/5, U independente32B aleatórios, HKDF-SHA256 conjunto, AES256GCM roots |U já selecionado, senha humana não substitui; composição/cerimônias/custódia ainda não comprovadas |
+| P5 | Sem estado/prova/quorum: sem confirmação/saldo atual/STS válido; só snapshot local verificado/datado e rascunho cifrado não confirmado |Dados incompletos ou cliente não íntegro não ganham confiança por estar offline |
+| O36/P6 | Quatro operadores/domínios separados, audit/monitoring/DR/incidentes e sustentabilidade |Fornecedor/VM não comprova independência; total/capacidade/SLA ainda pendentes |
+| A3 | Cliente instalado assinado/verificável, distribuição/update independentes do backend |Bootstrap, thresholds/expiração/tempo/estado antirollback e resposta a compromisso precisam de aprovação/prova próprias |
 
-A política não demonstra protocolo. Q23 refuta a suficiência de aceitar duas assinaturas isoladas: {B,H1} e {B,H2} podem certificar ramos incompatíveis quando B é maliciosa e cada honesta assina somente um. É contraexemplo analítico, não teste nem impossibilidade universal de toda composição A2+A1+A3. Finalização técnica permanece BLOCKED até protocolo/prova de safety/liveness, ordem, reconfiguração, bootstrap, referência pessoal e recuperação de âncoras. Não trocar silenciosamente para quatro testemunhas ou3-de-3.
+As opções anteriores2-de-3 com A1 serializadora, três domínios e U ainda pendente foram superadas no escopo preciso da nova decisão. Continuam históricas no Git/revisões, não como fallback operacional. Relatos Security02–04 permanecem secundários pelo handoff, originais técnicos ausentes/NOT_PROVEN; fontes financeiras originais recuperadas não provam implantação ou paridade atuais.
 
-R35 registra composição de recuperação NOT_PROVEN:3-de-5 isolado permite aos três obter o segredo; a construção deve exigir adicionalmente fator independente do usuário. Fator fraco pode permitir tentativa offline; fator no mesmo backup perde independência; recuperar o fator pelos mesmos custódios/Auth pode criar bypass. Não foi selecionado algoritmo/KDF/entropia/fluxo normativo. Recuperação técnica permanece BLOCKED até análise/prova compatível. Perda de todos os meios necessários pode ser definitiva.
+## Especificação refinada e problemas materiais
 
-Três testemunhas e cinco partes de recuperação são funções, sem mapeamento de operadores/custódios aprovado. Custos, sobreposição/colusão cruzada, independência real e UX de cliente instalado podem inviabilizar operação; isso deve bloquear lançamento dependente, não reduzir metas. Open Finance/IA/imports que exijam plaintext em servidor/terceiro incompatível ficam BLOCKED.
+Q23 fixa documentalmente **Basic HotStuffv6 Algorithm1/2 e §4.4**, com QC tipada, descendênciaF02 E safeNode, fases/locks, pacemaker simples publicado e persist-before-send. SYNC separa núcleo publicado das adaptações de disco/catch-up/read barrier e **FREEZE–INSTALL–ACTIVATE**. Reiniciar com log íntegro é distinto de restaurar último decide sem votos/locks pendentes; nó sem estado suficiente não vota.
 
-## Leitura dos documentos existentes
+Q-RECONFIG inclui um contraexemplo material: FREEZE_VOTED individual antes de decide pode prender uma honesta num ramo que não foi finalizado, enquanto outra view decide ramo incompatível permitido pelo núcleo, reduzindo progresso mesmo depois da rede recuperar. Retransmitir a mesma transição só ajuda se ela ainda é admissível. Persistir antes do voto e obter certificados antigos/novos não são prova completa de safety/liveness entre epochs. Sem resolução/refinamento, adaptação permanece bloqueada para aprovação técnica.
 
-| Documento | Conteúdo |
+R35 especifica campo/codificação de Shamir, S/U32B, HKDF separado por finalidade/contexto, GCM one-shot por KEK, M0/Mfinal autenticados externamente e UX de perda de device/material/share inválida/U perdido/kitvelho. Kit com hashes/verificadores depende de segurança computacional da composição, não herda segredo informacional global de Shamir isolado. Recuperar roots não recupera estado/autoridade atuais. U precisa sobreviver fora do dispositivo e de backups/domínios de partes/envelopes, sem Auth/backend bypass.
+
+A3 usa **TUFspec1.0.37** como base publicada, com bootstrap externo, cadeia de metadata/targets/hash/plataforma/versões, rotação de root old+new, anti-downgrade e expiry. Thresholds root/targets2-de-3 e tempos48h/7d/30d/365d são propostas técnicas ao CEO, não parâmetros já aprovados. TUF/HTTPS/assinatura isolados não provam cliente benigno; limiar de release/root comprometido pode autorizar pacote malicioso válido. A3-BOOT/STATE continuam bloqueios antes de chamar distribuição confiável.
+
+O36 detalha quatro domínios, common-control e falhas correlacionadas, restart/restore, troca operador/DR, auditoria e orçamento inicial/mensal/eventual por categorias. Compute público ilustrativo quatroVM: USD22,54/mês, ou USD45,08 com2VM/domínio; parcela OVH é anúncio “a partir de” na linhaVPS2027, sem disponibilidade/termos atuais confirmados. Custos humanos/custódia/auditoria/backup/monitoramento/distribuição e total real não foram cotados; incógnitas não são zero. Nenhuma contratação/provisionamento ou custo total/SLA aprovado.
+
+## Documentos e revisão
+
+| Arquivo existente | Finalidade atual |
 | --- | --- |
-| [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md) | Fontes/autoridade atuais, hashes, fontes financeiras recuperadas e lacunas históricas |
-| [PRODUCT_DECISION.md](PRODUCT_DECISION.md) | Políticas exatas, supersessão, limites e decisões técnicas ainda abertas |
-| [E2EE_ARCHITECTURE.md](E2EE_ARCHITECTURE.md) | Objetivo A2+A1+A3, contratos e cliente/distribuição |
-| [CLIENT_FINANCIAL_ENGINE.md](CLIENT_FINANCIAL_ENGINE.md) | Invariantes exatos, consumidores, aceitação e restrições de integração |
-| [KEY_MANAGEMENT_AND_RECOVERY.md](KEY_MANAGEMENT_AND_RECOVERY.md) | Chaves/dispositivos, composição R35 e independência do fator/backup |
-| [SYNC_AND_INTEGRITY.md](SYNC_AND_INTEGRITY.md) | Estado/concorrência/offline e contraexemplo/obrigações Q23 |
-| [THREAT_MODEL.md](THREAT_MODEL.md) | H01–H20 históricos e Q23/R35/O36 atuais, sem inventar evidências |
-| [FINANCIAL_PARITY_MATRIX.md](FINANCIAL_PARITY_MATRIX.md) | Regras por fonte e limites de paridade/dados privados |
-| [SECURITY_GATE_CRITERIA.md](SECURITY_GATE_CRITERIA.md) | Critérios falsificáveis futuros, todos NOT_RUN |
-| [MIGRATION_IMPACT.md](MIGRATION_IMPACT.md) | Legado, produto atual, custos/UX e bloqueios |
-| [INDEPENDENT_REVIEW.md](INDEPENDENT_REVIEW.md) | Revisão vigente do dev-seguranca, com Q23/R35 abertos e revisão anterior identificada como histórica |
-| [GATE_RESULT.md](GATE_RESULT.md) | Registros do gate e resultado final atual pelo agente principal |
+| [PRODUCT_DECISION.md](PRODUCT_DECISION.md) | Autoridade/supersessão, decisões e pendências técnicas/residuais |
+| [E2EE_ARCHITECTURE.md](E2EE_ARCHITECTURE.md) | Fronteiras, cliente verificável e updateTUF, parâmetros/limites |
+| [SYNC_AND_INTEGRITY.md](SYNC_AND_INTEGRITY.md) | Perfil consenso/mensagens, pacemaker, persistência/restore, handover/A1/barrier |
+| [KEY_MANAGEMENT_AND_RECOVERY.md](KEY_MANAGEMENT_AND_RECOVERY.md) | R35 concreto, formatos/contexto, geração/rotação, kit/UX e perda |
+| [CLIENT_FINANCIAL_ENGINE.md](CLIENT_FINANCIAL_ENGINE.md) | Semântica/invariantes cliente, época/estado e rejeição de eventos inválidos |
+| [FINANCIAL_PARITY_MATRIX.md](FINANCIAL_PARITY_MATRIX.md) | Regras rastreadas, F01 preservado e dependências de provas/protocolos |
+| [THREAT_MODEL.md](THREAT_MODEL.md) | Problemas históricos, invariantes e contraexemplos/bloqueios atuais |
+| [SECURITY_GATE_CRITERIA.md](SECURITY_GATE_CRITERIA.md) | Casos falsificáveis futuros, todos NOT_RUN |
+| [MIGRATION_IMPACT.md](MIGRATION_IMPACT.md) | Quatro domínios, disponibilidade/DR, custos e impacto legado/UX |
+| [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md) | Fontes/autoridade/hashes e lacunas, mantido pelo principal |
+| [INDEPENDENT_REVIEW.md](INDEPENDENT_REVIEW.md) | Pareceres históricos preservados e revisão atual quando concluída pelo dev-seguranca |
+| [GATE_RESULT.md](GATE_RESULT.md) | Estado/verificações/Git e encerramento pelo principal |
 
-A revisão anterior, seus hashes e F01 corrigido pertencem ao conjunto anterior. O arquiteto consolidou estes dez documentos e encerrou; só depois o dev-seguranca revisou e encerrou, um subagente ativo por vez. O parecer atual não solicita nova correção documental material, mas mantém Q23/R35 abertos e O36 NOT_PROVEN. Depois dele, apenas estados/links editoriais de README/PRODUCT_DECISION/E2EE_ARCHITECTURE e o encerramento GATE_RESULT foram atualizados, sem mudança técnica. Separar quatro camadas: política executiva aprovada; desenho proposto; desenho efetivamente revisado; segurança demonstrada — esta última continua NOT_PROVEN.
+Esta especificação altera materialmente a proposta Security05.1; hashes/pareceres anteriores não a aprovam. Arquiteto trabalha em seus10docs e encerra; depois dev-seguranca revisa adversarialmente em sequência, sem sobreposição e sem subdelegação. Quatro fontes em sources permanecem históricas/inalteradas, inclusive links/autorizações antigas que não se tornam instruções vigentes.
 
-## Checkpoint deste gate
+## Checkpoint e continuidade
 
 | Campo | Fato / limite |
 | --- | --- |
-| Branch Front/Back inicial | codex/agent-team-design-skills |
-| Back HEAD inicial | ceea9e7e95527fa8039283135fc477c84c4ad63b |
-| Front HEAD inicial | 8c8c4f548023aadce4da1aadb0afe2778db0c455 |
-| Árvores iniciais | Back com os mesmos17 Markdown não rastreados em Security05; Front limpo; um worktree por repositório |
-| Governança/perfis | Política e oito definições comuns iguais entre Front/Back, reconfirmados |
-| Configuração completa | NOT_PROVEN aceito; sem repetir diagnóstico falho ou alterar controles |
-| Sandbox | workspace-write, rede restrita e auto-review declarados; isolamento fino por papel NOT_ENFORCED |
-| Delegação atual | arquiteto-seguranca consolidou e encerrou; dev-seguranca revisou depois e encerrou; um subagente ativo por vez |
-| Fontes financeiras | Recuperação remota feita no gate anterior em c3f975c3514173c47c4c1fd08affb64305f1efe7; quatro cópias sources preservadas; não reexecutada |
-| Fontes históricas ausentes | Originais técnicos Security02–Security04 e evidências empíricas; handoff secundário; resultados NOT_PROVEN |
-| Validações empíricas | NOT_RUN: PoCs, paridade, recovery real, domínio independente, desempenho e hospedagem |
-| Revisão atual | Concluída; Q23/R35 técnicos P1 abertos, O36 operacional aberto; sem aprovação de protocolos |
-| Aprovação técnica | Nenhuma; Q23/R35 e parâmetros/evidências pendentes bloqueiam conclusões dependentes |
-| Módulos/gates | MDL13/MDL14 BLOCKED; Security06 não autorizado |
+| Back início/fase atual | codex/security05-protocols, HEAD22ee3b0b959832b1293e37eef217d926a40db3e6,13Markdown modificados não preparados,4fontes preservadas |
+| Front | codex/agent-team-design-skills, HEAD8c8c4f548023aadce4da1aadb0afe2778db0c455, limpo |
+| Worktrees | Um por repositório, sem operação Git de escrita neste gate |
+| Governança/perfis | Política/checkpoint/oito definições comuns iguais, reconfirmados; preservados |
+| Runtime/controles | Config completa NOT_PROVEN aceita; sandbox workspace-write/rede restrita/auto-review declarados, sem mudanças; isolamento por papel não demonstrado |
+| Fontes novas | HotStuffv6 e TUFspec oficiais consultados por leitura; preços públicos pesquisados pelo principal, sem contratação |
+| Empiria | NOT_RUN: PoC/tests/model-checking, recovery real, paridade, hosted, desempenho/DR; segurança NOT_PROVEN |
+| Bloqueios | Q-PACE/Q-RECOVER/Q-RECONFIG/Q-BOOT-FRESH, A3-BOOT/STATE, R35-COMP/OPS, P2 e custo/independência real |
+| Estado de revisão | Atual pendente, nenhum resultado inventado; final máximo DOCUMENTATION_REVIEWED_NOT_APPROVED |
+| Liberações | Nenhuma implementação/Security06/MDL13/MDL14; sem commit/publicação adicional |
 
-As cópias `sources/` são documentos financeiros históricos: seus comandos, links relativos e autorizações antigas não são instruções vigentes. A numeração do handoff diverge dos snapshots MDL3=orçamento; a matriz usa nomes/fontes e preserva F01. Detalhes de patrimônio/rendimentos/cartões/dívidas/Safe to Spend apenas referenciados continuam ausentes; paridade integral não comprovada.
-
-## Próximo passo e parada
-
-Consolidação e revisão encerradas; aguardar nova autorização do CEO. Gate seguinte recomendado: especificação e análise documental de Q23/R35, metadados e plano operacional, com decisões residuais do CEO onde necessárias. Nenhum teste, PoC ou Security06 automático. Security05 não está aprovado ou pronto para implementar; MDL13/MDL14 continuam bloqueados.
+Próximo gate recomendado após revisão: resolver documentalmente adaptações materiais/parametrização e submetê-las ao CEO, especialmente handover/freeze parcial, reconstrução de votos/locks, bootstrap/tempo do updater e metadados/custeio. Somente uma autorização separada poderá liberar futura validação isolada com dados sintéticos/oráculos independentes. Encerrar esta rodada após a revisão/relatório e aguardar CEO; não chamar Security05 aprovado ou pronto para implementação.

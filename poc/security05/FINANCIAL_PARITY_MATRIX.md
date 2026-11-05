@@ -43,3 +43,19 @@ Open Finance, importações e IA que encaminhem plaintext a servidor/terceiro in
 ## Critério de cobertura
 
 Cada regra terá ID, fonte/versão, fixture sintética, esperado independente, consumidor, cutoff/timezone/moeda, teste positivo/negativo e limite. Cobertura de documentação não é execução; contagem de asserts não é garantia. Nenhum módulo é liberado por esta matriz.
+
+## Security05.2 — interseção de paridade com protocolos
+
+| Regra transversal | Candidato e estado necessário | Futura referência independente, não executada |
+| --- | --- | --- |
+| Exatamente uma confirmação/transferência/reversão | Q23-I2/I3 com command ID financeiro cifrado, estado-base e prefixo completo; QC de bytes não basta | Ledger sintético de efeitos esperados fixado antes do ensaio; repetir mesma intenção/cifragem diferente, fase interrompida, dois dispositivos e resposta perdida |
+| Nenhum saldo/STS atual de história incompleta | READ_BARRIER do candidato, prefixo0..N−1 e todas dependências privadas; snapshot antigo apenas datado | Esperado por moeda/timezone/cutoff independentemente do motor; omitir página/sufixo/cancelamento/managed boundary e exigir bloqueio, não soma parcial |
+| Cadastro/revogação e reconfiguração não alteram significado | Época e checkpoint de autoridade verificados; sem resetAuth ou restore de lock | Kit antigo, device revogado e versão financeira/owner transplantados rejeitados; partes de reconfiguração não fechadas continuam BLOCKED |
+| Recuperar não reinterpretar legado | R35-P roots corretas + manifesto legado aceito hoje com proveniência + checkpoint recente | Comparar roots e histórico sintético conhecidos separadamente; roots recuperadas sem âncora atual não legitimam saldo atual nem assinatura original de evento legado |
+| Privacidade de relações em dedup/matching | P2 mantém candidate/receipt/transaction/evidence/dependências cifradas; protocolos só publicam metadados específicos aprovados | Inspeção de envelopes, paths/ids/compromissos e consultas com fixtures de baixa entropia; sem publicar grafo ou hash de montante como atalho |
+
+Candidatos Q23/R35 ainda não fecham paridade integral nem supriram as fontes financeiras detalhadas ausentes. Segurança dos componentes publicada em fontes primárias não é validação das regras financeiras nem benchmark da integração.
+
+Direção atual: Q23 é Basic HotStuff4/q3, A1 somente complementar e R35 exige cumulativamente3partes e U32B aleatório selecionado. Alternativas de3domínios/A1serializador/U pendente estão superadas, não parâmetros a escolher durante falha. A atualização preserva F01 de copy/inatividade de orçamento e todas as regras financeiras rastreadas; não reinterpreta a numeração de módulos do handoff.
+
+Paridade entre epochs deve comparar mesmo prefixo econômico antes e depois de FREEZE/ACTIVATE, sem duplicar replay ou ignorar cancelamento. Restore de backup antigo ou recuperação de roots/kit velho não podem resetar idempotência ou tratar device revogado como autorizado. Estado financeiro incompleto só suporta histórico datado quando verificado, nunca STS válido/claim atual. O parser/recovery deve rodar em cliente instalado cuja distribuição/update tenha prova suficiente, não simplesmente em qualquer JS que implemente o motor.

@@ -1,51 +1,65 @@
-# Security05 — arquitetura E2EE condicionada
+# Security05.2 — arquitetura E2EE e cliente verificável
 
-Estado: desenho proposto sob políticas executivas P2–P6 aprovadas; eficácia e protocolos NOT_PROVEN. Revisão independente concluída em [INDEPENDENT_REVIEW.md](INDEPENDENT_REVIEW.md), com Q23/R35 abertos e sem aprovação dos protocolos. Esta linha recebeu somente atualização editorial posterior ao parecer. Requisitos/status exatos em [PRODUCT_DECISION.md](PRODUCT_DECISION.md).
+Estado: REVISION_PENDING_INDEPENDENT_REVIEW; segurança e integração NOT_PROVEN. Decisões vigentes em PRODUCT_DECISION; especificação de consenso em SYNC_AND_INTEGRITY. Requisitos anteriores não substituídos permanecem, especialmente P1 E2EE e P2 vínculos privados cifrados.
 
-## Fluxo e fronteiras
+## Fronteiras e direção selecionada
+
+Cliente instalado/assinado/verificável, com distribuição independente do backend, desbloqueia chaves localmente, descriptografa, valida semântica/completude e calcula finanças. Backend/Auth oferecem sessão, transporte e quotas de serviço; banco armazena bytes opacos e aplica defesa de acesso comum. Nenhum deles possui plaintext financeiro, DEK, S/U ou root privada/recovery. JWT não admite dispositivo nem recupera chaves.
+
+Quatro testemunhas, quatro domínios/operadores independentes, consenso Basic HotStuff4/q3: atestam ordem/bytes/contexto e autorizações técnicas verificáveis, nunca valor privado. A1 é piso complementar independente e comparação entre dispositivos; não serializa nem substitui consenso. A3 é distribuição/update confiável separada. Essa direção substitui os candidatos alternativos de Security05.1:2-de-3 simples refutado e A1 ativa não são fallbacks vigentes.
 
 ```mermaid
 flowchart LR
-  U[Usuário / fatores independentes] --> C[Cliente confiável: chaves, regras, histórico]
-  C -->|envelopes cifrados e autenticados| B[Backend: Auth e transporte]
-  B --> D[PostgreSQL: bytes opacos e acesso]
-  C <-->|compromissos e provas mínimos, P2/P3| A[Referências de estado independentes]
+  U[Usuário e kit externo] --> C[Cliente instalado verificável: chaves e finanças]
+  R[Distribuição e assinadores independentes] --> C
+  C -->|envelopes cifrados| B[Backend e Auth: serviço]
+  B --> D[Banco: ciphertext]
+  C <-->|bytes/provas técnicos sujeitos P2| W[Quatro testemunhas: consenso3de4]
+  C <-->|comparar piso; sem poder decidir| A[A1 complementar]
 ```
 
-O diagrama descreve responsabilidades propostas, não serviços existentes ou desenho aprovado. P2 exige cifrar conteúdo financeiro e relações privadas; campos de transporte/Auth inevitáveis precisam ser inventariados/minimizados e nenhuma exposição financeira/índice adicional é autorizada por este diagrama. A interface com referências não transporta valores ou chaves privadas. P3/P6 fixaram metas de independência cuja realização permanece NOT_PROVEN.
+## Contratos e evidências
 
-| Componente | Responsabilidade proposta | Não pode ser autoridade isolada para |
-| --- | --- | --- |
-| Cliente confiável | Autorizar intenção, verificar dispositivos, descriptografar, validar eventos e dependências, calcular projeções exatas, validar estado aceito | Provar frescor global apenas com seu cache ou relógio |
-| Backend | Autenticação do serviço pelo JWT, quotas, persistência/sincronização opaca, idempotência de transporte | Saldos, validade semântica, raiz criptográfica, recuperação |
-| PostgreSQL/Supabase | Persistir ciphertext; RLS/grants/owner para acesso comum, transação de bytes | Confidencialidade contra administrador, legitimidade de eventos, histórico atual |
-| Auth | Identidade e sessão de serviço | Admitir dispositivo, recuperar DEK ou substituir raiz |
-| Âncoras/testemunhas propostas | Atestar compromissos, continuidade/ordem conforme protocolo futuro | Validar valores ocultos; garantir disponibilidade contra toda colusão |
+SYNC define COMMAND/NODE/CONFIG/VOTE/QC/READ_BARRIER/PROOF, guardas F02, locks persistentes, fases, pacemaker e handover. KEY define S/U32B, sharing, HKDF e wrapping GCM. São perfis propostos baseados em primitivas/protocolo publicados; bibliotecas, interop, refinamento, prova e execução permanecem pendentes.
 
-## Combinação arquitetural escolhida como objetivo executivo
+Conteúdo, relações entre registros e dependências financeiras ficam cifrados. Canal/N/signers/config/compromissos/frequência ainda podem revelar atividade e vínculos. A lista técnica não aprova exposição: P2 requer inventário e autorização específica de índices/metadados adicionais; não inventar ZK ou hash público de valor para alegar privacidade. Sem representação demonstrável que concilie verificação de autoridade/continuidade e P2, integração bloqueada.
 
-A1: cliente com referência de estado guardada pelo usuário em dispositivo/domínio separado. Menos infraestrutura, mas perda/indisponibilidade da referência suspende novas confirmações. Vários dispositivos exigem coordenação que ainda não foi especificada.
+## A3 — perfil candidato de update instalado
 
-A2: clientes verificadores e serviço de testemunhas com operadores/credenciais/distribuição separados. P3/P6 fixam meta inicial de três testemunhas em três domínios/operadores efetivamente independentes, quórum dois, tolerando backend+admin SQL+Auth+até uma testemunha comprometida conjuntamente. Isso exige protocolo analisado para publicação, consistência, rotação, admissão e recuperação. Várias assinaturas não constituem consenso por si só; a regra de contagem isolada é insuficiente para a meta, conforme contraexemplo Q23 em SYNC_AND_INTEGRITY.md.
+Base publicada para metadados de atualização: [The Update Framework specification1.0.37, §§4–6](https://theupdateframework.github.io/specification/latest/), consultada2026-11-04. TUF separa root/targets/snapshot/timestamp, verifica cadeia e expiração, protege versões e vínculos de hashes; rotação de root usa limiares antigo e novo, em versões consecutivas. A segurança publicada não prova nosso bootstrap, aplicativo, OS, pipeline ou política de expiração.
 
-A3: cliente instalado, assinado e verificável, com distribuição/update protegidos independentemente do backend, exigido para operações com plaintext. Combinado com A1 e A2, não como opção dispensável. Uma PWA entregue pela mesma origem comprometida não equivale a esse isolamento.
+### Confiança inicial e responsabilidades
 
-Decisão vigente: objetivo A2+A1+A3 aprovado como política; as alternativas isoladas descritas na proposta anterior não são escolhas equivalentes ainda abertas. O protocolo que realiza essa composição continua proposto/NOT_PROVEN e bloqueado para aprovação técnica enquanto Q23 e demais obrigações não forem resolvidos. A referência pessoal A1 não corrige automaticamente a interseção maliciosa dos quóruns: requer papel normativo explícito, coordenação entre dispositivos e bootstrap confiável. Não mudar silenciosamente para quatro testemunhas/3-de-3 nem dispensar A1/A3. A antiga arquitetura híbrida com montantes legíveis no servidor é incompatível com P1.
+O primeiro instalador e updater precisam de autenticidade fora da origem backend ameaçada: pacote assinado por chave de distribuição independente e raiz/fingerprint de root metadata obtida por canal externo já autenticado (por exemplo provisionamento confiável/cerimônia verificada pelo usuário), além das verificações da plataforma. Baixar JS/instalador/root somente do backend e confiar em sua autoassinatura não resolve bootstrap. O mecanismo externo/plataformas e sua UX ainda precisam ser escolhidos e comprovados: **A3-BOOT OPEN/BLOCKED** antes de considerar o cliente apto a plaintext.
 
-## Contratos conceituais, ainda não normativos
+Root de distribuição é domínio diferente de roots de dados, recuperação, configuração de testemunhas e Auth. Build/CI não detém sozinho as chaves de root/targets; backend pode espelhar artefatos/metadados mas não assinar release válido. Reprodução/verificação independente do build e revisão do código ajudam contra pacote malicioso validamente assinado, porém exigem evidência própria. Browser/PWA dinâmica atual, HTTPS/CSP/SRI ou uma assinatura isolada não equivalem ao perfil.
 
-Uma unidade lógica carrega conteúdo cifrado com autorização de dispositivo, identidade única de comando, versão de protocolo/regras, época de chaves, vínculos de dependência e compromisso do estado anterior. Owner, audiência e contexto de uso devem ser vinculados criptograficamente para impedir transplante. Relações privadas permanecem cifradas; publicar grafo de dependências, identificadores correlacionáveis ou compromissos pode revelar vínculos e exige análise P2 e autorização específica antes de exposição. Owner/roteamento Auth e comprimentos inevitáveis não justificam expor relações financeiras. Viabilidade de provas verificáveis por testemunhas sem revelar esse grafo é obrigação técnica ainda aberta.
+Cobertura obrigatória do conjunto verificado: TODO código ativo no contexto com acesso a plaintext, chaves, shares/U ou ponte privilegiada deve integrar o artefato/manifest de release aprovado e ter bytes/dependências cobertos pela verificação. Isso inclui JS, WASM, workers, plugins, bibliotecas, webviews e templates executáveis, além do binário/updater. O backend é fonte somente de dados não executáveis nesse contexto: nenhuma resposta/configuração pode introduzir ou selecionar código fora do conjunto verificado, por URL, eval, módulo remoto ou wrapper que carregue a interface financeira da origem comprometida. Conteúdo remoto não pode receber plaintext/chaves nem uma ponte para essas capacidades. Configuração pode parametrizar comportamentos já verificados, sem contornar a seleção de código autorizada. Essa norma fecha uma dependência de confiança explícita; não prova ausência de RCE, bugs de parser ou código malicioso validamente autorizado, que exigem análise e evidência próprias.
 
-O cliente só promove uma unidade a efeito financeiro após conferir proveniência, autorização válida, completude e ordenação relevantes, referência atual e semântica. Persistência/ACK HTTP não é confirmação financeira. Ver [sincronização](SYNC_AND_INTEGRITY.md) e [motor](CLIENT_FINANCIAL_ENGINE.md).
+### Metadados, estados e parâmetros propostos
 
-Suíte criptográfica, serialização canônica, domínio de assinatura, AAD, geração de nonce, limites de tamanho e versionamento devem ser especificados e revisados antes de implementar. Não inventar criptografia nem selecionar biblioteca neste gate. Autenticação de envelope não demonstra completude, intenção humana ou frescor.
+Target metadata candidata liga caminho canônico/plataforma/arquitetura, hash e comprimento dos bytes, versão do app/updater, versão mínima de protocolo/codec/config e identificação de release/revisão independente. Targets nunca contêm chaves ou dados financeiros. App updater mantém versão/hash instalados, metadados TUF confiáveis, mínimos locais de versão/epoch, relógio de validação e estado VERIFIED/STAGED/ACTIVE/REVOKED. Artefato é baixado com limite, verificado antes de instalação e ativado atomicamente; falha preserva último cliente verificado sem acionar downgrade financeiro.
 
-## Cliente e distribuição
+Parâmetros candidatos ao CEO, NÃO configurações aprovadas: root2-de-3 offline e targets2-de-3 em custódias separadas do backend/CI; snapshot/timestamp com chaves distintas e função online restrita, sem poder assinar targets. Expirações ilustrativas a deliberar: timestamp48h, snapshot7dias, targets30dias, root365dias. Nenhum desses números constitui SLA, aceite de risco ou criação de operadores; dimensionamento offline, acessibilidade e resposta a incidente podem exigir outros parâmetros com decisão explícita.
 
-Código malicioso entregue pela origem pode ler plaintext exibido e pedir uso de chaves não exportáveis. HTTPS, CSP, SRI ou hash fornecidos pela mesma origem ajudam em ameaças específicas, sem resolver o controle dessa origem. A política vigente exige cliente instalado, assinado e verificável com distribuição/update independentes; aceitar JS malicioso da própria origem foi excluído como tolerância silenciosa. Raiz inicial, assinadores, atualização, recuperação/revogação e verificação independente da distribuição precisam de desenho e prova. O frontend web dinâmico atual não é automaticamente confiável para operações com plaintext.
+Um adversário que comprometa apenas o backend/mirror, Auth ou chave online de timestamp não pode produzir target novo válido se roots/targets e o cliente corretos permanecerem íntegros. Pode negar serviço e reter updates; expiração precisa de relógio confiável. Compromisso do limiar de targets pode autorizar pacote malicioso com assinatura válida; compromisso de root acima do orçamento pode substituir confiança. TUF não verifica a benignidade de código assinado nem elimina risco de SO/dispositivo comprometido. Esse orçamento A3 e threshold/custódios precisam de aprovação específica; o f1 das testemunhas não se transfere automaticamente ao release.
 
-O futuro desenho de releases deve tratar build reproduzível, controle de assinatura separado do CI/servidor, autenticação inicial da raiz, anti-downgrade, revogação, rollback seguro da aplicação sem rollback do histórico e resposta a comprometimento. Nenhum desses controles foi implementado ou demonstrado. Navegador/SO/dispositivo comprometido pode expor dados em uso; E2EE não remove esse risco.
+### Sequência de update e anti-rollback
 
-## Limites
+Cliente inicia uma tentativa com instante fixo e tempo confiável suficiente; carrega root persistida; percorre rootN→N+1 com autorização dos limiares antigo E novo; valida timestamp, snapshot e targets, versões/hashes/comprimentos/expirações, sem misturar gerações; então verifica artefato/plataforma e política de mínimo e ativa atomicamente. Assinatura antiga correta ou hash vindo do mirror não ultrapassam mínimos/expiração. Root antiga expirada pode servir para verificar cadeia de novas roots conforme a spec, mas não autoriza target ativo antigo sem demais checks.
 
-Administrador pode apagar bytes, negar serviço e inserir SQL arbitrário. A proposta busca impedir que o cliente aceite efeitos financeiros adulterados, não impedir toda escrita bruta. Sem referência recente confiável, um histórico antigo autêntico pode ser indistinguível do atual; P5 bloqueia confirmação, saldo atual e Safe to Spend válido e permite somente histórico local previamente verificado/datado e rascunhos cifrados não confirmados. Backups antigos e leitores anteriormente autorizados não perdem conhecimento por rotação posterior. Limites explícitos: dispositivo/SO ou assinatura de distribuição comprometidos, duas ou mais testemunhas em colusão, perda de todas as referências, indisponibilidade e metadados. Não há resistência absoluta demonstrada. Compatibilidade hospedada, independência real, custos e UX instalada estão NOT_PROVEN; inviabilidade bloqueia lançamento, sem reduzir a política.
+Persistir metadados/mínimos antes de ativar ou expor dados ao novo binário; em rollback/restore/clonagem local ou dúvida de relógio, não inferir release atual de metadados velhos. Exigir atualização verificável ou recuperação externa do mínimo confiável; loginAuth não reseta versão. A3-STATE (armazenamento anti-rollback/tempo por plataforma) permanece aberto; uma assinatura/MAC local só detecta alteração, não replay de backup autêntico.
+
+Rollback operacional do app só para target ainda autorizado, não revogado, compatível com mínimos de protocolo/segurança e estado financeiro já aceito; requer release explicitamente autorizado de recuperação, nunca reinstalar artefato antigo porque “já foi assinado”. Regras de dados/épocas não retrocedem com software. P5 permite consulta de snapshots locais já verificados e rascunhos; isso pressupõe cliente conhecido íntegro, não autoriza executar binário revogado ou origem maliciosa. Na falta de frescor de update, cliente mostra versão/última verificação e limita ações conforme política offline; parâmetros dessa compatibilidade não podem reduzir P5 nem dispensar integridade do binário.
+
+### Rotação e incidente
+
+Rotação normal de root distribui todas as versões intermediárias assinadas pelos limiares anterior e novo; verificação não usa root substituída por backend. Para chaves de release/online comprometidas, root válida restringe funções/substitui chaves e novos metadados atualizados revogam targets conforme política de compatibilidade; conservar registro de incidentes sem plaintext. Se root threshold foi perdido/comprometido e não há cadeia confiável, fluxo normal de rotação não recupera confiança sozinho: congelar distribuição/plaintext em clientes afetados e exigir reprovisionamento externo autenticado com decisão CEO.
+
+Nó/cliente que já executou pacote malicioso pode ter exposto dados/roots; atualizar o software não revoga conhecimento. Resposta exige classificar possível exposição, revogar devices/chaves, rotacionar conforme R35 e validar histórico/estado por consenso, mantendo limites do legado. Operadores de distribuição e testemunhas não podem compartilhar credencial/root de administração que invalide independência.
+
+## Limites e fechamento
+
+Admin SQL ainda insere/apaga bytes; objetivo é não aceitar efeito econômico indevido, não impedir escrita bruta. Witnesses não validam moeda/valor ocultos. Sem dados completos ou prova de consenso/lineage/atualidade, cliente não anuncia saldo atual. Assinatura não prova intenção humana; AEAD não prova frescor; recuperar roots não recupera locks/época atual.
+
+Q-PACE/Q-RECOVER/Q-RECONFIG/Q-BOOT e A3-BOOT/A3-STATE/parametrização são bloqueios materiais identificados, não uma declaração de impossibilidade universal. Toda a adaptação precisa de prova/refinamento independente; ensaios, independência operacional, custos totais, UX, paridade e compatibilidade hospedada permanecem NOT_PROVEN. Nenhum Security06/implementação liberado.
