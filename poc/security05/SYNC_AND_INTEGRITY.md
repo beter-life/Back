@@ -53,6 +53,8 @@ Consultas podem baixar bytes/certificados para recuperação sem emitir votos. D
 
 ## 5. Handover entre épocas: máquina de estados candidata
 
+A [proposta documental da Security05.3](Q_RECONFIG.md) descreve o candidato de corte por comando decidido e suas obrigações de prova. A descrição a seguir preserva o candidato histórico da Security05.2 que motivou `Q-RECONFIG`. A aprovação técnica continua bloqueada.
+
 Proposta documental **FREEZE–INSTALL–ACTIVATE**, não transição provada pelo paper Basic HotStuff. Adiciona congelamento terminal ao protocolo fixo; suas guardas e prova entre épocas são requisito material **Q-RECONFIG OPEN/BLOCKED para aprovação técnica**. Não alegar que3 assinaturas antigas+3 novas, sem essas condições, são transição segura.
 
 Config epoch e autoriza única próxima config e+1, seu roster4/q3, hash completo e raízes/políticas, pelo comando FREEZE_E decidido no consenso antigo. Autorização criptográfica: lista operacional permitida autenticada pela autoridade de configuração fixada no bootstrap e adoção do canal pelo owner/autoridade raiz vigente; nenhuma credencial Auth decide isso. Threshold e custódia concretos dessa autoridade de configuração são propostas pendentes ao CEO, não poder implícito do backend. Root de operação e de dados/dispositivos permanecem separados.
@@ -72,6 +74,8 @@ Assim, FREEZE_VOTED irreversível é proposta com tensão material a resolver, n
 Pontos ainda sem fechamento: integração de freezeVoted com safeNode/views não decididas; publicação da FreezeCert; clientes sem lineage recente; quorum antigo perdido; substituição de identidade com locks perdidos; revogação/rotação da autoridade de configuração. Nenhuma emergência aceita apenas3 novas chaves nem muda f=1. Safety/liveness entre épocas precisa de prova do refinamento e revisão independente antes de produção; ausência de prova bloqueia a transição, não reduz a política.
 
 ## 6. A1 complementar, bootstrap e atualidade
+
+A [proposta Security05.4](Q_RECONFIG.md#security054--autenticidade-histórica-e-continuidade-verificável) detalha a prova independente de vigência da configuração, os limites de A1 restaurada e a proteção candidata contra chaves aposentadas. Q53-B continua `NOT_PROVEN`.
 
 A1 guarda piso independente (canal/config, epoch, altura, checkpoint e referência de atualização do cliente), compara heads e ajuda a detectar regressão/divergência. Atualizá-la somente após certificado final válido e prova de extensão, sem permiti-la assinar FINAL, serializar comandos ou ignorar consenso. A1 pode estar offline durante transações: sua indisponibilidade isolada não cria autoridade nem automaticamente impede clientes existentes com provas suficientes.
 

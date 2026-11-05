@@ -10,6 +10,10 @@ Núcleo publicado: BasicHotStuffv6 Algorithm1/2/§4.4; guardas contextuais, pers
 
 ## Casos Q23, restore e reconfiguração
 
+A Security05.3 registra [casos falsificáveis para o candidato de corte por comando decidido](Q_RECONFIG.md#7-obrigações-de-prova-e-casos-falsificáveis), todos `NOT_RUN`. Os casos abaixo preservam o plano da Security05.2, incluindo o contraexemplo de `FREEZE` parcial.
+
+A Security05.4 registra [casos de autenticidade histórica e continuidade](Q_RECONFIG.md#0548-critérios-futuros-e-classificação), também `NOT_RUN`, incluindo chaves aposentadas, corridas no handover e omissão de envelopes.
+
 | ID futuro | Premissa e injeção | Critério falsificável / limite |
 | --- | --- | --- |
 | T-Q-TYPED |4roster válido; substituir canal/config/epoch/phase/view/node, duplicar signer, QC2 | Recusar antes do núcleo;3assinaturas só contam no mesmo tuple e roster; controles positivos aceitam QC correta |

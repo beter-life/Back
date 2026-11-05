@@ -1,12 +1,12 @@
-# Security05.2 — fechamento documental condicionado
+# Security05.2 — encerramento documental
 
-Data: 2026-11-04. Estado: REVISION_PENDING_INDEPENDENT_REVIEW. Autoridade: pedido CEO Security05.2 no anexo identificado por hash em [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md). Somente atualização documental; nenhum commit, teste experimental, PoC, migration, código, instalação, infraestrutura ou publicação autorizado. Status máximo DOCUMENTATION_REVIEWED_NOT_APPROVED; Security05 não está aprovado para implementar e Security06 não foi autorizado.
+A revisão adversarial independente foi concluída em **04/11/2026** pelo `dev-seguranca`, após o encerramento do refinamento pelo `arquiteto-seguranca`. O [parecer vigente](INDEPENDENT_REVIEW.md) registra **`DOCUMENTATION_REVIEWED_NOT_APPROVED`**. A autoridade da rodada é o pedido do CEO Security05.2, identificado por hash em [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md). A consolidação final é exclusivamente documental e se baseia no commit de transferência `c9d3e2cfdf3d4a0d6361eb8924fe7e6cb72fee1c`.
 
 ## Estado inicial e preservação
 
-Back confirmado em codex/security05-protocols, HEAD22ee3b0b959832b1293e37eef217d926a40db3e6, um worktree, 13 documentos autorais modificados sem staging e quatro fontes históricas originais preservadas. Front em codex/agent-team-design-skills, HEAD8c8c4f548023aadce4da1aadb0afe2778db0c455, um worktree e limpo. Política/checkpoint e oito perfis comuns comparados iguais. O commit inicial de preservação é preexistente: não foi repetido. Nenhum reset, checkout, rebase, limpeza ou operação Git de escrita neste gate.
+No início da rodada, o estado era `REVISION_PENDING_INDEPENDENT_REVIEW`. O Back estava em `codex/security05-protocols`, no baseline `22ee3b0b959832b1293e37eef217d926a40db3e6`, com um worktree, 13 documentos autorais modificados sem staging e quatro fontes históricas originais preservadas. O Front estava em `codex/agent-team-design-skills`, no commit `8c8c4f548023aadce4da1aadb0afe2778db0c455`, com um worktree limpo. A política compartilhada, o checkpoint e os oito perfis comuns coincidiam.
 
-Os 17 documentos existentes são preservados. Arquiteto-seguranca refina os dez documentos autorais planejados; principal mantém SOURCE_PROVENANCE/GATE_RESULT; dev-seguranca atualizará INDEPENDENT_REVIEW somente após o arquiteto encerrar. Um subagente ativo por vez. Políticas compartilhadas, PROJECT_STATE, produto e fontes históricas não são alterados.
+O arquiteto refinou os dez documentos planejados e o revisor registrou o parecer em `INDEPENDENT_REVIEW.md` em sequência. O commit de transferência, filho direto do baseline, reuniu as alterações dos 13 documentos autorais e preservou as quatro fontes históricas. Os estados de revisão pendente nos documentos técnicos publicados pertencem à preparação da rodada. Este registro consolida o resultado efetivo.
 
 ## Decisões aprovadas e alcance técnico
 
@@ -20,12 +20,85 @@ A3 deve tratar bootstrap de confiança fora do backend, assinaturas e versões d
 
 O36 deve separar quatro operadores/domínios em credenciais, chaves, infraestrutura, administração e incidentes, incluindo falhas de fornecedor/IdP/CI comuns e recuperação de desastre. Quatro VMs do mesmo operador não são quatro domínios independentes. Custos são separados por categoria e por cenário; tarifas públicas não são contratos, dimensionamento demonstrado ou orçamento/SLA aprovado.
 
-## Revisão e resultados ainda pendentes
+## Resultado da revisão independente
 
-Revisão independente atual pendente. As revisões Security05/05.1 são antecedentes, não cobertura automática desta rodada. O revisor buscará contraexemplos concretos por invariante, inclusive falha entre views/reinícios/épocas, backups, componentes ausentes, cliente malicioso, assinaturas antigas e falsa independência. Problema material permanece aberto até resolução ou submissão ao CEO.
+- **F03** foi corrigido e rechecado documentalmente. O manifesto `M0` permanece imutável. Se o uso de material criptográfico for incerto ou `M0` precisar mudar, o conjunto incompleto é abandonado por inteiro, evitando reutilizar KEK/IV com AAD alterado.
+- **F04** foi corrigido e rechecado documentalmente. O artefato ou manifesto verificado cobre todo código ativo, dependências e pontes com acesso a dados legíveis ou material criptográfico. O backend fornece dados não executáveis para esse contexto.
 
-Configuração integral efetiva continua NOT_PROVEN, limitação anteriormente aceita; nenhum controle modificado ou diagnóstico falho repetido. Originais Security02–Security04 seguem ausentes; handoff é fonte secundária. Segurança operacional, composição criptográfica, prova de refinamento, paridade integral, desempenho e distribuição confiável ainda não demonstrados: NOT_PROVEN. Ensaios futuros NOT_RUN. Os critérios em SECURITY_GATE_CRITERIA não autorizam execução.
+## Bloqueios remanescentes
+
+| Achado | Estado e pendência |
+| --- | --- |
+| `Q-RECONFIG` | **`OPEN/P1`**. No contraexemplo analítico, uma testemunha honesta persiste `FREEZE_VOTED` sem que o `FREEZE` seja decidido. Em outra view, um ramo incompatível pode ser decidido, mas a testemunha congelada fica impedida de votar nele. Se a bizantina retiver seus votos, restam duas honestas disponíveis, abaixo do quórum de três, mesmo após a rede se recuperar. A adaptação `FREEZE–INSTALL–ACTIVATE` segue bloqueada para aprovação técnica até demonstrar segurança e progresso ou ser submetida à deliberação do CEO sobre a parte dependente. |
+| `Q-PACE` | Aberto. Especificar avanço e sincronização entre views, relógios e limites, preservando os locks e demonstrando progresso após o sincronismo da rede. |
+| `Q-RECOVER` | Aberto. Demonstrar recuperação íntegra de votos e locks e impedir voto por réplicas restauradas de backups antigos ou por clones, ou especificar substituição segura. |
+| `Q-BOOT/FRESH` | Aberto. Sustentar o bootstrap e a atualidade após perda das referências recentes e explicitar o modelo de comprometimento de chaves de épocas anteriores. |
+| `A3-BOOT/STATE` | Aberto. Demonstrar bootstrap externo, estado e tempo resistentes a rollback e tratamento de revogação e comprometimento por plataforma. |
+| `R35-COMP/OPS` | `NOT_PROVEN`. Faltam evidências de composição, interoperabilidade, custódia, backups, rotação e recuperação com o fator independente. |
+| `O36` | `NOT_PROVEN`. Faltam comprovação de independência operacional, operadores, capacidade, custos totais, SLA e plano de auditoria. |
+| Metadados `P2` | Pendente. Inventariar campos e inferências e submeter a exposição residual à autorização específica. |
+| Paridade financeira integral | `NOT_PROVEN`. Faltam fontes detalhadas e vetores independentes. Os originais técnicos Security02–Security04 seguem ausentes e o handoff é fonte secundária. |
+
+Segurança experimental, segurança operacional, prova de refinamento, desempenho, distribuição confiável e configuração integral efetiva permanecem `NOT_PROVEN`. Ensaios permanecem `NOT_RUN`. Os critérios falsificáveis de [SECURITY_GATE_CRITERIA.md](SECURITY_GATE_CRITERIA.md) ficam registrados para uma eventual etapa com autorização específica.
 
 ## Encerramento
 
-Registrar após revisão o parecer atual, problemas abertos, critérios falsificáveis, custos/hipóteses e Git final. Nenhum arquivo histórico será reescrito ou commit criado para encerrar este gate. MDL13/MDL14 continuam BLOCKED. Próximo gate somente será recomendado, sem avanço automático; aguardar CEO.
+O gate documental encerra com `DOCUMENTATION_REVIEWED_NOT_APPROVED`. Implementação, PoC, migrations e Security06 seguem sem autorização. MDL13 e MDL14 continuam `BLOCKED`.
+
+Para uma eventual Security05.3, recomenda-se ao CEO autorizar um gate documental focado em `Q-RECONFIG`. O primeiro passo seria especificar um refinamento ou uma transição publicada compatível com a direção aprovada, demonstrar segurança e progresso diante do `FREEZE` parcial e submeter a mudança material à revisão independente. A decisão sobre a abertura desse gate cabe ao CEO.
+
+---
+
+# Security05.3 — encerramento documental de Q-RECONFIG
+
+Em **05/11/2026**, o `dev-seguranca` concluiu a [revisão adversarial](INDEPENDENT_REVIEW.md#security053--parecer-adversarial-independente-de-05112026) depois da autoria pelo `arquiteto-seguranca`. Após uma correção localizada, o revisor [rechecou o candidato](INDEPENDENT_REVIEW.md#rechecagem-independente-do-candidato-revisado--05112026), SHA-256 `6E47E4C87D6DAFFC792A4ADF0BF0BBD1AD9E94ED85FF1A93C0585E7F44D6836A`. Resultado **`DOCUMENTATION_REVIEWED_NOT_APPROVED`**. **`Q-RECONFIG` permanece `OPEN/P1`** para aprovação técnica.
+
+## Candidato e alcance do resultado
+
+O [candidato documental](Q_RECONFIG.md) conserva o Basic HotStuff por época e define o corte no primeiro `RECONFIG` válido coberto por uma `commitQC` antiga. Votos parciais preservam os locks normais e a participação em views posteriores. Após o corte, o ramo antigo admite somente `PAD_E` sem efeito. A ativação vincula o histórico decidido a um genesis canônico, instalação verificável e decisão por quórum no novo conjunto. A comparação com DynaNet/D-HotStuff, Dyno e o refinamento do FREEZE anterior está na [análise de alternativas](Q_RECONFIG.md#2-alternativas-investigadas).
+
+A revisão confirmou, sob as hipóteses declaradas, a correção do traço de 05.2. Para o candidato, o argumento de safety combina finalização comparável no conjunto antigo, corte único e continuidade verificável do genesis novo. O argumento de liveness distingue recuperação da prova já conhecida por uma testemunha e nova decisão sobre um descendente sem efeito quando o líder retém a prova original. Requer três testemunhas honestas disponíveis na etapa pertinente, provas e bytes alcançáveis e uma view comum com líder correto após GST. Antes de haver prova antiga acessível, dois votos disponíveis não formam quórum.
+
+| Dimensão | Encerramento |
+| --- | --- |
+| Contraexemplo original | Correção documental confirmada condicionalmente para o traço de FREEZE parcial. |
+| Q53-A | Corrigido e rechecado no texto. Uma regra por ramo dá precedência a `PAD_E` após `RECONFIG` e exige prova de ativação de ancestral estrito para os comandos seguintes da nova época. |
+| Q53-B | O ataque com chaves aposentadas e a condição fail-closed foram especificados e rechecados. A proteção histórica segue `NOT_PROVEN`. |
+| Refinamento formal | `NOT_PROVEN`. Faltam composição da máquina entre épocas, persistência e recuperação monotônicas, sincronização de views e demonstração de disponibilidade de provas e dados. |
+| Validação experimental | `NOT_RUN`. Os casos falsificáveis da especificação e do parecer ficam para eventual gate autorizado. |
+| Segurança operacional | `NOT_PROVEN`. Permanecem pendentes fencing, retenção independente, bootstrap e atualidade, autoridade e custódia de configuração, metadados P2 e independência dos quatro domínios. |
+
+## Estado Git e decisão seguinte
+
+A rodada começou no worktree isolado em HEAD destacado no commit `c9d3e2cfdf3d4a0d6361eb8924fe7e6cb72fee1c`, com apenas o fechamento 05.2 acima fora do staging. O SHA-256 desse registro inicial era `26011A903B002555CC2974BEEF1DD803DB7684176ED2509E14751028227844CC`. O HEAD final é o mesmo. O delta desta rodada consiste neste encerramento, no novo candidato, no parecer independente com rechecagem e nas referências em sincronização e critérios. O fechamento 05.2 e o histórico das revisões foram preservados.
+
+Recomenda-se submeter ao CEO o refinamento e as obrigações de prova registradas, com prioridade para autenticação histórica e disponibilidade das provas e dos dados. A abertura de novo gate depende de decisão do CEO. Implementação, PoC, model-checking, migrations e Security06 seguem sem autorização. MDL13 e MDL14 continuam `BLOCKED`.
+
+---
+
+# Security05.4 — encerramento documental de autenticidade histórica
+
+Em **05/11/2026**, o `dev-seguranca` concluiu a [revisão adversarial](INDEPENDENT_REVIEW.md#security054--parecer-adversarial-independente-de-05112026) após a autoria pelo `arquiteto-seguranca`. A [rechecagem independente](INDEPENDENT_REVIEW.md#rechecagem-independente-do-candidato-revisado--security054) examinou o candidato revisado, SHA-256 `D4BF40ECCA48AAC06E1F7401D76A4227ECDF2E7F4442287CA15C0A1D3AE0D7CD`. Resultado **`DOCUMENTATION_REVIEWED_NOT_APPROVED`**. Q53-B tem defesa condicional e proteção histórica `NOT_PROVEN`. **`Q-RECONFIG` permanece `OPEN/P1`**.
+
+## Candidato e fronteiras da defesa
+
+O [candidato 05.4](Q_RECONFIG.md#security054--autenticidade-histórica-e-continuidade-verificável) mantém o corte por `RECONFIG` efetivamente decidido em W e propõe um registro BFT independente R com quórum 3-de-4. R autentica e registra o corte como `PENDING` antes da liberação da custódia das chaves antigas. Isso exige prova final verificável e recuperabilidade independente de suas dependências. `REF_ACTIVATE` vincula a sucessora ao corte e à ativação decidida no novo conjunto de W.
+
+Para confirmar um saldo, o cliente precisa de uma raiz externa e uma geração de R vigentes, extensão dos pisos confiáveis, `READ_BARRIER` decidida por W e `REF_CHECK` posterior vinculado à prova e a novo desafio. Precisa também materializar e validar o prefixo financeiro completo. A leitura vale no ponto da barreira. A1 continua referência complementar, A3 autentica a distribuição do cliente, e um backup íntegro ou recuperação de chaves serve de evidência histórica quando falta prova atual. Sem referência recente independente ou proteção histórica suficiente, as execuções genuína e fraudulenta podem ser indistinguíveis. O cliente bloqueia confirmação atual e promoção dependente.
+
+## Parecer e condições pendentes
+
+| Dimensão | Resultado da revisão e rechecagem |
+| --- | --- |
+| Q53-B | Defesa condicional na mesma geração fixa, vigente e historicamente autêntica de R, com custódia de W até a fronteira demonstrada. Proteção histórica `NOT_PROVEN`. |
+| Q54-A | Escopo delimitado. Consulta anterior e manifesto antigo são insuficientes durante a troca de geração de R. Encerramento, transferência das âncoras W e comprovação da vigência na posição da consulta seguem `NOT_PROVEN`. |
+| Q54-B | `NOOP_R` especificado e rechecado para recuperar decisão retida por prova de ancestralidade, sem comando de cliente. Progresso depende de q3, view comum, locks e dados disponíveis. |
+| Q54-C | Acesso histórico `FETCH_HIST` e elegibilidade `PROMOTE` foram separados. A promoção requer revalidação após materialização e vale na posição decidida. Fencing, revogação e recuperação após rollback continuam abertos. |
+| Refinamento formal e operação | `NOT_PROVEN`. Demonstrar composição W/R, Q-PACE, Q-RECOVER, disponibilidade de provas e envelopes, raiz externa, custódia, independência de operadores e proteção dos metadados P2. |
+| Validação experimental | `NOT_RUN`. Os [casos falsificáveis e obrigações de prova](Q_RECONFIG.md#0548-critérios-futuros-e-classificação) ficam registrados para eventual gate autorizado. |
+
+## Estado Git e próximo gate
+
+O worktree isolado começou e terminou com HEAD destacado em `c9d3e2cfdf3d4a0d6361eb8924fe7e6cb72fee1c`, com os mesmos quatro caminhos modificados e `Q_RECONFIG.md` fora do índice. A 05.4 acrescentou o candidato, o parecer, a rechecagem e este encerramento aos documentos existentes, além dos ponteiros de sincronização e critérios. Os prefixos 05.3 do candidato, dos pareceres e deste registro foram preservados.
+
+Recomenda-se submeter ao CEO a hipótese externa de confiança e disponibilidade em R antes de aprofundar a composição W/R. A troca de geração de R, a retenção auditável de provas e envelopes e as obrigações de Q-PACE/Q-RECOVER continuam pendentes. Implementação, PoC, model-checking, migrations e Security06 seguem sem autorização. MDL13 e MDL14 continuam `BLOCKED`.
