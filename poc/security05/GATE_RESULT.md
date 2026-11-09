@@ -102,3 +102,34 @@ Para confirmar um saldo, o cliente precisa de uma raiz externa e uma geração d
 O worktree isolado começou e terminou com HEAD destacado em `c9d3e2cfdf3d4a0d6361eb8924fe7e6cb72fee1c`, com os mesmos quatro caminhos modificados e `Q_RECONFIG.md` fora do índice. A 05.4 acrescentou o candidato, o parecer, a rechecagem e este encerramento aos documentos existentes, além dos ponteiros de sincronização e critérios. Os prefixos 05.3 do candidato, dos pareceres e deste registro foram preservados.
 
 Recomenda-se submeter ao CEO a hipótese externa de confiança e disponibilidade em R antes de aprofundar a composição W/R. A troca de geração de R, a retenção auditável de provas e envelopes e as obrigações de Q-PACE/Q-RECOVER continuam pendentes. Implementação, PoC, model-checking, migrations e Security06 seguem sem autorização. MDL13 e MDL14 continuam `BLOCKED`.
+
+---
+
+# Security05.5 e Security05.6 — encerramento da reconstrução documental
+
+Em 09/11/2026, a reconstrução a partir dos relatórios do CEO recebeu **`DOCUMENTATION_REVIEWED_NOT_APPROVED`** após nova revisão independente. O parecer cobre a fidelidade dos documentos recriados às fontes recebidas. A equivalência aos oito adendos originais relatados, seus hashes e os logs históricos seguem sem comprovação. A [proveniência e os hashes dos três insumos](SECURITY05_5_RECONSTRUCTION.md#proveniência-e-comparação-com-os-registros-encontrados) distinguem o relato recuperado dos arquivos verificáveis neste ambiente.
+
+O Back publicado em `codex/security05-documental-checkpoint@86e7018e39799072005fced68fce6da2c392bb3f` contém os registros até a 05.4 e as quatro fontes históricas. O Front publicado está em `codex/agent-team-design-skills@8c8c4f548023aadce4da1aadb0afe2778db0c455`. Os checkouts principais estavam em MDL13, Back `c3f975c3514173c47c4c1fd08affb64305f1efe7` e Front `1ca91f6ab6da2082ed1f041fe7a688bb2f23390d`, com alterações locais preservadas. A reconstrução usou o worktree isolado existente do Back no mesmo HEAD, com índice vazio.
+
+## Conteúdo reconstruído e diferenças verificadas
+
+- **05.5** recupera S1 como referência de investigação, a captura posterior de operadores e acessos administrativos de W e a avaliação condicional de S2/S3. As oito identidades de W/R não determinam oito organizações. Os custos são ilustrações históricas e seguem sem orçamento ou TCO comprovados. [Decisão executiva reconstruída](SECURITY05_5_RECONSTRUCTION.md)
+- **05.6, variante C** acrescenta uma autoridade candidata externa ao mecanismo da 05.4 para autenticar a geração vigente de R. `C4` e `C7` são alternativas pendentes. A sequência relatada é `C_BEGIN → R_SEAL → C_PREPARE → R_INSTALL/R_START → C_FINAL`. O adendo explicita guardas, evidências e condições de parada como obrigações de refinamento. E2EE, W 4/q3, R independente como candidato, A1 complementar, A3 independente, Shamir 3-de-5 com U e fail-closed seguem como fronteiras. [Especificação reconstruída](Q_RECONFIG.md#security056--autoridade-externa-c-reconstrução-documental)
+- **Variante local E/K/T** foi encontrada antes da autoria em `R_TRUST_ROOT.md` e nos adendos anteriores deste arquivo e do parecer. Seus Q56-A/B/C tratam de fontes de tempo restauradas, tempo no ato efetivo e abertura de R. Os Q56-A–E da variante C designam outros achados. Os conteúdos anteriores foram preservados e nenhum parecer foi transferido entre variantes.
+
+## Revisão, estado e próximo ponto de decisão
+
+Duas instâncias genéricas distintas atuaram em sequência, com os perfis integrais nominais `arquiteto-seguranca` e `dev-seguranca`. O runtime disponível não expôs `agent_type`. A separação entre instâncias foi observada e o enforcement das restrições por papel permanece `NOT_ENFORCED`. O [novo parecer](INDEPENDENT_REVIEW.md) identifica pelos hashes o registro 05.5 e o adendo C que foram efetivamente revisados.
+
+Q56-A–E da variante C permanecem **abertos**. A revisão também registrou que uma R aposentada comprometida pode forjar um recibo com posição numericamente anterior ao selo, que um limiar de assinaturas sem decisão ordenada admite conflitos e que a transferência incompleta pode perder `PENDING`. A aceitação precisa demonstrar ancestralidade ao terminal e contexto da consulta. Perda definitiva de quórum ou evidência pode bloquear o progresso.
+
+| Dimensão | Estado |
+| --- | --- |
+| Reconstrução documental | `RECONSTRUCTED_FROM_CEO_REPORT_2026-11-09` |
+| Nova revisão documental | `DOCUMENTATION_REVIEWED_NOT_APPROVED` quanto à fidelidade às fontes recuperadas |
+| Refinamento formal, proteção histórica e segurança operacional | `NOT_PROVEN`. `Q-RECONFIG OPEN/P1`. |
+| Validação experimental | `NOT_RUN`. |
+
+No início havia `GATE_RESULT.md` e `INDEPENDENT_REVIEW.md` modificados e `R_TRUST_ROOT.md` fora do índice. Ao final, o worktree conserva o mesmo HEAD e acrescenta o registro 05.5, o adendo de `Q_RECONFIG.md`, o novo parecer e este encerramento, todos fora do staging. As quatro fontes históricas, a variante local e os prefixos preexistentes foram preservados.
+
+Para uma eventual 05.7, recomenda-se ao CEO autorizar o refinamento documental de Q56-A, separando identidade de intenção, provas por etapa e finalização. A prova deve cobrir canonicalização, domínio, replay, transições concorrentes, crash, ancestralidade ao selo e perda de quórum. A abertura da etapa cabe ao CEO. Security06, MDL13 e MDL14 continuam bloqueados.
