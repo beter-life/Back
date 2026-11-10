@@ -160,3 +160,35 @@ C4 é a referência para dimensionar o menor esforço operacional. C7 eleva a in
 Recomenda-se, mediante nova decisão do CEO, delimitar um gate documental de custódia e horizonte de C, elegibilidade e revogação, retenção e reancoragem, com obrigações verificáveis de composição W/R/C e critérios de disponibilidade e custo para C4/C7. Até nova autorização, o ponto de retomada é este snapshot local revisado.
 
 O HEAD permanece `c4d71d5b70d6df50a8553084bf212a22ba47a6ac` em detached HEAD. Somente `Q_RECONFIG.md`, `INDEPENDENT_REVIEW.md` e este registro têm adendos locais. A preparação no índice está vazia. Implementação, PoC, model-checking, migrations, commits, publicação e início de outro gate permanecem fora da autorização.
+
+
+# Security05.8 — horizonte de confiança, recuperação catastrófica e composição W/R/C
+
+**DOCUMENTATION_REVIEWED_NOT_APPROVED · Q-RECONFIG OPEN/P1.** Gate documental da variante C sobre Q56-B–E. A referência Back publicada é `codex/security05-7-reviewed@95801cba5ca9f5921a3acb4a28b87c7b43eb9074`. A referência Front é `codex/agent-team-design-skills@8c8c4f548023aadce4da1aadb0afe2778db0c455`. Ambos os origins foram conferidos. BL-TEAM-1, os oito perfis, os checkouts MDL13, o worktree Security05.7, o material local E/K/T e as quatro fontes históricas foram preservados. A proveniência `RECONSTRUCTED_FROM_CEO_REPORT_2026-11-09` permanece com correspondência aos originais indeterminada.
+
+## Resultado e rechecagem independente
+
+O [modelo de horizonte](Q_RECONFIG.md#0581-q56-b--capacidades-efetivas-horizonte-e-sucessão-de-c) separa corrupção simultânea de capacidades cumulativas por contexto e cliente. C4 perde a garantia de interseção honesta com duas capacidades e admite QC autônoma com três. Em C7 os limiares são três e cinco. A janela depende de referências autenticadas e monotônicas, proteção efetiva durante todo o período de aceitação, extensão de pisos e tratamento de clientes offline e restaurados. Rotação e assinaturas forward-secure seguem candidatas, com condições próprias de custódia e de exclusão de cópias antigas utilizáveis.
+
+A [matriz de recuperação](Q_RECONFIG.md#0582-q56-c--fronteiras-de-recuperação-e-impossibilidade) distingue A, reaprender fato genuíno recuperável, B, produzir nova decisão com a retomada do quórum exato, e C, evidência insuficiente para demonstrar continuidade. Perder definitivamente R antiga antes de um selo genuíno recuperável pode impedir continuidade. Depois de FINAL, R pode habilitar tecnicamente se a prova e o status aplicável ainda forem admissíveis, enquanto a confirmação financeira segue sujeita a LIVE. A recuperação P4 dá acesso ao material de leitura dos envelopes disponíveis no cliente. A vigência e a continuidade conservam requisitos próprios.
+
+A [matriz W/R/C](Q_RECONFIG.md#0583-composição-wrc--invariantes-e-dependências) apresenta treze invariantes com mecanismos, hipóteses, contraexemplos, evidências e critérios falsificáveis. Q-PACE, Q-RECOVER, Q-BOOT/FRESH e A3-BOOT/STATE têm obrigações distintas. O inventário P2 inclui vínculos entre os planos pelos anexos das provas, tráfego, acesso a arquivos, backups e suporte. Uma release A3 maliciosa validamente distribuída pode ler dados no cliente apesar de provas W/R/C genuínas. Os critérios de Q56-E exigem evidência de controle efetivo de IdP, CI/CD, custódia, backup, suporte, WAL, clones e retenção.
+
+O [parecer adversarial](INDEPENDENT_REVIEW.md#security058--parecer-adversarial-independente) cobriu os treze cenários de ataque da missão. A [rechecagem independente](INDEPENDENT_REVIEW.md#rechecagem-independente-do-candidato-corrigido--security058) confirmou as correções documentais de **Q58-1 e Q58-2** sobre o candidato de SHA-256 `c9382ae027f1bb1828a140ca24db7069e552c60738744ad24c921985597596d9`. Q58-1 exige evidência independente da decisão e do fechamento genuíno para afirmar continuidade após perda de confiança. Q58-2 bloqueia os avanços afetados por perda ou incerteza de elegibilidade após BEGIN, preservando reserva, cerca, custódia e fatos autenticáveis. Os mecanismos concretos de reancoragem e ordenação de status seguem abertos. As correções documentais da 05.7 mantêm o alcance publicado, inclusive a ancestralidade de REF_CHECK condicionada ao terminal genuíno autenticado por C.
+
+| Classificação | Alcance |
+| --- | --- |
+| `POLICY_APPROVED` | P1–P6 preservados. E2EE e cálculo financeiro no cliente, Shamir 3-de-5 com U independente de 32 bytes, W 4/q3, P5 e independência operacional seguem obrigatórios. A1 é complementar, A3 verificável e S1 referência de investigação. |
+| `DOCUMENTED` | Modelo temporal, fronteiras de recuperação, obrigações compostas, inventário P2/A3, controles Q56-E, comparação de arquiteturas e cenários de custo. R 4/q3 permanece candidata. |
+| `DOCUMENTATION_REVIEWED` | Parecer e rechecagem vinculados a snapshots exatos. Q58-1 e Q58-2 corrigidos no recorte documental. |
+| `NOT_PROVEN` | Q56-B–E, horizonte e sucessão C, proteção histórica integral, status e custódia efetivos, refinamento formal, progresso composto, segurança operacional, privacidade residual, independência, TCO e SLA. |
+| `NOT_RUN` | Validação experimental, PoC, model-checking e exercícios operacionais. |
+| `BLOCKED` | Q-RECONFIG segue OPEN/P1. Security06, MDL13 e MDL14 permanecem bloqueados. Implementação, migrations, infraestrutura, contratação e deploy seguem fora deste gate. |
+
+## Decisões pendentes do CEO
+
+Usar C4 como referência de dimensionamento. Avaliar C7 sob a mesma ameaça quando houver evidência de sete domínios efetivos, benefício material da segunda falha tolerada e disponibilidade sustentável de cinco votantes aptos. O [cenário ilustrativo](Q_RECONFIG.md#0586-c4-c7-e-alternativas-sob-a-mesma-ameaça) soma US$ 199,60/mês para C4 e US$ 256,45/mês para C7 em computação e arquivo, usando premissas históricas e quantidades hipotéticas. Custódia, horas humanas, auditoria, suporte, A3, tráfego, retenção real e recuperação exigem cotações e evidência próprias. Logs testemunhados, carimbos de tempo, atualização autenticada e assinaturas evolutivas atendem funções parciais. A equivalência de uma substituição de R/C permanece por demonstrar.
+
+Para um próximo gate documental, mediante autorização do CEO, recomenda-se fixar requisitos de fonte externa, tempo e pisos por plataforma, revogação e sucessão, reancoragem e tratamento de ruptura, limites P2, retenção e independência comprovável. Essas escolhas antecedem a especificação do verificador e a demonstração da composição W/R/C. Seleção entre C4 e C7, autoridade externa, operadores, custodiantes e orçamento seguem pendentes.
+
+O worktree `.harness/tmp/security05.8-trust-horizon` começou limpo em detached HEAD `95801cba5ca9f5921a3acb4a28b87c7b43eb9074` e termina no mesmo HEAD, com adendos locais somente em `Q_RECONFIG.md`, `INDEPENDENT_REVIEW.md` e `GATE_RESULT.md`. O índice está vazio. Autoria e revisão usaram os perfis integrais em duas instâncias genéricas sequenciais pela exceção expressa do CEO para runtime sem `agent_type`. Controles técnicos por papel permanecem NOT_ENFORCED. Encerramento local, sem commit ou publicação.
