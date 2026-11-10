@@ -192,3 +192,45 @@ Usar C4 como referência de dimensionamento. Avaliar C7 sob a mesma ameaça quan
 Para um próximo gate documental, mediante autorização do CEO, recomenda-se fixar requisitos de fonte externa, tempo e pisos por plataforma, revogação e sucessão, reancoragem e tratamento de ruptura, limites P2, retenção e independência comprovável. Essas escolhas antecedem a especificação do verificador e a demonstração da composição W/R/C. Seleção entre C4 e C7, autoridade externa, operadores, custodiantes e orçamento seguem pendentes.
 
 O worktree `.harness/tmp/security05.8-trust-horizon` começou limpo em detached HEAD `95801cba5ca9f5921a3acb4a28b87c7b43eb9074` e termina no mesmo HEAD, com adendos locais somente em `Q_RECONFIG.md`, `INDEPENDENT_REVIEW.md` e `GATE_RESULT.md`. O índice está vazio. Autoria e revisão usaram os perfis integrais em duas instâncias genéricas sequenciais pela exceção expressa do CEO para runtime sem `agent_type`. Controles técnicos por papel permanecem NOT_ENFORCED. Encerramento local, sem commit ou publicação.
+
+---
+
+# Security05.9 — governança da confiança, reancoragem e decisões executivas
+
+**DOCUMENTATION_REVIEWED_NOT_APPROVED · Q-RECONFIG OPEN/P1.** Encerramento documental da variante C. Autoridade no pedido executivo Security05.9, SHA-256 `1c5ecba275c28e3255d3e9a1af21c8ab3a5e9bc9f62f43a1e9c9a64626882d19`. A rodada preserva P1–P6, A1 complementar e A3 verificável. W mantém 4/q3, R 4/q3 e C4/C7 permanecem candidatas e S1 é referência de investigação. Backend, SQL e Auth podem estar comprometidos simultaneamente. A proveniência `RECONSTRUCTED_FROM_CEO_REPORT_2026-11-09` continua com correspondência indeterminada aos originais. Os achados da variante E/K/T mantêm seu escopo histórico. [Proveniência](SECURITY05_5_RECONSTRUCTION.md)
+
+## Baseline, escopo e preservação
+
+| Verificação | Estado |
+| --- | --- |
+| Back publicado | `git ls-remote` confirmou `https://github.com/beter-life/Back.git`, branch `codex/security05-8-reviewed` no SHA `4a1b87401f253e8506984425b60f289521f61305`. A referência local `origin/codex/security05-8-reviewed` coincide. |
+| Back local na entrada | Reutilizado o worktree isolado `Back-security05.8`, inicialmente limpo, em detached HEAD no SHA obrigatório, com índice sem mudanças preparadas. O clone-base `Back` está na branch publicada e foi criado com `--no-checkout`. O status desse clone-base indica 238 deleções na comparação entre o HEAD e o índice vazio, decorrentes do estado preexistente sem checkout. O clone-base ficou fora da edição. |
+| Front de referência | `git ls-remote` confirmou `https://github.com/beter-life/Front.git`, branch `codex/agent-team-design-skills` em `8c8c4f548023aadce4da1aadb0afe2778db0c455`. Inspeção pelo objeto `FETCH_HEAD` em cópia temporária sem checkout. Nenhum checkout Front local foi localizado neste workspace. |
+| Governança | Blobs de `TEAM_POLICY.md` e `TEAM_CHECKPOINT.md` e a árvore dos oito perfis de `.codex/agents` coincidem entre os dois SHAs. Lidos AGENTS, governança, perfis integrais e as dez fontes obrigatórias em faixas pela coordenação e autoria. |
+| Back local na saída | Mesmo detached HEAD e índice sem mudanças preparadas. Um documento novo, `SECURITY05_9_EXECUTIVE_MATRIX.md`, e acréscimos a `INDEPENDENT_REVIEW.md` e `GATE_RESULT.md`. O delta fica local e fora do índice. Os demais documentos rastreados, fontes, refs e worktrees deste clone permanecem no estado inicial. MDL13 e E/K/T pertencem aos outros ambientes de origem, fora do checkout usado. |
+
+Risco 3. A primeira instância elaborou a matriz com o perfil integral `arquiteto-seguranca` (blob `c298ea3695bfa439d815af851538a92e547e280b`). A segunda instância, distinta e posterior, recebeu cópia congelada por hash e atuou com o perfil integral `dev-seguranca` (blob `9032e3e03414dd8ddbc9e69ab050abc9c740e7cf`). Ambas foram solicitadas em GPT‑6.1 Sol/high. O runtime não oferece `agent_type` nesta sessão, portanto foi aplicada a exceção expressa do CEO para duas instâncias genéricas sequenciais. A rechecagem usou a mesma instância revisora. Isolamento técnico por papel permanece `NOT_ENFORCED`.
+
+## Entregas e parecer
+
+A [matriz executiva](SECURITY05_9_EXECUTIVE_MATRIX.md) registra as seis funções de autoridade externa, as guardas de horizonte e pisos por plataforma, a política candidata de status e sucessão, cinco classes de recuperação, os inventários de exposição P2 e controle efetivo e a comparação de C4/C7 e alternativas por função. O [pacote D59-01–08](SECURITY05_9_EXECUTIVE_MATRIX.md#12-pacote-de-decisões-para-o-ceo) separa recomendações de decisões executivas requeridas. C4 serve para dimensionamento. C7 depende de ganho material sob a mesma ameaça, sete domínios efetivos, q5 sustentável e evidência de custo, disponibilidade, privacidade e recuperação. Nenhuma alternativa recebe equivalência demonstrada ou adoção.
+
+A [revisão independente](INDEPENDENT_REVIEW.md#security059--parecer-adversarial-independente-da-variante-c) examinou os 15 traços exigidos. Q59-1 acrescenta os novos observadores da provisão/reancoragem, da referência/tempo e da distribuição A3 à matriz P2. Q59-2 explicita que a confirmação as-of é exibida exclusivamente no cliente confiável. Q59-3 distingue o fato técnico ordenado do resultado financeiro contestado quando uma release maliciosa foi validamente distribuída. As três correções foram rechecadas no snapshot final. Sua resolução é documental e restrita ao recorte revisado. As dependências de P2, A3 e de proteção operacional seguem abertas.
+
+| Evidência dos bytes locais | SHA-256 |
+| --- | --- |
+| Matriz inicial, 95.060 bytes, UTF-8 LF | `658d24c384a544c619410c77b153dab4d4ed8ce4a91e4c768479918837a0dbad` |
+| Matriz final após rechecagem das correções, 101.049 bytes, UTF-8 LF | `dc40241da016012607d06421de302772482e5d2ebf8e5a58524916821d5b0552` |
+| Parecer com rechecagem, 211.827 bytes, UTF-8 CRLF | `359ad2b415532bd0325af53482c8dcfd0591aa0731749efd1786001e4d4268c8` |
+| Prefixo histórico preservado do parecer, 188.945 bytes | `d43585d291d63659fe05e02ee1781a3f20347a946dffeb88be46580d69b3c3a9` |
+| Prefixo histórico preservado deste registro, 32.150 bytes | `afbe565a4c0630d3e6018bf5c1a21ef242ce264236be869207825cdc71a7469f` |
+| Q_RECONFIG publicado e preservado, 276.920 bytes CRLF | `c9382ae027f1bb1828a140ca24db7069e552c60738744ad24c921985597596d9` |
+
+## Pendências e próximo gate
+
+- **Q58-1.** Continuidade requer evidência independente da decisão e do fechamento genuínos. Fonte, perfil concreto, sucessão de C e reancoragem após perda da própria autoridade seguem por demonstrar.
+- **Q58-2.** O status de BEGIN vale para a reserva. As etapas novas exigem prova de ordem e elegibilidade aplicáveis. Sem ponte verificável, conservar reserva e cerca e bloquear o avanço. A construção de ordem, a completude de status e a sucessão de seu emissor continuam por demonstrar.
+- **Q56-B–E** permanecem abertos. Proteção histórica, composição formal, segurança operacional, Q-PACE, Q-RECOVER, Q-BOOT/FRESH, A3-BOOT/STATE, independência, disponibilidade, P2 residual e TCO permanecem `NOT_PROVEN`. Validação experimental `NOT_RUN`.
+- **Security06, MDL13 e MDL14** continuam `BLOCKED`. Implementação, PoC, migrations, verificação formal, contratação, publicação e deploy ficam fora desta autorização.
+
+O próximo gate recomendado é a **especificação verificável da aceitação e da composição W/R/C**, após decisões executivas pertinentes e autorização específica do CEO. Os [critérios F59-01–09](SECURITY05_9_EXECUTIVE_MATRIX.md#1513-critérios-objetivos-para-um-gate-futuro-de-verificação-formal) identificam entradas, rejeições, controles positivos e evidência de saída para eventual verificação formal. A retomada fica no snapshot local revisado, aguardando a decisão do CEO.
